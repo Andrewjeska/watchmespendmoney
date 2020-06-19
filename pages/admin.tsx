@@ -16,16 +16,15 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey }) => {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
 
-  const onSuccess = useCallback(async (token, metadata) => {
-    // send token to server
-
-    //TODO: why tf does this console log have to be here for email to be correct
-    console.log(email);
-    await axios.post(`${baseURL}/api/plaid/get_access_token`, {
-      publicToken: token,
-      userName: email,
-    });
-  }, []);
+  const onSuccess = useCallback(
+    async (token, metadata) => {
+      await axios.post(`${baseURL}/api/plaid/get_access_token`, {
+        publicToken: token,
+        userName: email,
+      });
+    },
+    [email]
+  );
 
   useEffect(() => {
     // will run on first render, like componentDidMount
