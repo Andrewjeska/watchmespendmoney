@@ -1,4 +1,5 @@
 import axios from "axios";
+import envvar from "envvar";
 import { GetStaticProps } from "next";
 import React, { useCallback, useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
@@ -12,23 +13,28 @@ interface AdminProps {
 
 const Admin: React.FC<AdminProps> = ({ plaidPublicKey }) => {
   const [authenticated, setAuthenticated] = useState(false);
-
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
 
   const onSuccess = useCallback(async (token, metadata) => {
     // send token to server
+
+    //TODO: why tf does this console log have to be here for email to be correct
+    console.log(email);
     await axios.post(`${baseURL}/api/plaid/get_access_token`, {
       publicToken: token,
+      userName: email,
     });
   }, []);
 
   useEffect(() => {
     // will run on first render, like componentDidMount
     auth.onAuthStateChanged((user) => {
-      if (user)
+      if (user) {
         // User is signed in.
+        setEmail(user.email);
         setAuthenticated(true);
+      }
     });
   }, []);
 
@@ -52,7 +58,7 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey }) => {
   return (
     <div>
       <Container style={{ paddingTop: "10vh", paddingBottom: "10vh" }}>
-        {authenticated ? (
+        {authenticated && email ? (
           <button type="button" onClick={() => open()} disabled={!ready}>
             Connect to a bank
           </button>
@@ -82,10 +88,10 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey }) => {
   );
 };
 
-export const getStaticProp: GetStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   return {
     props: {
-      plaidPublicKey: process.env.PLAID_PUBLIC_KEY,
+      plaidPublicKey: envvar.string("PLAID_PUBLIC_KEY"),
     },
   };
 };
