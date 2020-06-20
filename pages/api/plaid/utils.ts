@@ -1,6 +1,6 @@
 import envvar from "envvar";
 import _ from "lodash";
-import { MongoClient } from "mongodb";
+import { Db, MongoClient } from "mongodb";
 import plaid from "plaid";
 import url from "url";
 
@@ -49,11 +49,11 @@ export const client = new plaid.Client(
 // ########### MongoDB setup ###########
 
 // Create cached connection variable
-let cachedDb = null;
+let cachedDb: Db | null = null;
 
 // A function for connecting to MongoDB,
 // taking a single parameter of the connection string
-export async function connectToDatabase(uri: string) {
+export async function connectToDatabase(uri: string): Promise<Db> {
   // If the database connection is cached,
   // use it instead of creating a new connection
   if (cachedDb) {
@@ -68,7 +68,10 @@ export async function connectToDatabase(uri: string) {
 
   // Select the database through the connection,
   // using the database path of the connection string
-  const db = await client.db(url.parse(uri).pathname.substr(1));
+  const parsedURI = url.parse(uri);
+  if (!parsedURI.pathname) throw new Error("MongoDB URI Malformed");
+
+  const db = await client.db(parsedURI.pathname.substr(1));
 
   // Cache the database connection and return the connection
   cachedDb = db;
@@ -76,13 +79,6 @@ export async function connectToDatabase(uri: string) {
 }
 
 // ########### Util functions ###########
-
-interface UserTransaction {
-  date: string;
-  amount: number | null;
-  description: string | null;
-  category: string;
-}
 
 export const processTransactions = (
   res: plaid.TransactionsResponse

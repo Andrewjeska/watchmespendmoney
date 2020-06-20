@@ -22,7 +22,7 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey }) => {
   });
 
   //TODO: is there a better way to encapsulate this
-  const onSuccess = async (token, meta) => {
+  const onSuccess = async (token: string, meta: any) => {
     await axios.post("/api/plaid/get_access_token", {
       publicToken: token,
       userName: emailRef.current,
@@ -42,7 +42,7 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey }) => {
   useEffect(() => {
     // will run on first render, like componentDidMount
     auth.onAuthStateChanged((user) => {
-      if (user) {
+      if (user && user.email) {
         // User is signed in.
         setEmail(user.email);
         setAuthenticated(true);

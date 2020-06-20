@@ -1,3 +1,4 @@
+import envvar from "envvar";
 import moment from "moment";
 import { NextApiRequest, NextApiResponse } from "next";
 import { prettyPrintError, prettyPrintInfo } from "../../../utils";
@@ -8,7 +9,7 @@ import { client, connectToDatabase, processTransactions } from "./utils";
 const user = "m.anderjaska@gmail.com";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  const db = await connectToDatabase(process.env.MONGODB_URI);
+  const db = await connectToDatabase(envvar.string("MONGODB_URI"));
   const collection = await db.collection("users");
   //TODO: how to do DB stuff right?
   const userObj = await collection.find({ user }).toArray();

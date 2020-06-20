@@ -8,7 +8,6 @@ const Home: React.FC = () => {
   const [transactions, setTransactions] = useState([]);
 
   const fetchTransactions = async () => {
-    // TODO: type this?
     try {
       const res = await axios.get("/api/plaid/transactions");
       setTransactions(res.data.transactions);
@@ -34,12 +33,12 @@ const Home: React.FC = () => {
       <Container style={{ paddingTop: "10vh", paddingBottom: "10vh" }} text>
         <Grid divided="vertically">
           <Grid.Row>
-            <Header as="h1">Watch me spend money</Header>
+            <Header as="h1">Watch me spend money.</Header>
             <p>
               {" "}
               I'm tracking my spending publicly so that I hold myself
               accountable. Feel free to roast me{" "}
-              <a href="m.anderjaska@gmail.com">here</a>
+              <a href="m.anderjaska@gmail.com">here.</a>
             </p>
           </Grid.Row>
           <Grid.Row>
@@ -55,7 +54,7 @@ const Home: React.FC = () => {
               </Table.Header>
               <Table.Body>
                 {transactions.length > 0
-                  ? _.map(transactions, (t, i) => {
+                  ? _.map(transactions, (t: UserTransaction, i: number) => {
                       return (
                         <Table.Row key={`${t.amount} ${i}`}>
                           <Table.Cell>{t.date}</Table.Cell>

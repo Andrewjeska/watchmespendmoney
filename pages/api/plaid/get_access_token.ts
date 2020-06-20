@@ -1,3 +1,4 @@
+import envvar from "envvar";
 import { NextApiRequest, NextApiResponse } from "next";
 import { prettyPrintError, prettyPrintInfo } from "../../../utils";
 import { client, connectToDatabase } from "./utils";
@@ -7,7 +8,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   var userName = req.body.userName;
   prettyPrintInfo(req.body);
 
-  const db = await connectToDatabase(process.env.MONGODB_URI);
+  const db = await connectToDatabase(envvar.string("MONGODB_URI"));
   const collection = await db.collection("users");
 
   client.exchangePublicToken(publicToken, async (error, tokenResponse) => {
