@@ -4,7 +4,7 @@ import { MongoClient } from "mongodb";
 import plaid from "plaid";
 import url from "url";
 
-// Plaid client setup
+// ########### Plaid client setup ###########
 
 export const PLAID_CLIENT_ID = envvar.string("PLAID_CLIENT_ID");
 export const PLAID_SECRET = envvar.string("PLAID_SECRET");
@@ -46,7 +46,7 @@ export const client = new plaid.Client(
   }
 );
 
-// MongoDB setup
+// ########### MongoDB setup ###########
 
 // Create cached connection variable
 let cachedDb = null;
@@ -75,7 +75,7 @@ export async function connectToDatabase(uri: string) {
   return db;
 }
 
-// Util functions
+// ########### Util functions ###########
 
 interface UserTransaction {
   date: string;

@@ -1,0 +1,23 @@
+{
+  "env": {
+    "PLAID_PUBLIC_KEY": "@plaid-public-key",
+    "PLAID_CLIENT_ID": "@plaid-client-id",
+    "PLAID_SECRET": "@plaid-secret",
+    "PLAID_PRODUCTS": "transactions",
+    "PLAID_COUNTRY_CODES": "US",
+    "PLAID_ENV": "sandbox",
+    "MONGODB_URI": "@mongodb-uri"
+  },
+  "build": {
+    "env": {
+      "PLAID_PUBLIC_KEY": "@plaid-public-key",
+      "NEXT_PUBLIC_FIREBASE_API_KEY": "@firebase-api-key",
+      "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "watchmespendmoney-d69c1.firebaseapp.com",
+      "NEXT_PUBLIC_FIREBASE_DATABASE_URL": "https://watchmespendmoney-d69c1.firebaseio.com",
+      "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "watchmespendmoney-d69c1",
+      "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "watchmespendmoney-d69c1.appspot.com",
+      "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "122259965210",
+      "NEXT_PUBLIC_FIREBASE_APP_ID": "1:122259965210:web:8f392e7bd75a3fd860d8a3"
+    }
+  }
+}

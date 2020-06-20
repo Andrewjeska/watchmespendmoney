@@ -2,7 +2,6 @@ import axios from "axios";
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import { Container, Grid, Header, Table } from "semantic-ui-react";
-import { baseURL } from "../common/constants";
 
 const Home: React.FC = () => {
   const [authenticated, setAuthenticated] = useState(true);
@@ -11,7 +10,7 @@ const Home: React.FC = () => {
   const fetchTransactions = async () => {
     // TODO: type this?
     try {
-      const res = await axios.get(`${baseURL}/api/plaid/transactions`);
+      const res = await axios.get("/api/plaid/transactions");
       setTransactions(res.data.transactions);
     } catch (err) {
       setAuthenticated(false);
@@ -32,12 +31,7 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      <Container
-        style={{ paddingTop: "10vh", paddingBottom: "10vh" }}
-        // textAlign="center"
-
-        text
-      >
+      <Container style={{ paddingTop: "10vh", paddingBottom: "10vh" }} text>
         <Grid divided="vertically">
           <Grid.Row>
             <Header as="h1">Watch me spend money</Header>
