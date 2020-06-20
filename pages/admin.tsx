@@ -1,7 +1,7 @@
 import axios from "axios";
 import envvar from "envvar";
 import { GetStaticProps } from "next";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 import { Button, Container, Form } from "semantic-ui-react";
 import { auth } from "../utils/firebase";
@@ -15,22 +15,26 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey }) => {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
 
+  // this a little dumb but we have to do it like this
+  const emailRef = useRef(email);
+  useEffect(() => {
+    emailRef.current = email;
+  });
+
   //TODO: is there a better way to encapsulate this
-  const onSuccess = (email) => {
-    return async (token, meta) => {
-      await axios.post("/api/plaid/get_access_token", {
-        publicToken: token,
-        userName: email,
-      });
-    };
+  const onSuccess = async (token, meta) => {
+    await axios.post("/api/plaid/get_access_token", {
+      publicToken: token,
+      userName: emailRef.current,
+    });
   };
 
-  const config = {
+  var config = {
     clientName: "watchmespendmoney",
     env: "sandbox",
     product: ["auth", "transactions"],
     publicKey: plaidPublicKey,
-    onSuccess: onSuccess(email),
+    onSuccess,
   };
 
   const { open, ready, error } = usePlaidLink(config);
@@ -48,6 +52,8 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey }) => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    console.log("handle submit");
+    console.log(email);
     auth.signInWithEmailAndPassword(email, pw).catch((error) => {
       console.error(error.message);
     });
