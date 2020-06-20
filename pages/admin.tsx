@@ -15,43 +15,44 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey }) => {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
 
-  const onSuccess = async (token, metadata) => {
-    await axios.post("/api/plaid/get_access_token", {
-      publicToken: token,
-      userName: email,
-    });
+  //TODO: is there a better way to encapsulate this
+  const onSuccess = (email) => {
+    return async (token, meta) => {
+      await axios.post("/api/plaid/get_access_token", {
+        publicToken: token,
+        userName: email,
+      });
+    };
   };
-
-  useEffect(() => {
-    // will run on first render, like componentDidMount
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        // User is signed in.
-        console.log("on auth state changed");
-        console.log(user.email);
-        setEmail(user.email);
-        setAuthenticated(true);
-      }
-    });
-  }, []);
 
   const config = {
     clientName: "watchmespendmoney",
     env: "sandbox",
     product: ["auth", "transactions"],
     publicKey: plaidPublicKey,
-    onSuccess,
+    onSuccess: onSuccess(email),
   };
+
+  const { open, ready, error } = usePlaidLink(config);
+
+  useEffect(() => {
+    // will run on first render, like componentDidMount
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in.
+        setEmail(user.email);
+        setAuthenticated(true);
+      }
+    });
+  }, []);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log(email);
     auth.signInWithEmailAndPassword(email, pw).catch((error) => {
       console.error(error.message);
     });
   };
 
-  const { open, ready, error } = usePlaidLink(config);
   //TODO: layout component
   return (
     <div>
