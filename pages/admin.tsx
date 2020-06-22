@@ -98,6 +98,7 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey, plaidEnv }) => {
 };
 
 export const getStaticProps: GetStaticProps = async () => {
+  // this runs server-side
   return {
     props: {
       plaidPublicKey: envvar.string("PLAID_PUBLIC_KEY"),
