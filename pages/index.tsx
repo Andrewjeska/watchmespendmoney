@@ -58,7 +58,7 @@ const Home: React.FC = () => {
                       return (
                         <Table.Row key={`${t.amount} ${i}`}>
                           <Table.Cell>{t.date}</Table.Cell>
-                          <Table.Cell>{t.amount}</Table.Cell>
+                          <Table.Cell>{t.amount?.toFixed(2)}</Table.Cell>
                           <Table.Cell>{t.description}</Table.Cell>
                           <Table.Cell>{t.category}</Table.Cell>
                         </Table.Row>
