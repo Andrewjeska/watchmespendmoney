@@ -12,6 +12,7 @@
   "build": {
     "env": {
       "PLAID_PUBLIC_KEY": "@plaid-public-key",
+      "PLAID_ENV": "development",
       "NEXT_PUBLIC_FIREBASE_API_KEY": "@firebase-api-key",
       "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "watchmespendmoney-d69c1.firebaseapp.com",
       "NEXT_PUBLIC_FIREBASE_DATABASE_URL": "https://watchmespendmoney-d69c1.firebaseio.com",
