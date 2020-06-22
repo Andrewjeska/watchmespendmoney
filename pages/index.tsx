@@ -38,7 +38,7 @@ const Home: React.FC = () => {
               {" "}
               I'm tracking my spending publicly so that I hold myself
               accountable. Feel free to roast me{" "}
-              <a href="m.anderjaska@gmail.com">here.</a>
+              <a href="mailto:m.anderjaska@gmail.com">here.</a>
             </p>
           </Grid.Row>
           <Grid.Row>
