@@ -2,11 +2,12 @@
   "env": {
     "PLAID_PUBLIC_KEY": "@plaid-public-key",
     "PLAID_CLIENT_ID": "@plaid-client-id",
-    "PLAID_SECRET": "@plaid-secret",
+    "PLAID_SECRET": "@plaid-secret-dev",
     "PLAID_PRODUCTS": "transactions",
     "PLAID_COUNTRY_CODES": "US",
-    "PLAID_ENV": "sandbox",
-    "MONGODB_URI": "@mongodb-uri"
+    "PLAID_ENV": "development",
+    "MONGODB_URI": "@mongodb-uri",
+    "LAST_FOUR": "@csr-last-four"
   },
   "build": {
     "env": {

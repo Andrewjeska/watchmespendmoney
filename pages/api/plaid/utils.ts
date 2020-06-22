@@ -86,9 +86,11 @@ export const processTransactions = (
   // TODO: we should have a a list of connected accounts for a user somehow
   const accountId = _.find(
     res.accounts,
-    (account: plaid.Account) => account.name === "Plaid Credit Card"
+    (account: plaid.Account) => account.mask === envvar.string("LAST_FOUR")
   )?.account_id;
   if (!accountId) throw new Error("Account Not Available");
+
+  const categoryFilters = ["Personal Care"];
 
   return (
     _(res.transactions)
@@ -97,6 +99,9 @@ export const processTransactions = (
       .filter(
         (t: plaid.Transaction): boolean =>
           t.transaction_type === "digital" || t.transaction_type === "place"
+      )
+      .reject((t: plaid.Transaction): boolean =>
+        _.some(t.category, (cat) => categoryFilters.includes(cat))
       )
       .map((t: plaid.Transaction): UserTransaction | null => {
         if (t.name && t.amount && t.category)

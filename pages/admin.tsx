@@ -8,9 +8,10 @@ import { auth } from "../utils/firebase";
 
 interface AdminProps {
   plaidPublicKey: string;
+  plaidEnv: string;
 }
 
-const Admin: React.FC<AdminProps> = ({ plaidPublicKey }) => {
+const Admin: React.FC<AdminProps> = ({ plaidPublicKey, plaidEnv }) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
@@ -31,7 +32,7 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey }) => {
 
   var config = {
     clientName: "watchmespendmoney",
-    env: "sandbox",
+    env: plaidEnv,
     product: ["auth", "transactions"],
     publicKey: plaidPublicKey,
     onSuccess,
@@ -100,6 +101,7 @@ export const getStaticProps: GetStaticProps = async () => {
   return {
     props: {
       plaidPublicKey: envvar.string("PLAID_PUBLIC_KEY"),
+      plaidEnv: envvar.string("PLAID_ENV"),
     },
   };
 };
