@@ -109,7 +109,7 @@ export const processTransactions = (
             date: t.date,
             amount: t.amount,
             description: t.name,
-            category: t.category[0],
+            category: t.category[t.category.length - 1],
           };
         return null;
       })

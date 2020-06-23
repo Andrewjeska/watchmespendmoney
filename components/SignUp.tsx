@@ -10,7 +10,7 @@ const SignUp: React.FC = () => {
     <MailchimpSubscribe
       url={url}
       render={({ subscribe, status, message }) => (
-        <SemanticForm onSubmit={subscribe} status={status} />
+        <SemanticForm onSubmit={subscribe} status={status} message={message} />
       )}
     />
   );
@@ -19,9 +19,14 @@ const SignUp: React.FC = () => {
 interface SemFormProps {
   onSubmit: (data: EmailFormFields) => void;
   status: "success" | "error" | "sending" | null;
+  message: string | null;
 }
 
-const SemanticForm: React.FC<SemFormProps> = ({ onSubmit, status }) => {
+const SemanticForm: React.FC<SemFormProps> = ({
+  onSubmit,
+  status,
+  message,
+}) => {
   const [email, setEmail] = useState("");
   return (
     <div>
@@ -30,12 +35,18 @@ const SemanticForm: React.FC<SemFormProps> = ({ onSubmit, status }) => {
           {status === "success" && (
             <span style={{ marginRight: "1vw" }}>Thanks! </span>
           )}
+          {status === "error" && message && (
+            <div
+              style={{ color: "red" }}
+              dangerouslySetInnerHTML={{ __html: message }}
+            />
+          )}
           <Form.Input
             placeholder="hello@there.com"
             onChange={(e) => setEmail(e.target.value)}
           />
           <Button primary onClick={() => onSubmit({ EMAIL: email })}>
-            Interested?
+            Save fat stacks now!
           </Button>
         </Form.Group>
       </Form>

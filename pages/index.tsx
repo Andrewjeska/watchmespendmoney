@@ -40,16 +40,16 @@ const Home: React.FC = () => {
             </Grid.Row>
             <Grid.Row>
               <p>
-                I'm tracking my spending publicly so that I hold myself
-                accountable. Feel free to roast me{" "}
-                <a href="mailto:m.anderjaska@gmail.com">here.</a>
+                Hi! My name's Michael Anderjaska. I'm just a guy who's really
+                into saving money. My expenses are public for the world to see.
+                Feel free to roast me for stupid purchases{" "}
+                <a href="https://www.facebook.com/groups/958669324568709/">
+                  here.
+                </a>
               </p>
             </Grid.Row>
-            <Grid.Row>
-              <a href="https://medium.com/@anderjaska/how-i-save-money-public-shaming-456d95fa06">
-                Why am I doing this?
-              </a>
-            </Grid.Row>
+
+            <Grid.Row>Want to try this for yourself?</Grid.Row>
             <Grid.Row>
               <SignUp />
             </Grid.Row>
@@ -71,7 +71,7 @@ const Home: React.FC = () => {
                   {_.map(transactions, (t: UserTransaction, i: number) => (
                     <Table.Row key={`${t.amount} ${i}`}>
                       <Table.Cell>{moment(t.date).format("MM/DD")}</Table.Cell>
-                      <Table.Cell>{t.amount?.toFixed(2)}</Table.Cell>
+                      <Table.Cell>${t.amount?.toFixed(2)}</Table.Cell>
                       <Table.Cell>{t.description}</Table.Cell>
                       <Table.Cell>{t.category}</Table.Cell>
                     </Table.Row>
@@ -85,6 +85,9 @@ const Home: React.FC = () => {
         </Grid>
         {transactions.length > 0 && (
           <Grid container textAlign="center">
+            <a href="https://medium.com/@anderjaska/how-i-save-money-public-shaming-456d95fa06">
+              Learn more about my approach
+            </a>
             <Grid.Row>
               <SignUp />
             </Grid.Row>
