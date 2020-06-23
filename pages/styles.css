@@ -35,3 +35,10 @@
 .row > img {
   margin-right: 15px;
 }
+
+@media (max-width: 425px) {
+  .container {
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+}

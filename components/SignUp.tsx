@@ -34,7 +34,7 @@ const SemanticForm: React.FC<SemFormProps> = ({ onSubmit, status }) => {
             placeholder="hello@there.com"
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Button onClick={() => onSubmit({ EMAIL: email })}>
+          <Button primary onClick={() => onSubmit({ EMAIL: email })}>
             Interested?
           </Button>
         </Form.Group>

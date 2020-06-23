@@ -1,5 +1,6 @@
 import axios from "axios";
 import _ from "lodash";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Container, Grid, Header, Loader, Table } from "semantic-ui-react";
 import SignUp from "../components/SignUp";
@@ -33,21 +34,26 @@ const Home: React.FC = () => {
     <div>
       <Container style={{ paddingTop: "10vh" }} text>
         <Grid divided="vertically">
-          <Grid.Row>
-            <Header as="h1">Watch me spend money.</Header>
-            <p>
-              {" "}
-              I'm tracking my spending publicly so that I hold myself
-              accountable. Feel free to roast me{" "}
-              <a href="mailto:m.anderjaska@gmail.com">here.</a>
-            </p>
-            <a href="https://medium.com/@anderjaska/how-i-save-money-public-shaming-456d95fa06">
-              Why am I doing this?
-            </a>
-            <Grid.Column floated="right" width={4}></Grid.Column>
-            {/* <Grid.Column floated="right" width={2}></Grid.Column> */}
-            <SignUp />
-          </Grid.Row>
+          <Grid textAlign="center">
+            <Grid.Row>
+              <Header as="h1">Watch me spend money.</Header>
+            </Grid.Row>
+            <Grid.Row>
+              <p>
+                I'm tracking my spending publicly so that I hold myself
+                accountable. Feel free to roast me{" "}
+                <a href="mailto:m.anderjaska@gmail.com">here.</a>
+              </p>
+            </Grid.Row>
+            <Grid.Row>
+              <a href="https://medium.com/@anderjaska/how-i-save-money-public-shaming-456d95fa06">
+                Why am I doing this?
+              </a>
+            </Grid.Row>
+            <Grid.Row>
+              <SignUp />
+            </Grid.Row>
+          </Grid>
 
           <Grid.Row>
             <Header as="h2">June</Header>
@@ -64,7 +70,7 @@ const Home: React.FC = () => {
                 <Table.Body>
                   {_.map(transactions, (t: UserTransaction, i: number) => (
                     <Table.Row key={`${t.amount} ${i}`}>
-                      <Table.Cell>{t.date}</Table.Cell>
+                      <Table.Cell>{moment(t.date).format("MM/DD")}</Table.Cell>
                       <Table.Cell>{t.amount?.toFixed(2)}</Table.Cell>
                       <Table.Cell>{t.description}</Table.Cell>
                       <Table.Cell>{t.category}</Table.Cell>
@@ -78,9 +84,9 @@ const Home: React.FC = () => {
           </Grid.Row>
         </Grid>
         {transactions.length > 0 && (
-          <Grid container textAlign="center">
+          <Grid.Row textAlign="center">
             <SignUp />
-          </Grid>
+          </Grid.Row>
         )}
       </Container>
     </div>
