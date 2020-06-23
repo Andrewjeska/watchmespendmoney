@@ -1,7 +1,8 @@
 import axios from "axios";
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
-import { Container, Grid, Header, Table } from "semantic-ui-react";
+import { Container, Grid, Header, Loader, Table } from "semantic-ui-react";
+import SignUp from "../components/SignUp";
 
 const Home: React.FC = () => {
   const [authenticated, setAuthenticated] = useState(true);
@@ -30,7 +31,7 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      <Container style={{ paddingTop: "10vh", paddingBottom: "10vh" }} text>
+      <Container style={{ paddingTop: "10vh" }} text>
         <Grid divided="vertically">
           <Grid.Row>
             <Header as="h1">Watch me spend money.</Header>
@@ -40,35 +41,47 @@ const Home: React.FC = () => {
               accountable. Feel free to roast me{" "}
               <a href="mailto:m.anderjaska@gmail.com">here.</a>
             </p>
+            <a href="https://medium.com/@anderjaska/how-i-save-money-public-shaming-456d95fa06">
+              Why am I doing this?
+            </a>
+            <Grid.Column floated="right" width={4}></Grid.Column>
+            {/* <Grid.Column floated="right" width={2}></Grid.Column> */}
+            <SignUp />
           </Grid.Row>
+
           <Grid.Row>
             <Header as="h2">June</Header>
-            <Table celled>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell>Date</Table.HeaderCell>
-                  <Table.HeaderCell>Amount</Table.HeaderCell>
-                  <Table.HeaderCell>Description</Table.HeaderCell>
-                  <Table.HeaderCell>Category</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {transactions.length > 0
-                  ? _.map(transactions, (t: UserTransaction, i: number) => {
-                      return (
-                        <Table.Row key={`${t.amount} ${i}`}>
-                          <Table.Cell>{t.date}</Table.Cell>
-                          <Table.Cell>{t.amount?.toFixed(2)}</Table.Cell>
-                          <Table.Cell>{t.description}</Table.Cell>
-                          <Table.Cell>{t.category}</Table.Cell>
-                        </Table.Row>
-                      );
-                    })
-                  : null}
-              </Table.Body>
-            </Table>
+            {transactions.length > 0 ? (
+              <Table celled>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell>Date</Table.HeaderCell>
+                    <Table.HeaderCell>Amount</Table.HeaderCell>
+                    <Table.HeaderCell>Description</Table.HeaderCell>
+                    <Table.HeaderCell>Category</Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {_.map(transactions, (t: UserTransaction, i: number) => (
+                    <Table.Row key={`${t.amount} ${i}`}>
+                      <Table.Cell>{t.date}</Table.Cell>
+                      <Table.Cell>{t.amount?.toFixed(2)}</Table.Cell>
+                      <Table.Cell>{t.description}</Table.Cell>
+                      <Table.Cell>{t.category}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            ) : (
+              <Loader active />
+            )}
           </Grid.Row>
         </Grid>
+        {transactions.length > 0 && (
+          <Grid container textAlign="center">
+            <SignUp />
+          </Grid>
+        )}
       </Container>
     </div>
   );
