@@ -84,9 +84,11 @@ const Home: React.FC = () => {
           </Grid.Row>
         </Grid>
         {transactions.length > 0 && (
-          <Grid.Row textAlign="center">
-            <SignUp />
-          </Grid.Row>
+          <Grid container textAlign="center">
+            <Grid.Row>
+              <SignUp />
+            </Grid.Row>
+          </Grid>
         )}
       </Container>
     </div>
