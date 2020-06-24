@@ -28,7 +28,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     startDate,
     endDate,
     {
-      count: 20,
+      count: 100,
       offset: 0,
     },
     (error, transactionsResponse) => {

@@ -10,6 +10,7 @@ import {
   Header,
   Loader,
 } from "semantic-ui-react";
+import { svgs } from "../common/imagery";
 import SignUp from "../components/SignUp";
 
 const Home: React.FC = () => {
@@ -68,13 +69,12 @@ const Home: React.FC = () => {
             {transactions.length > 0 ? (
               <Feed style={{ width: "100%" }}>
                 {_.map(transactions, (t: UserTransaction, i: number) => (
-                  // <Table.Row key={`${t.amount} ${i}`}>
-                  //   <Table.Cell>{moment(t.date).format("MM/DD")}</Table.Cell>
-                  //   <Table.Cell>${}</Table.Cell>
-                  //   <Table.Cell>{t.description}</Table.Cell>
-                  //   <Table.Cell>{t.category}</Table.Cell>
-                  // </Table.Row>
                   <Feed.Event>
+                    <Feed.Label>
+                      <div
+                        dangerouslySetInnerHTML={{ __html: svgs[t.category] }}
+                      ></div>
+                    </Feed.Label>
                     <Feed.Content>
                       <Feed.Summary>
                         <a href="https://twitter.com/anderjaska1">Michael</a>
@@ -88,19 +88,6 @@ const Home: React.FC = () => {
                 ))}
               </Feed>
             ) : (
-              // <Table celled>
-              //   <Table.Header>
-              //     <Table.Row>
-              //       <Table.HeaderCell>Date</Table.HeaderCell>
-              //       <Table.HeaderCell>Amount</Table.HeaderCell>
-              //       <Table.HeaderCell>Description</Table.HeaderCell>
-              //       <Table.HeaderCell>Category</Table.HeaderCell>
-              //     </Table.Row>
-              //   </Table.Header>
-              //   <Table.Body>
-              //
-              //   </Table.Body>
-              // </Table>
               <Loader active />
             )}
           </Grid.Row>

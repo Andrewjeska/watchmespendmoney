@@ -96,9 +96,8 @@ export const processTransactions = (
     _(res.transactions)
       // eslint-disable-next-line @typescript-eslint/camelcase
       .filter({ account_id: accountId })
-      .filter(
-        (t: plaid.Transaction): boolean =>
-          t.transaction_type === "digital" || t.transaction_type === "place"
+      .filter((t: plaid.Transaction): boolean =>
+        t.amount ? t.amount >= 0.0 : false
       )
       .reject((t: plaid.Transaction): boolean =>
         _.some(t.category, (cat) => categoryFilters.includes(cat))
