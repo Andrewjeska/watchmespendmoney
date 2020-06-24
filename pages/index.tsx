@@ -2,7 +2,14 @@ import axios from "axios";
 import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Container, Grid, Header, Loader, Table } from "semantic-ui-react";
+import {
+  Container,
+  Divider,
+  Feed,
+  Grid,
+  Header,
+  Loader,
+} from "semantic-ui-react";
 import SignUp from "../components/SignUp";
 
 const Home: React.FC = () => {
@@ -33,7 +40,7 @@ const Home: React.FC = () => {
   return (
     <div>
       <Container style={{ paddingTop: "10vh" }} text>
-        <Grid divided="vertically">
+        <Grid>
           <Grid textAlign="center">
             <Grid.Row>
               <Header as="h1">Watch me spend money.</Header>
@@ -53,41 +60,59 @@ const Home: React.FC = () => {
             <Grid.Row>
               <SignUp />
             </Grid.Row>
+            <Divider />
           </Grid>
 
           <Grid.Row>
-            <Header as="h2">June</Header>
+            {/* <Header as="h2">June</Header> */}
             {transactions.length > 0 ? (
-              <Table celled>
-                <Table.Header>
-                  <Table.Row>
-                    <Table.HeaderCell>Date</Table.HeaderCell>
-                    <Table.HeaderCell>Amount</Table.HeaderCell>
-                    <Table.HeaderCell>Description</Table.HeaderCell>
-                    <Table.HeaderCell>Category</Table.HeaderCell>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {_.map(transactions, (t: UserTransaction, i: number) => (
-                    <Table.Row key={`${t.amount} ${i}`}>
-                      <Table.Cell>{moment(t.date).format("MM/DD")}</Table.Cell>
-                      <Table.Cell>${t.amount?.toFixed(2)}</Table.Cell>
-                      <Table.Cell>{t.description}</Table.Cell>
-                      <Table.Cell>{t.category}</Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table>
+              <Feed style={{ width: "100%" }}>
+                {_.map(transactions, (t: UserTransaction, i: number) => (
+                  // <Table.Row key={`${t.amount} ${i}`}>
+                  //   <Table.Cell>{moment(t.date).format("MM/DD")}</Table.Cell>
+                  //   <Table.Cell>${}</Table.Cell>
+                  //   <Table.Cell>{t.description}</Table.Cell>
+                  //   <Table.Cell>{t.category}</Table.Cell>
+                  // </Table.Row>
+                  <Feed.Event>
+                    <Feed.Content>
+                      <Feed.Summary>
+                        <a href="https://twitter.com/anderjaska1">Michael</a>
+                        {` spent \$${t.amount?.toFixed(2)} at ${t.description}`}
+                        <Feed.Date>{moment(t.date).format("MM/DD")}</Feed.Date>
+                      </Feed.Summary>
+                      <Feed.Extra text>{`${t.category}`}</Feed.Extra>
+                      <Divider />
+                    </Feed.Content>
+                  </Feed.Event>
+                ))}
+              </Feed>
             ) : (
+              // <Table celled>
+              //   <Table.Header>
+              //     <Table.Row>
+              //       <Table.HeaderCell>Date</Table.HeaderCell>
+              //       <Table.HeaderCell>Amount</Table.HeaderCell>
+              //       <Table.HeaderCell>Description</Table.HeaderCell>
+              //       <Table.HeaderCell>Category</Table.HeaderCell>
+              //     </Table.Row>
+              //   </Table.Header>
+              //   <Table.Body>
+              //
+              //   </Table.Body>
+              // </Table>
               <Loader active />
             )}
           </Grid.Row>
         </Grid>
         {transactions.length > 0 && (
-          <Grid container textAlign="center">
-            <a href="https://medium.com/@anderjaska/how-i-save-money-public-shaming-456d95fa06">
-              Learn more about my approach
-            </a>
+          <Grid textAlign="center">
+            <Grid.Row>
+              <a href="https://medium.com/@anderjaska/how-i-save-money-public-shaming-456d95fa06">
+                Learn more about my approach
+              </a>
+            </Grid.Row>
+
             <Grid.Row>
               <SignUp />
             </Grid.Row>
