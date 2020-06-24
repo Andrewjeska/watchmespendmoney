@@ -1,14 +1,15 @@
+import envvar from "envvar";
 import React, { useState } from "react";
 import MailchimpSubscribe, { EmailFormFields } from "react-mailchimp-subscribe";
 import { Form } from "semantic-ui-react";
 
 const url =
-  "https://watchmespendmoney.us10.list-manage.com/subscribe/post?u=6e1744dabb23f9a55f6fb87b8&amp;id=fdede097e8";
+  "https://watchmespendmoney.us10.list-manage.com/subscribe/post?u=33597da28b16af5f987e0d21c&amp;id=2663625ea6";
 
 const SignUp: React.FC = () => {
   return (
     <MailchimpSubscribe
-      url={url}
+      url={envvar.string("NEXT_PUBLIC_MAILCHIMP_URL")}
       render={({ subscribe, status, message }) => (
         <SemanticForm onSubmit={subscribe} status={status} message={message} />
       )}
