@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MailchimpSubscribe, { EmailFormFields } from "react-mailchimp-subscribe";
-import { Button, Form } from "semantic-ui-react";
+import { Form } from "semantic-ui-react";
 
 const url =
   "https://watchmespendmoney.us10.list-manage.com/subscribe/post?u=6e1744dabb23f9a55f6fb87b8&amp;id=fdede097e8";
@@ -31,7 +31,7 @@ const SemanticForm: React.FC<SemFormProps> = ({
   return (
     <div>
       <Form>
-        <Form.Group inline>
+        <Form.Group widths="equal">
           {status === "success" && (
             <span style={{ marginRight: "1vw" }}>Thanks! </span>
           )}
@@ -45,9 +45,9 @@ const SemanticForm: React.FC<SemFormProps> = ({
             placeholder="hello@there.com"
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Button primary onClick={() => onSubmit({ EMAIL: email })}>
+          <Form.Button primary onClick={() => onSubmit({ EMAIL: email })}>
             Save fat stacks now!
-          </Button>
+          </Form.Button>
         </Form.Group>
       </Form>
     </div>

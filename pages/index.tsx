@@ -59,7 +59,9 @@ const Home: React.FC = () => {
 
             <Grid.Row>Want to try this for yourself?</Grid.Row>
             <Grid.Row>
-              <SignUp />
+              <Grid.Column>
+                <SignUp />
+              </Grid.Column>
             </Grid.Row>
             <Divider />
           </Grid>
@@ -101,7 +103,9 @@ const Home: React.FC = () => {
             </Grid.Row>
 
             <Grid.Row>
-              <SignUp />
+              <Grid.Column>
+                <SignUp />
+              </Grid.Column>
             </Grid.Row>
           </Grid>
         )}
