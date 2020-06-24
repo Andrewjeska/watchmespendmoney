@@ -28,27 +28,33 @@ const SemanticForm: React.FC<SemFormProps> = ({
   message,
 }) => {
   const [email, setEmail] = useState("");
+  const [alerted, setAlerted] = useState(false);
+
+  if (status === "sending" || !status) {
+    if (alerted) setAlerted(false);
+  } else {
+    if (!alerted) {
+      if (status === "success")
+        alert(
+          "Thanks for subscribing! Once the product is launched you'll be in the know!"
+        );
+      if (status === "error") alert(message);
+      setAlerted(true);
+    }
+  }
+
   return (
     <div>
       <Form>
-        <Form.Group widths="equal">
-          {status === "success" && (
-            <span style={{ marginRight: "1vw" }}>Thanks! </span>
-          )}
-          {status === "error" && message && (
-            <div
-              style={{ color: "red" }}
-              dangerouslySetInnerHTML={{ __html: message }}
-            />
-          )}
-          <Form.Input
-            placeholder="hello@there.com"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Form.Button primary onClick={() => onSubmit({ EMAIL: email })}>
-            Save fat stacks now!
-          </Form.Button>
-        </Form.Group>
+        {/* <Form.Group width="equal"> */}
+        <Form.Input
+          placeholder="hello@there.com"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Form.Button primary onClick={() => onSubmit({ EMAIL: email })}>
+          Save fat stacks now!
+        </Form.Button>
+        {/* </Form.Group> */}
       </Form>
     </div>
   );
