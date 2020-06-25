@@ -20,7 +20,7 @@
       "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "watchmespendmoney-d69c1.appspot.com",
       "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "122259965210",
       "NEXT_PUBLIC_FIREBASE_APP_ID": "1:122259965210:web:8f392e7bd75a3fd860d8a3",
-      "NEXT_PUBLIC_MAILCHIMP_URL": "https://watchmespendmoney.us10.list-manage.com/subscribe/post?u=7cfa3b1bfe6df76700af806f2&amp;id=56361589aa"
+      "NEXT_PUBLIC_EMAIL_SIGNUP": "https://emailoctopus.com/lists/589a8309-b670-11ea-a3d0-06b4694bee2a/forms/subscribe"
     }
   }
 }

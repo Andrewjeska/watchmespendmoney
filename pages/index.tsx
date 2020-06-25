@@ -3,6 +3,7 @@ import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
+  Button,
   Container,
   Divider,
   Feed,
@@ -60,7 +61,14 @@ const Home: React.FC = () => {
             <Grid.Row>Want to try this for yourself?</Grid.Row>
             <Grid.Row>
               <Grid.Column width={10}>
-                <SignUp />
+                {/* <SignUp /> */}
+                <Button
+                  primary
+                  onClick={() =>
+                    window.open(process.env.NEXT_PUBLIC_EMAIL_SIGNUP, "_blank")
+                  }
+                  content={"Save fat stacks now!"}
+                />
               </Grid.Column>
             </Grid.Row>
           </Grid>
