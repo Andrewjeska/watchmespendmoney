@@ -12,7 +12,6 @@ import {
   Loader,
 } from "semantic-ui-react";
 import { svgs } from "../common/imagery";
-import SignUp from "../components/SignUp";
 
 const Home: React.FC = () => {
   const [authenticated, setAuthenticated] = useState(true);
@@ -111,7 +110,13 @@ const Home: React.FC = () => {
 
             <Grid.Row>
               <Grid.Column width={10}>
-                <SignUp />
+                <Button
+                  primary
+                  onClick={() =>
+                    window.open(process.env.NEXT_PUBLIC_EMAIL_SIGNUP, "_blank")
+                  }
+                  content={"Save fat stacks now!"}
+                />
               </Grid.Column>
             </Grid.Row>
           </Grid>
