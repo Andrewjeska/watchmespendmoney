@@ -57,7 +57,14 @@ const Home: React.FC = () => {
               </p>
             </Grid.Row>
 
-            <Grid.Row>Want to try this for yourself?</Grid.Row>
+            <Grid.Row>
+              <p>
+                <b>watchmespendmoney</b> is an accountablity tool that keeps you
+                honest on your expenses by making them public. Stay updated on
+                development and be the first to know when the beta is released
+                by clicking the button below!
+              </p>
+            </Grid.Row>
             <Grid.Row>
               <Grid.Column width={10}>
                 {/* <SignUp /> */}
