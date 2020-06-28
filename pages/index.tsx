@@ -48,11 +48,8 @@ const Home: React.FC = () => {
               <p>
                 Hi! My name's Michael Anderjaska. I'm just a guy who's really
                 into saving money. My expenses are public for the world to see,
-                pulled from my bank accounts. Feel free to roast me for stupid
-                purchases{" "}
-                <a href="https://www.facebook.com/groups/958669324568709/">
-                  here.
-                </a>
+                pulled from my bank accounts. Feel free to roast me about my
+                purchases in the feed below.
               </p>
             </Grid.Row>
 
