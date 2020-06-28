@@ -46,7 +46,7 @@ const Transaction: React.FC<TransactionProps> = ({ transaction }) => {
 
   const [showReply, setShowReply] = useState(false);
   const [replyContent, setReplyContent] = useState("");
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
 
   const reply = async (text: string) => {
     try {
