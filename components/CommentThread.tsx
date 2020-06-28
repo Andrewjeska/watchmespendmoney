@@ -1,5 +1,4 @@
 import axios from "axios";
-import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Button, Comment, Form, Segment } from "semantic-ui-react";
@@ -80,7 +79,9 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta }) => {
             {showReply && (
               <Form style={{ marginTop: "1vh" }} reply>
                 <Form.TextArea
-                  onChange={(e) => setReplyContent(e.target.value)}
+                  onChange={(e) =>
+                    setReplyContent((e.target as HTMLTextAreaElement).value)
+                  }
                 />
                 <Button
                   content="Reply"

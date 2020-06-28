@@ -92,7 +92,11 @@ const Transaction: React.FC<TransactionProps> = ({ transaction }) => {
         </Feed.Meta>
         {showReply && (
           <Form style={{ marginTop: "1vh" }} reply>
-            <Form.TextArea onChange={(e) => setReplyContent(e.target.value)} />
+            <Form.TextArea
+              onChange={(e) =>
+                setReplyContent((e.target as HTMLTextAreaElement).value)
+              }
+            />
             <Button
               content="Reply"
               labelPosition="left"
