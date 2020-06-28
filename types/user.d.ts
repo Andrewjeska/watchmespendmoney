@@ -3,4 +3,5 @@ interface UserTransaction {
   amount: number | null;
   description: string | null;
   category: string;
+  id: string;
 }

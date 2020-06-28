@@ -1,17 +1,15 @@
 import axios from "axios";
 import _ from "lodash";
-import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
   Button,
   Container,
-  Divider,
   Feed,
   Grid,
   Header,
   Loader,
 } from "semantic-ui-react";
-import { svgs } from "../common/imagery";
+import Transaction from "../components/Transaction";
 
 const Home: React.FC = () => {
   const [authenticated, setAuthenticated] = useState(true);
@@ -80,26 +78,10 @@ const Home: React.FC = () => {
           </Grid>
 
           <Grid.Row>
-            {/* <Header as="h2">June</Header> */}
             {transactions.length > 0 ? (
               <Feed style={{ width: "100%" }}>
                 {_.map(transactions, (t: UserTransaction, i: number) => (
-                  <Feed.Event>
-                    <Feed.Label>
-                      <div
-                        dangerouslySetInnerHTML={{ __html: svgs[t.category] }}
-                      ></div>
-                    </Feed.Label>
-                    <Feed.Content>
-                      <Feed.Summary>
-                        <a href="https://twitter.com/anderjaska1">Michael</a>
-                        {` spent \$${t.amount?.toFixed(2)} at ${t.description}`}
-                        <Feed.Date>{moment(t.date).format("MM/DD")}</Feed.Date>
-                      </Feed.Summary>
-                      <Feed.Extra text>{`${t.category}`}</Feed.Extra>
-                      <Divider />
-                    </Feed.Content>
-                  </Feed.Event>
+                  <Transaction key={t.id} transaction={t} />
                 ))}
               </Feed>
             ) : (

@@ -42,3 +42,7 @@
     padding-right: 5%;
   }
 }
+
+.comment-meta {
+  margin: 0 0.3vw !important;
+}

@@ -1,8 +1,8 @@
 import envvar from "envvar";
 import moment from "moment";
 import { NextApiRequest, NextApiResponse } from "next";
-import { prettyPrintError, prettyPrintInfo } from "../../../utils";
-import { client, connectToDatabase, processTransactions } from "./utils";
+import { prettyPrintError } from "../../../utils";
+import { client, connectToDatabase, processTransactions } from "../utils";
 
 //TODO: generalize
 //Hard code my account info for mvp
@@ -13,7 +13,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const collection = await db.collection("users");
   //TODO: how to do DB stuff right?
   const userObj = await collection.find({ user }).toArray();
-  prettyPrintInfo(userObj[0]);
   const accessToken = userObj[0].accessToken;
 
   if (!accessToken)
@@ -22,7 +21,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
   const startDate = moment().startOf("month").format("YYYY-MM-DD");
-  const endDate = moment().endOf("month").format("YYYY-MM-DD");
+  const endDate = moment().format("YYYY-MM-DD");
   return client.getTransactions(
     accessToken,
     startDate,
@@ -38,7 +37,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           error,
         });
       }
-      prettyPrintInfo(transactionsResponse);
       return res.json({
         error: null,
         transactions: processTransactions(transactionsResponse),
