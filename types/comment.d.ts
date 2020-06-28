@@ -4,4 +4,6 @@ interface TransactionComment {
   text: string;
   transactionId?: string;
   parentId?: string;
+  user?: string;
+  profile?: string;
 }

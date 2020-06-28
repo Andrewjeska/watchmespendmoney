@@ -58,7 +58,11 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta }) => {
           <Comment.Content>
             {showComment && (
               <div>
-                <Comment.Author as="a">Anon</Comment.Author>
+                {meta.user ? (
+                  <a href={meta.profile}>{meta.user}</a>
+                ) : (
+                  <Comment.Author as="a">Anon</Comment.Author>
+                )}
                 <Comment.Metadata>
                   <div>{moment(meta.dateTime).format("MM/DD/YY h:mm a")}</div>
                 </Comment.Metadata>
