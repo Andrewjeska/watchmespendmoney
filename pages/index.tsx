@@ -44,11 +44,7 @@ const Home: React.FC = () => {
             <Grid.Row>
               <Header as="h1">Watch me spend money.</Header>
             </Grid.Row>
-            <Grid.Row>
-              <a href="https://www.buymeacoffee.com/anderjaska">
-                Buy me a coffee?
-              </a>
-            </Grid.Row>
+
             <Grid.Row>
               <p>
                 Hi! My name's Michael Anderjaska. I'm just a guy who's really
@@ -77,6 +73,11 @@ const Home: React.FC = () => {
                   content={"Save fat stacks now!"}
                 />
               </Grid.Column>
+            </Grid.Row>
+            <Grid.Row>
+              <a href="https://www.buymeacoffee.com/anderjaska">
+                Buy me a coffee?
+              </a>
             </Grid.Row>
           </Grid>
 
