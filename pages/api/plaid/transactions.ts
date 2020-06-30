@@ -20,7 +20,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       error: "Please authenticate with your bank(s)",
     });
 
-  const startDate = moment().startOf("month").format("YYYY-MM-DD");
+  const startDate = moment("2020-06-01").format("YYYY-MM-DD");
   const endDate = moment().format("YYYY-MM-DD");
   return client.getTransactions(
     accessToken,
