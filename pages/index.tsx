@@ -45,6 +45,11 @@ const Home: React.FC = () => {
               <Header as="h1">Watch me spend money.</Header>
             </Grid.Row>
             <Grid.Row>
+              <a href="https://www.buymeacoffee.com/anderjaska">
+                Buy me a coffee?
+              </a>
+            </Grid.Row>
+            <Grid.Row>
               <p>
                 Hi! My name's Michael Anderjaska. I'm just a guy who's really
                 into saving money. My expenses are public for the world to see,
