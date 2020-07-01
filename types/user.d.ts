@@ -5,3 +5,8 @@ interface UserTransaction {
   category: string;
   id: string;
 }
+
+interface UserMeta {
+  handle: string;
+  profile: string;
+}

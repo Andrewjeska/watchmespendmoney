@@ -3,13 +3,13 @@ import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Button, Comment, Form, Segment } from "semantic-ui-react";
-import { auth } from "../utils/firebase";
 
 interface CommentThreadProps {
   meta: TransactionComment;
+  currentUser: UserMeta;
 }
 
-const CommentThread: React.FC<CommentThreadProps> = ({ meta }) => {
+const CommentThread: React.FC<CommentThreadProps> = ({ meta, currentUser }) => {
   const [commentChildren, setCommentChildren] = useState([]);
 
   const fetchChildren = async () => {
@@ -25,31 +25,17 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta }) => {
     }
   };
 
-  const [user, setUser] = useState("");
-
-  useEffect(() => {
-    // will run on first render, like componentDidMount
-    auth.onAuthStateChanged((user) => {
-      if (user && user.email) {
-        // User is signed in.
-
-        // admin mode
-        if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL)
-          setUser("Michael");
-      }
-    });
-  }, []);
-
   const [showReply, setShowReply] = useState(false);
   const [replyContent, setReplyContent] = useState("");
 
-  const reply = async (text: string, handle = "Anon") => {
+  const reply = async (text: string) => {
     try {
       const res = await axios.post("/api/transactions/comment_reply", {
         comment: {
           dateTime: moment(),
           text,
-          user: handle,
+          user: currentUser.handle,
+          profile: currentUser.profile,
           parentId: meta._id,
         },
       });
@@ -110,7 +96,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta }) => {
                   labelPosition="left"
                   icon="edit"
                   primary
-                  onClick={() => reply(replyContent, user)}
+                  onClick={() => reply(replyContent)}
                 />
                 <Button
                   content="Cancel"
@@ -122,17 +108,20 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta }) => {
               </Form>
             )}
           </Comment.Content>
-          {showComment && renderChildren(commentChildren)}
+          {showComment && renderChildren(commentChildren, currentUser)}
         </Comment>
       </Comment.Group>
     </Segment>
   );
 };
 
-const renderChildren = (children: Array<TransactionComment>) => {
+const renderChildren = (
+  children: Array<TransactionComment>,
+  currentUser: UserMeta
+) => {
   if (children.length > 0) {
     return _.map(children, (child: TransactionComment) => (
-      <CommentThread key={child._id} meta={child} />
+      <CommentThread key={child._id} meta={child} currentUser={currentUser} />
     ));
   }
 };

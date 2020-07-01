@@ -4,26 +4,36 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Button, Divider, Feed, Form } from "semantic-ui-react";
 import { svgs } from "../common/imagery";
-import { auth } from "../utils/firebase";
 import CommentThread from "./CommentThread";
 
 interface TransactionProps {
   transaction: UserTransaction;
+  currentUser: UserMeta;
 }
 
-const renderComments = (comments: Array<TransactionComment>) => {
+const renderComments = (
+  comments: Array<TransactionComment>,
+  currentUser: UserMeta
+) => {
   if (comments.length > 0) {
     return _(comments)
       .sortBy(["dateTime"])
       .reverse()
       .map((comment: TransactionComment) => (
-        <CommentThread key={comment._id} meta={comment} />
+        <CommentThread
+          key={comment._id}
+          meta={comment}
+          currentUser={currentUser}
+        />
       ))
       .value();
   }
 };
 
-const Transaction: React.FC<TransactionProps> = ({ transaction }) => {
+const Transaction: React.FC<TransactionProps> = ({
+  transaction,
+  currentUser,
+}) => {
   const { amount, date, category, description, id } = transaction;
   const [comments, setComments] = useState([]);
 
@@ -49,13 +59,14 @@ const Transaction: React.FC<TransactionProps> = ({ transaction }) => {
   const [replyContent, setReplyContent] = useState("");
   const [showComments, setShowComments] = useState(true);
 
-  const reply = async (text: string, handle: string) => {
+  const reply = async (text: string, user: UserMeta) => {
     try {
       const res = await axios.post("/api/transactions/comment_reply", {
         comment: {
           dateTime: moment(),
           text,
-          user: handle,
+          user: currentUser.handle,
+          profile: currentUser.profile,
           transactionId: id,
         },
       });
@@ -67,21 +78,6 @@ const Transaction: React.FC<TransactionProps> = ({ transaction }) => {
       console.log("Error on comment children");
     }
   };
-
-  const [user, setUser] = useState("");
-
-  useEffect(() => {
-    // will run on first render, like componentDidMount
-    auth.onAuthStateChanged((user) => {
-      if (user && user.email) {
-        // User is signed in.
-
-        // admin mode
-        if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL)
-          setUser("Michael");
-      }
-    });
-  }, []);
 
   return (
     <Feed.Event>
@@ -119,7 +115,7 @@ const Transaction: React.FC<TransactionProps> = ({ transaction }) => {
               labelPosition="left"
               icon="edit"
               primary
-              onClick={() => reply(replyContent, user)}
+              onClick={() => reply(replyContent, currentUser)}
             />
             <Button
               content="Cancel"
@@ -130,7 +126,7 @@ const Transaction: React.FC<TransactionProps> = ({ transaction }) => {
             />
           </Form>
         )}
-        {showComments && renderComments(comments)}
+        {showComments && renderComments(comments, currentUser)}
         <Divider />
       </Feed.Content>
     </Feed.Event>

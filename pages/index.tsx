@@ -10,9 +10,10 @@ import {
   Loader,
 } from "semantic-ui-react";
 import Transaction from "../components/Transaction";
+import { auth } from "../utils/firebase";
 
 const Home: React.FC = () => {
-  const [authenticated, setAuthenticated] = useState(true);
+  const [plaidAuthenticated, setPlaidAuthenticated] = useState(true);
   const [transactions, setTransactions] = useState([]);
   const [adminMode, setAdminMode] = useState(false);
 
@@ -21,18 +22,37 @@ const Home: React.FC = () => {
       const res = await axios.get("/api/plaid/transactions");
       setTransactions(res.data.transactions);
     } catch (err) {
-      setAuthenticated(false);
+      setPlaidAuthenticated(false);
     }
   };
+
+  const [currentUser, setCurrentUser] = useState({
+    handle: "Anon",
+    profile: "",
+  });
 
   useEffect(() => {
     // will run on first render, like componentDidMount
     fetchTransactions();
+
+    auth.onAuthStateChanged((user) => {
+      if (user && user.email) {
+        // User is signed in.
+
+        // admin mode
+        if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+          setCurrentUser({
+            handle: "Michael",
+            profile: process.env.NEXT_PUBLIC_ADMIN_TWITTER || "",
+          });
+        }
+      }
+    });
   }, []);
 
   useEffect(() => {
     // will run on each render, like componentDidUpdate
-    if (authenticated && transactions.length === 0) {
+    if (plaidAuthenticated && transactions.length === 0) {
       fetchTransactions();
     }
   });
@@ -58,7 +78,8 @@ const Home: React.FC = () => {
             <Grid.Row>
               <p>
                 <b>watchmespendmoney</b> is an accountablity tool that keeps you
-                honest on your expenses by making them public. Stay updated on
+                honest on your expenses by making them public (or, if you'd
+                rather, a select group of close friends). Stay updated on
                 development and be the first to know when the beta is released
                 by clicking the button below!
               </p>
@@ -86,7 +107,11 @@ const Home: React.FC = () => {
             {transactions.length > 0 ? (
               <Feed style={{ width: "100%" }}>
                 {_.map(transactions, (t: UserTransaction, i: number) => (
-                  <Transaction key={t.id} transaction={t} />
+                  <Transaction
+                    key={t.id}
+                    transaction={t}
+                    currentUser={currentUser}
+                  />
                 ))}
               </Feed>
             ) : (
