@@ -3,6 +3,7 @@ import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Button, Comment, Form, Segment } from "semantic-ui-react";
+import { auth } from "../utils/firebase";
 
 interface CommentThreadProps {
   meta: TransactionComment;
@@ -24,15 +25,31 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta }) => {
     }
   };
 
+  const [user, setUser] = useState("");
+
+  useEffect(() => {
+    // will run on first render, like componentDidMount
+    auth.onAuthStateChanged((user) => {
+      if (user && user.email) {
+        // User is signed in.
+
+        // admin mode
+        if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL)
+          setUser("Michael");
+      }
+    });
+  }, []);
+
   const [showReply, setShowReply] = useState(false);
   const [replyContent, setReplyContent] = useState("");
 
-  const reply = async (text: string) => {
+  const reply = async (text: string, handle = "Anon") => {
     try {
       const res = await axios.post("/api/transactions/comment_reply", {
         comment: {
           dateTime: moment(),
           text,
+          user: handle,
           parentId: meta._id,
         },
       });
@@ -93,7 +110,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta }) => {
                   labelPosition="left"
                   icon="edit"
                   primary
-                  onClick={() => reply(replyContent)}
+                  onClick={() => reply(replyContent, user)}
                 />
                 <Button
                   content="Cancel"

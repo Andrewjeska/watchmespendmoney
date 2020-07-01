@@ -4,6 +4,7 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Button, Divider, Feed, Form } from "semantic-ui-react";
 import { svgs } from "../common/imagery";
+import { auth } from "../utils/firebase";
 import CommentThread from "./CommentThread";
 
 interface TransactionProps {
@@ -48,12 +49,13 @@ const Transaction: React.FC<TransactionProps> = ({ transaction }) => {
   const [replyContent, setReplyContent] = useState("");
   const [showComments, setShowComments] = useState(true);
 
-  const reply = async (text: string) => {
+  const reply = async (text: string, handle: string) => {
     try {
       const res = await axios.post("/api/transactions/comment_reply", {
         comment: {
           dateTime: moment(),
           text,
+          user: handle,
           transactionId: id,
         },
       });
@@ -65,6 +67,21 @@ const Transaction: React.FC<TransactionProps> = ({ transaction }) => {
       console.log("Error on comment children");
     }
   };
+
+  const [user, setUser] = useState("");
+
+  useEffect(() => {
+    // will run on first render, like componentDidMount
+    auth.onAuthStateChanged((user) => {
+      if (user && user.email) {
+        // User is signed in.
+
+        // admin mode
+        if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL)
+          setUser("Michael");
+      }
+    });
+  }, []);
 
   return (
     <Feed.Event>
@@ -102,7 +119,7 @@ const Transaction: React.FC<TransactionProps> = ({ transaction }) => {
               labelPosition="left"
               icon="edit"
               primary
-              onClick={() => reply(replyContent)}
+              onClick={() => reply(replyContent, user)}
             />
             <Button
               content="Cancel"

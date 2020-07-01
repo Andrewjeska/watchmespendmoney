@@ -14,6 +14,7 @@ import Transaction from "../components/Transaction";
 const Home: React.FC = () => {
   const [authenticated, setAuthenticated] = useState(true);
   const [transactions, setTransactions] = useState([]);
+  const [adminMode, setAdminMode] = useState(false);
 
   const fetchTransactions = async () => {
     try {
