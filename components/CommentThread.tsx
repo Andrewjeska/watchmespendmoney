@@ -61,7 +61,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta, currentUser }) => {
           <Comment.Content>
             {showComment && (
               <div>
-                {meta.user ? (
+                {meta.user && meta.user !== "Anon" ? (
                   <a href={meta.profile}>{meta.user}</a>
                 ) : (
                   <Comment.Author as="a">Anon</Comment.Author>

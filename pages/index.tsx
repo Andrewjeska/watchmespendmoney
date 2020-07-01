@@ -9,6 +9,7 @@ import {
   Header,
   Loader,
 } from "semantic-ui-react";
+import SignUp from "../components/SignUp";
 import Transaction from "../components/Transaction";
 import { auth } from "../utils/firebase";
 
@@ -86,14 +87,14 @@ const Home: React.FC = () => {
             </Grid.Row>
             <Grid.Row>
               <Grid.Column width={10}>
-                {/* <SignUp /> */}
-                <Button
+                <SignUp />
+                {/* <Button
                   primary
                   onClick={() =>
                     window.open(process.env.NEXT_PUBLIC_EMAIL_SIGNUP, "_blank")
                   }
                   content={"Save fat stacks now!"}
-                />
+                /> */}
               </Grid.Column>
             </Grid.Row>
             <Grid.Row>

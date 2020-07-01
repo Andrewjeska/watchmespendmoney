@@ -1,6 +1,6 @@
 import envvar from "envvar";
 import { NextApiRequest, NextApiResponse } from "next";
-import { prettyPrintError } from "../../../utils";
+import { prettyPrintError } from "../../utils/index";
 import { client, connectToDatabase } from "../utils";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
