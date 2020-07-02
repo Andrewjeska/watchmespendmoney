@@ -1,14 +1,7 @@
 import axios from "axios";
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Container,
-  Feed,
-  Grid,
-  Header,
-  Loader,
-} from "semantic-ui-react";
+import { Container, Feed, Grid, Header, Loader } from "semantic-ui-react";
 import SignUp from "../components/SignUp";
 import Transaction from "../components/Transaction";
 import { auth } from "../utils/firebase";
@@ -88,13 +81,6 @@ const Home: React.FC = () => {
             <Grid.Row>
               <Grid.Column width={10}>
                 <SignUp />
-                {/* <Button
-                  primary
-                  onClick={() =>
-                    window.open(process.env.NEXT_PUBLIC_EMAIL_SIGNUP, "_blank")
-                  }
-                  content={"Save fat stacks now!"}
-                /> */}
               </Grid.Column>
             </Grid.Row>
             <Grid.Row>
@@ -130,13 +116,7 @@ const Home: React.FC = () => {
 
             <Grid.Row>
               <Grid.Column width={10}>
-                <Button
-                  primary
-                  onClick={() =>
-                    window.open(process.env.NEXT_PUBLIC_EMAIL_SIGNUP, "_blank")
-                  }
-                  content={"Save fat stacks now!"}
-                />
+                <SignUp />
               </Grid.Column>
             </Grid.Row>
           </Grid>
