@@ -9,7 +9,6 @@ import { auth } from "../utils/firebase";
 const Home: React.FC = () => {
   const [plaidAuthenticated, setPlaidAuthenticated] = useState(true);
   const [transactions, setTransactions] = useState([]);
-  const [adminMode, setAdminMode] = useState(false);
 
   const fetchTransactions = async () => {
     try {
@@ -75,7 +74,7 @@ const Home: React.FC = () => {
                 honest on your expenses by making them public (or, if you'd
                 rather, a select group of close friends). Stay updated on
                 development and be the first to know when the beta is released
-                by clicking the button below!
+                by signing up below.
               </p>
             </Grid.Row>
             <Grid.Row>

@@ -20,7 +20,8 @@
     "react-dom": "^16.7.0",
     "react-plaid-link": "^2.3.0-alpha.0",
     "semantic-ui-css": "^2.4.1",
-    "semantic-ui-react": "^0.84.0"
+    "semantic-ui-react": "^0.84.0",
+    "sfcookies": "^1.0.2"
   },
   "devDependencies": {
     "@types/mongodb": "^3.5.23",

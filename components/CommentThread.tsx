@@ -3,6 +3,7 @@ import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Button, Comment, Form, Segment } from "semantic-ui-react";
+import SignUpModal from "./SignUpModal";
 
 interface CommentThreadProps {
   meta: TransactionComment;
@@ -27,6 +28,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta, currentUser }) => {
 
   const [showReply, setShowReply] = useState(false);
   const [replyContent, setReplyContent] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   const reply = async (text: string) => {
     try {
@@ -41,6 +43,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta, currentUser }) => {
       });
       setShowReply(false);
       setReplyContent("");
+      setShowModal(true);
       fetchChildren();
     } catch {
       console.log("Error on comment children");
@@ -56,6 +59,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta, currentUser }) => {
 
   return (
     <Segment className="comment-segment">
+      <SignUpModal open={showModal} setOpen={setShowModal} />
       <Comment.Group>
         <Comment>
           <Comment.Content>

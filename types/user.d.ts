@@ -10,3 +10,5 @@ interface UserMeta {
   handle: string;
   profile: string;
 }
+
+declare module "sfcookies";

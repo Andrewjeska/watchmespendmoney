@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Divider, Feed, Form } from "semantic-ui-react";
 import { svgs } from "../common/imagery";
 import CommentThread from "./CommentThread";
+import SignUpModal from "./SignUpModal";
 
 interface TransactionProps {
   transaction: UserTransaction;
@@ -58,6 +59,7 @@ const Transaction: React.FC<TransactionProps> = ({
   const [showReply, setShowReply] = useState(false);
   const [replyContent, setReplyContent] = useState("");
   const [showComments, setShowComments] = useState(true);
+  const [showModal, setShowModal] = useState(false);
 
   const reply = async (text: string, user: UserMeta) => {
     try {
@@ -73,6 +75,7 @@ const Transaction: React.FC<TransactionProps> = ({
       setShowReply(false);
       setReplyContent("");
       setShowComments(true);
+      setShowModal(true);
       fetchComments();
     } catch {
       console.log("Error on comment children");
@@ -81,6 +84,8 @@ const Transaction: React.FC<TransactionProps> = ({
 
   return (
     <Feed.Event>
+      <SignUpModal open={showModal} setOpen={setShowModal} />
+
       <Feed.Label>
         <div dangerouslySetInnerHTML={{ __html: svgs[category] }}></div>
       </Feed.Label>
