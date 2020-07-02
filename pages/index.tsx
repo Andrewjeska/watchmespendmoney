@@ -1,7 +1,9 @@
 import axios from "axios";
 import _ from "lodash";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Container, Feed, Grid, Header, Loader } from "semantic-ui-react";
+import { bake_cookie } from "sfcookies";
 import SignUp from "../components/SignUp";
 import Transaction from "../components/Transaction";
 import { auth } from "../utils/firebase";
@@ -34,6 +36,7 @@ const Home: React.FC = () => {
 
         // admin mode
         if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+          bake_cookie("admin", "true", moment().years(10).toDate());
           setCurrentUser({
             handle: "Michael",
             profile: process.env.NEXT_PUBLIC_ADMIN_TWITTER || "",

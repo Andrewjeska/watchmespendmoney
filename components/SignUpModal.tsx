@@ -10,7 +10,8 @@ interface SignUpModalProps {
 }
 
 const SignUpModal: React.FC<SignUpModalProps> = ({ open, setOpen }) => {
-  if (read_cookie("signedUp").length > 0) return <div></div>;
+  if (read_cookie("signedUp").length > 0 || read_cookie("admin").length > 0)
+    return <div></div>;
 
   return (
     <Modal
