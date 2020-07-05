@@ -10,6 +10,7 @@ import SignUpModal from "./SignUpModal";
 interface TransactionProps {
   transaction: UserTransaction;
   currentUser: UserMeta;
+  commenting: boolean;
 }
 
 const renderComments = (
@@ -34,6 +35,7 @@ const renderComments = (
 const Transaction: React.FC<TransactionProps> = ({
   transaction,
   currentUser,
+  commenting,
 }) => {
   const { amount, date, category, description, id } = transaction;
   const [comments, setComments] = useState([]);
@@ -53,7 +55,7 @@ const Transaction: React.FC<TransactionProps> = ({
 
   useEffect(() => {
     // will run on first render, like componentDidMount
-    fetchComments();
+    if (commenting) fetchComments();
   }, []);
 
   const [showReply, setShowReply] = useState(false);
@@ -92,22 +94,28 @@ const Transaction: React.FC<TransactionProps> = ({
       <Feed.Content>
         <Feed.Summary>
           <a href="https://twitter.com/anderjaska1">Michael</a>
-          {` spent \$${amount?.toFixed(2)} at ${description}`}
+          {` spent \$${parseFloat(amount || 0.0).toFixed(2)} at ${description}`}
           <Feed.Date>{moment(date).format("MM/DD")}</Feed.Date>
         </Feed.Summary>
         <Feed.Extra text>{`${category}`}</Feed.Extra>
-        <Feed.Meta
-          className="comment-meta"
-          onClick={() => setShowComments(!showComments)}
-        >
-          {showComments ? <p> [ - ] </p> : <p> [ + ] </p>}
-        </Feed.Meta>
-        <Feed.Meta
-          className="comment-meta"
-          onClick={() => setShowReply(!showReply)}
-        >
-          <p> Leave a Comment</p>
-        </Feed.Meta>
+        {commenting && (
+          <Feed.Meta
+            className="comment-meta"
+            onClick={() => setShowComments(!showComments)}
+          >
+            {showComments ? <p> [ - ] </p> : <p> [ + ] </p>}
+          </Feed.Meta>
+        )}
+        {commenting && (
+          <Feed.Meta
+            className="comment-meta"
+            onClick={() => {
+              setShowReply(!showReply);
+            }}
+          >
+            <p> Leave a Comment</p>
+          </Feed.Meta>
+        )}
         {showReply && (
           <Form style={{ marginTop: "1vh" }} reply>
             <Form.TextArea
@@ -131,7 +139,7 @@ const Transaction: React.FC<TransactionProps> = ({
             />
           </Form>
         )}
-        {showComments && renderComments(comments, currentUser)}
+        {showComments && commenting && renderComments(comments, currentUser)}
         <Divider />
       </Feed.Content>
     </Feed.Event>

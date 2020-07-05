@@ -1,15 +1,16 @@
 import axios from "axios";
-import _ from "lodash";
+import "firebase/auth";
 import moment from "moment";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Container, Feed, Grid, Header, Loader } from "semantic-ui-react";
+import { Button, Container, Grid, Header, Loader } from "semantic-ui-react";
 import { bake_cookie } from "sfcookies";
 import SignUp from "../components/SignUp";
-import Transaction from "../components/Transaction";
-import { auth } from "../utils/firebase";
+import TransactionFeed from "../components/TransactionFeed";
+import { auth, firebase } from "../utils/firebase";
 
 const Home: React.FC = () => {
-  const [plaidAuthenticated, setPlaidAuthenticated] = useState(true);
   const [transactions, setTransactions] = useState([]);
 
   const fetchTransactions = async () => {
@@ -17,7 +18,7 @@ const Home: React.FC = () => {
       const res = await axios.get("/api/plaid/transactions");
       setTransactions(res.data.transactions);
     } catch (err) {
-      setPlaidAuthenticated(false);
+      console.error(err);
     }
   };
 
@@ -48,13 +49,31 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     // will run on each render, like componentDidUpdate
-    if (plaidAuthenticated && transactions.length === 0) {
+    if (!transactions.length) {
       fetchTransactions();
     }
   });
 
+  var provider = new firebase.auth.GoogleAuthProvider();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Prefetch the dashboard page as the user will go there after the login
+    router.prefetch("/dashboard");
+  }, []);
+
   return (
     <div>
+      <Container>
+        <Grid>
+          <Grid.Column floated="right">
+            <Link href="/dashboard">
+              <Button primary>Sign In</Button>
+            </Link>
+          </Grid.Column>
+        </Grid>
+      </Container>
+
       <Container style={{ paddingTop: "10vh" }} text>
         <Grid>
           <Grid textAlign="center">
@@ -93,16 +112,11 @@ const Home: React.FC = () => {
           </Grid>
 
           <Grid.Row>
-            {transactions.length > 0 ? (
-              <Feed style={{ width: "100%" }}>
-                {_.map(transactions, (t: UserTransaction, i: number) => (
-                  <Transaction
-                    key={t.id}
-                    transaction={t}
-                    currentUser={currentUser}
-                  />
-                ))}
-              </Feed>
+            {transactions.length ? (
+              <TransactionFeed
+                transactions={transactions}
+                currentUser={currentUser}
+              />
             ) : (
               <Loader active />
             )}
