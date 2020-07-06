@@ -11,11 +11,13 @@ interface TransactionProps {
   transaction: UserTransaction;
   currentUser: UserMeta;
   commenting: boolean;
+  emailPopup: boolean;
 }
 
 const renderComments = (
   comments: Array<TransactionComment>,
-  currentUser: UserMeta
+  currentUser: UserMeta,
+  emailPopup: boolean
 ) => {
   if (comments.length > 0) {
     return _(comments)
@@ -26,6 +28,7 @@ const renderComments = (
           key={comment._id}
           meta={comment}
           currentUser={currentUser}
+          emailPopup={emailPopup}
         />
       ))
       .value();
@@ -36,6 +39,7 @@ const Transaction: React.FC<TransactionProps> = ({
   transaction,
   currentUser,
   commenting,
+  emailPopup,
 }) => {
   //TODO: reconcile _id and id
   const { amount, date, category, description, _id, id, user } = transaction;
@@ -78,7 +82,7 @@ const Transaction: React.FC<TransactionProps> = ({
       setShowReply(false);
       setReplyContent("");
       setShowComments(true);
-      setShowModal(true);
+      if (emailPopup) setShowModal(true);
       fetchComments();
     } catch {
       console.log("Error on comment children");
@@ -144,7 +148,9 @@ const Transaction: React.FC<TransactionProps> = ({
             />
           </Form>
         )}
-        {showComments && commenting && renderComments(comments, currentUser)}
+        {showComments &&
+          commenting &&
+          renderComments(comments, currentUser, emailPopup)}
         <Divider />
       </Feed.Content>
     </Feed.Event>

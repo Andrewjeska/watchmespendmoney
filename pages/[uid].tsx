@@ -43,7 +43,7 @@ const UserFeed: React.FC = () => {
         <Grid textAlign="center">
           <Grid.Row>
             {transactions.length ? (
-              <TransactionFeed transactions={transactions} />
+              <TransactionFeed transactions={transactions} emailPopup={false} />
             ) : (
               <Loader active />
             )}

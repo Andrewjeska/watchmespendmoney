@@ -8,9 +8,14 @@ import SignUpModal from "./EmailSignUpModal";
 interface CommentThreadProps {
   meta: TransactionComment;
   currentUser: UserMeta;
+  emailPopup: boolean;
 }
 
-const CommentThread: React.FC<CommentThreadProps> = ({ meta, currentUser }) => {
+const CommentThread: React.FC<CommentThreadProps> = ({
+  meta,
+  currentUser,
+  emailPopup,
+}) => {
   const [commentChildren, setCommentChildren] = useState([]);
 
   const fetchChildren = async () => {
@@ -43,7 +48,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta, currentUser }) => {
       });
       setShowReply(false);
       setReplyContent("");
-      setShowModal(true);
+      if (emailPopup) setShowModal(true);
       fetchChildren();
     } catch {
       console.log("Error on comment children");
@@ -114,7 +119,8 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta, currentUser }) => {
               </Form>
             )}
           </Comment.Content>
-          {showComment && renderChildren(commentChildren, currentUser)}
+          {showComment &&
+            renderChildren(commentChildren, currentUser, emailPopup)}
         </Comment>
       </Comment.Group>
     </Segment>
@@ -123,11 +129,17 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta, currentUser }) => {
 
 const renderChildren = (
   children: Array<TransactionComment>,
-  currentUser: UserMeta
+  currentUser: UserMeta,
+  emailPopup: boolean
 ) => {
   if (children.length > 0) {
     return _.map(children, (child: TransactionComment) => (
-      <CommentThread key={child._id} meta={child} currentUser={currentUser} />
+      <CommentThread
+        key={child._id}
+        meta={child}
+        currentUser={currentUser}
+        emailPopup={emailPopup}
+      />
     ));
   }
 };
