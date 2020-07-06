@@ -3,7 +3,7 @@ import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Button, Comment, Form, Segment } from "semantic-ui-react";
-import SignUpModal from "./SignUpModal";
+import SignUpModal from "./EmailSignUpModal";
 
 interface CommentThreadProps {
   meta: TransactionComment;
@@ -66,7 +66,9 @@ const CommentThread: React.FC<CommentThreadProps> = ({ meta, currentUser }) => {
             {showComment && (
               <div>
                 {meta.user && meta.user !== "Anon" ? (
-                  <a href={meta.profile}>{meta.user}</a>
+                  <Comment.Author as="a" href={meta.profile}>
+                    {meta.user}
+                  </Comment.Author>
                 ) : (
                   <Comment.Author as="a">Anon</Comment.Author>
                 )}

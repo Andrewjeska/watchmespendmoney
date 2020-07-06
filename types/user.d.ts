@@ -3,8 +3,11 @@ interface UserTransaction {
   amount: number | null;
   description: string | null;
   category: string;
-  id: string;
+  _id?: string;
+  id?: string;
+  user?: string;
 }
+//TODO: too many optional types
 
 interface UserMeta {
   handle: string;

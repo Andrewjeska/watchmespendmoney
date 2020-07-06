@@ -1,13 +1,13 @@
 import axios from "axios";
 import "firebase/auth";
 import moment from "moment";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Button, Container, Grid, Header, Loader } from "semantic-ui-react";
+import { Container, Grid, Header, Loader } from "semantic-ui-react";
 import { bake_cookie } from "sfcookies";
-import SignUp from "../components/SignUp";
+import SignUp from "../components/EmailSignUp";
 import TransactionFeed from "../components/TransactionFeed";
+import UserSignIn from "../components/UserSignIn";
 import { auth, firebase } from "../utils/firebase";
 
 const Home: React.FC = () => {
@@ -39,7 +39,7 @@ const Home: React.FC = () => {
         if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
           bake_cookie("admin", "true", moment().years(10).toDate());
           setCurrentUser({
-            handle: "Michael",
+            handle: user.displayName || "Michael Anderjaska",
             profile: process.env.NEXT_PUBLIC_ADMIN_TWITTER || "",
           });
         }
@@ -66,11 +66,11 @@ const Home: React.FC = () => {
     <div>
       <Container>
         <Grid>
-          <Grid.Column floated="right">
-            <Link href="/dashboard">
-              <Button primary>Sign In</Button>
-            </Link>
-          </Grid.Column>
+          <Grid.Row>
+            <Grid.Column floated="right" width={4}>
+              <UserSignIn />
+            </Grid.Column>
+          </Grid.Row>
         </Grid>
       </Container>
 
@@ -113,10 +113,7 @@ const Home: React.FC = () => {
 
           <Grid.Row>
             {transactions.length ? (
-              <TransactionFeed
-                transactions={transactions}
-                currentUser={currentUser}
-              />
+              <TransactionFeed transactions={transactions} />
             ) : (
               <Loader active />
             )}

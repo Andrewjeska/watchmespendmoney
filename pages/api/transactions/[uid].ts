@@ -8,7 +8,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const {
     query: { uid },
   } = req;
-  prettyPrintInfo(uid);
+
   const db = await connectToDatabase(envvar.string("MONGODB_URI"));
   const collection = await db.collection("transactions");
   const transactions = await collection.find({ uid }).toArray();

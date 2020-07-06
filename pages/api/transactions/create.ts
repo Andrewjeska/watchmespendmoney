@@ -9,6 +9,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const collection = await db.collection("transactions");
   const {
     uid,
+    user,
     amount,
     date,
     category,
@@ -17,6 +18,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   } = req.body.transaction;
   const transactionDbRes = await collection.insertOne({
     uid,
+    user,
     amount,
     date,
     category,
@@ -30,7 +32,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const commentDbRes = await collection.insertOne({
       dateTime: moment().toDate(),
       text: reason,
-      transactionId: transactionDbRes.insertedId,
+      transactionId: transactionDbRes.insertedId.toString(),
+      user: user,
     });
     prettyPrintInfo(commentDbRes.ops);
   }

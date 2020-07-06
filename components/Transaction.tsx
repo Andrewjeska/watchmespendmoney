@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Divider, Feed, Form } from "semantic-ui-react";
 import { svgs } from "../common/imagery";
 import CommentThread from "./CommentThread";
-import SignUpModal from "./SignUpModal";
+import SignUpModal from "./EmailSignUpModal";
 
 interface TransactionProps {
   transaction: UserTransaction;
@@ -37,14 +37,15 @@ const Transaction: React.FC<TransactionProps> = ({
   currentUser,
   commenting,
 }) => {
-  const { amount, date, category, description, id } = transaction;
+  //TODO: reconcile _id and id
+  const { amount, date, category, description, _id, id, user } = transaction;
   const [comments, setComments] = useState([]);
 
   const fetchComments = async () => {
     try {
       const res = await axios.get("/api/transactions/comments", {
         params: {
-          transactionId: id,
+          transactionId: _id || id,
         },
       });
       setComments(res.data.comments);
@@ -93,8 +94,12 @@ const Transaction: React.FC<TransactionProps> = ({
       </Feed.Label>
       <Feed.Content>
         <Feed.Summary>
-          <a href="https://twitter.com/anderjaska1">Michael</a>
-          {` spent \$${parseFloat(amount || 0.0).toFixed(2)} at ${description}`}
+          {user ? (
+            <Feed.User as="a">{user}</Feed.User>
+          ) : (
+            <a href="https://twitter.com/anderjaska1">Michael</a>
+          )}
+          {` spent \$${amount ? amount.toFixed(2) : "Error"} on ${description}`}
           <Feed.Date>{moment(date).format("MM/DD")}</Feed.Date>
         </Feed.Summary>
         <Feed.Extra text>{`${category}`}</Feed.Extra>
