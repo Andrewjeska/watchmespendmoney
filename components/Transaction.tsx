@@ -91,7 +91,7 @@ const Transaction: React.FC<TransactionProps> = ({
       </Feed.Label>
       <Feed.Content>
         <Feed.Summary>
-          <a href="https://twitter.com/anderjaska1">Michael</a>
+          <a href="https://twitter.com/manderjaska">Michael</a>
           {` spent \$${amount?.toFixed(2)} at ${description}`}
           <Feed.Date>{moment(date).format("MM/DD")}</Feed.Date>
         </Feed.Summary>
