@@ -3,11 +3,10 @@ import envvar from "envvar";
 import "firebase/auth";
 import { GetStaticProps } from "next";
 import React, { useEffect, useState } from "react";
-import { Container, Grid, Header } from "semantic-ui-react";
+import { Container, Grid, Header, Loader } from "semantic-ui-react";
 import AddTransaction from "../components/AddTransaction";
 import TransactionFeed from "../components/TransactionFeed";
 import UserSignIn from "../components/UserSignIn";
-import { googleSignIn } from "../utils";
 import { auth, firebase } from "../utils/firebase";
 
 interface DashboardProps {
@@ -32,18 +31,9 @@ const Dashboard: React.FC<DashboardProps> = ({ plaidPublicKey, plaidEnv }) => {
   };
 
   useEffect(() => {
-    // like componenentDidMount
-    if (user) {
-      fetchTransactions(user);
-    } else {
-      var provider = new firebase.auth.GoogleAuthProvider();
-      googleSignIn(provider).then((res) => {
-        if (res) {
-          const [token, user] = res;
-          if (user) setUser(user);
-        }
-      });
-    }
+    auth.getRedirectResult().then((res) => {
+      if (res.user) setUser(res.user);
+    });
   }, []);
 
   useEffect(() => {
@@ -57,7 +47,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plaidPublicKey, plaidEnv }) => {
         <Container>
           <Grid>
             <Grid.Row>
-              <Grid.Column floated="right" width={4}>
+              <Grid.Column floated="right" width={2}>
                 <UserSignIn />
               </Grid.Column>
             </Grid.Row>
@@ -108,7 +98,11 @@ const Dashboard: React.FC<DashboardProps> = ({ plaidPublicKey, plaidEnv }) => {
       </div>
     );
   }
-  return <div></div>;
+  return (
+    <div>
+      <Loader active />
+    </div>
+  );
 };
 
 export const getStaticProps: GetStaticProps = async () => {

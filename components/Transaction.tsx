@@ -49,7 +49,7 @@ const Transaction: React.FC<TransactionProps> = ({
     try {
       const res = await axios.get("/api/transactions/comments", {
         params: {
-          transactionId: _id || id,
+          transactionId: id || _id,
         },
       });
       setComments(res.data.comments);
@@ -76,7 +76,7 @@ const Transaction: React.FC<TransactionProps> = ({
           text,
           user: currentUser.handle,
           profile: currentUser.profile,
-          transactionId: id,
+          transactionId: id || _id,
         },
       });
       setShowReply(false);
@@ -99,7 +99,7 @@ const Transaction: React.FC<TransactionProps> = ({
       <Feed.Content>
         <Feed.Summary>
           {user ? (
-            <Feed.User as="a">{user}</Feed.User>
+            <Feed.User>{user}</Feed.User>
           ) : (
             <a href="https://twitter.com/anderjaska1">Michael</a>
           )}

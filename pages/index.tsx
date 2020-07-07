@@ -8,7 +8,7 @@ import { bake_cookie } from "sfcookies";
 import SignUp from "../components/EmailSignUp";
 import TransactionFeed from "../components/TransactionFeed";
 import UserSignIn from "../components/UserSignIn";
-import { auth, firebase } from "../utils/firebase";
+import { auth } from "../utils/firebase";
 
 const Home: React.FC = () => {
   const [transactions, setTransactions] = useState([]);
@@ -27,8 +27,16 @@ const Home: React.FC = () => {
     profile: "",
   });
 
+  const router = useRouter();
+
+  useEffect(() => {
+    // Prefetch the dashboard page as the user will go there after the login
+    router.prefetch("/dashboard");
+  }, []);
+
   useEffect(() => {
     // will run on first render, like componentDidMount
+
     fetchTransactions();
 
     auth.onAuthStateChanged((user) => {
@@ -54,20 +62,12 @@ const Home: React.FC = () => {
     }
   });
 
-  var provider = new firebase.auth.GoogleAuthProvider();
-  const router = useRouter();
-
-  useEffect(() => {
-    // Prefetch the dashboard page as the user will go there after the login
-    router.prefetch("/dashboard");
-  }, []);
-
   return (
     <div>
       <Container>
         <Grid>
           <Grid.Row>
-            <Grid.Column floated="right" width={4}>
+            <Grid.Column floated="right" width={2}>
               <UserSignIn />
             </Grid.Column>
           </Grid.Row>

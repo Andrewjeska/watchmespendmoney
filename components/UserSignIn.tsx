@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import React from "react";
 import { Button } from "semantic-ui-react";
+import { googleSignIn } from "../utils";
 import { auth } from "../utils/firebase";
 
 const UserSignIn: React.FC = () => {
@@ -12,7 +13,8 @@ const UserSignIn: React.FC = () => {
   };
 
   const signIn = async () => {
-    router.push("/dashboard");
+    await router.push("/dashboard");
+    await googleSignIn();
   };
 
   if (auth.currentUser) {

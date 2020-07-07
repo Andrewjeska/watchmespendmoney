@@ -1,8 +1,9 @@
 import axios from "axios";
 import "firebase/auth";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Container, Grid, Loader } from "semantic-ui-react";
+import { Button, Container, Grid, Loader } from "semantic-ui-react";
 import TransactionFeed from "../components/TransactionFeed";
 import UserSignIn from "../components/UserSignIn";
 
@@ -34,6 +35,9 @@ const UserFeed: React.FC = () => {
           <Grid.Row>
             <Grid.Column floated="right" width={4}>
               <UserSignIn />
+              <Link href="/dashboard">
+                <Button primary> Dashboard</Button>
+              </Link>
             </Grid.Column>
           </Grid.Row>
         </Grid>
