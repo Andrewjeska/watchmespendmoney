@@ -19,28 +19,29 @@ const UserFeed: React.FC = () => {
   const { uid } = router.query;
 
   const [transactions, setTransactions] = useState([]);
+  const [transPending, setTransPending] = useState(true);
 
   const fetchTransactions = async () => {
     try {
       const res = await axios.get(`/api/transactions/${uid}`);
       setTransactions(res.data.transactions);
+      setTransPending(false);
     } catch (err) {
       console.error(err);
     }
   };
 
-  useEffect(() => {
-    // will run on each render, like componentDidUpdate
-    if (uid && !transactions.length) fetchTransactions();
-  });
-
   const [user, setUser] = useState(auth.currentUser);
+
   useEffect(() => {
     // will run on first render, like componentDidMount
+    if (uid) fetchTransactions();
 
     auth.onAuthStateChanged((user) => {
       if (user) setUser(user);
     });
+
+    //Fun fact: we have to wait for the auth object to initialize, hence this call here
     setUser(auth.currentUser);
   }, []);
 
@@ -82,11 +83,16 @@ const UserFeed: React.FC = () => {
         )}
         <Grid textAlign="center">
           <Grid.Row>
-            {transactions.length ? (
-              <TransactionFeed transactions={transactions} emailPopup={false} />
-            ) : (
-              <Loader active />
-            )}
+            {transPending && <Loader active />}
+            {!transPending &&
+              (transactions.length ? (
+                <TransactionFeed
+                  transactions={transactions}
+                  emailPopup={false}
+                />
+              ) : (
+                <p>No Transactions</p>
+              ))}
           </Grid.Row>
         </Grid>
       </Container>
