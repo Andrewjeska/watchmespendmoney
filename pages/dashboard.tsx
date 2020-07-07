@@ -5,8 +5,8 @@ import { GetStaticProps } from "next";
 import React, { useEffect, useState } from "react";
 import { Container, Grid, Header, Loader } from "semantic-ui-react";
 import AddTransaction from "../components/AddTransaction";
+import Navbar from "../components/Navbar";
 import TransactionFeed from "../components/TransactionFeed";
-import UserSignIn from "../components/UserSignIn";
 import { auth, firebase } from "../utils/firebase";
 
 interface DashboardProps {
@@ -22,7 +22,6 @@ const Dashboard: React.FC<DashboardProps> = ({ plaidPublicKey, plaidEnv }) => {
   const fetchTransactions = async (user: firebase.User) => {
     try {
       const res = await axios.get(`/api/transactions/${user.uid}`);
-      console.log(res);
       setTransactions(res.data.transactions);
     } catch (err) {
       console.error(err);
@@ -34,6 +33,9 @@ const Dashboard: React.FC<DashboardProps> = ({ plaidPublicKey, plaidEnv }) => {
     auth.getRedirectResult().then((res) => {
       if (res.user) setUser(res.user);
     });
+    auth.onAuthStateChanged((user) => {
+      if (user) setUser(user);
+    });
   }, []);
 
   useEffect(() => {
@@ -44,15 +46,8 @@ const Dashboard: React.FC<DashboardProps> = ({ plaidPublicKey, plaidEnv }) => {
     // User is signed in.
     return (
       <div>
-        <Container>
-          <Grid>
-            <Grid.Row>
-              <Grid.Column floated="right" width={2}>
-                <UserSignIn />
-              </Grid.Column>
-            </Grid.Row>
-          </Grid>
-        </Container>
+        <Navbar></Navbar>
+
         <Container style={{ paddingTop: "10vh" }}>
           <Grid textAlign="left">
             <Grid.Row>

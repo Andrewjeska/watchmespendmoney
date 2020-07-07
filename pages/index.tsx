@@ -6,8 +6,8 @@ import React, { useEffect, useState } from "react";
 import { Container, Grid, Header, Loader } from "semantic-ui-react";
 import { bake_cookie } from "sfcookies";
 import SignUp from "../components/EmailSignUp";
+import Navbar from "../components/Navbar";
 import TransactionFeed from "../components/TransactionFeed";
-import UserSignIn from "../components/UserSignIn";
 import { auth } from "../utils/firebase";
 
 const Home: React.FC = () => {
@@ -64,16 +64,7 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      <Container>
-        <Grid>
-          <Grid.Row>
-            <Grid.Column floated="right" width={2}>
-              <UserSignIn />
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
-      </Container>
-
+      <Navbar></Navbar>
       <Container style={{ paddingTop: "10vh" }} text>
         <Grid>
           <Grid textAlign="center">

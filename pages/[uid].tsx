@@ -1,11 +1,10 @@
 import axios from "axios";
 import "firebase/auth";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Button, Container, Grid, Loader } from "semantic-ui-react";
+import { Container, Grid, Loader } from "semantic-ui-react";
+import Navbar from "../components/Navbar";
 import TransactionFeed from "../components/TransactionFeed";
-import UserSignIn from "../components/UserSignIn";
 
 const UserFeed: React.FC = () => {
   const router = useRouter();
@@ -30,18 +29,7 @@ const UserFeed: React.FC = () => {
 
   return (
     <div>
-      <Container>
-        <Grid>
-          <Grid.Row>
-            <Grid.Column floated="right" width={4}>
-              <UserSignIn />
-              <Link href="/dashboard">
-                <Button primary> Dashboard</Button>
-              </Link>
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
-      </Container>
+      <Navbar></Navbar>
 
       <Container style={{ paddingTop: "10vh" }} text>
         <Grid textAlign="center">
