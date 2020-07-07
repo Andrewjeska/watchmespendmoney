@@ -29,7 +29,11 @@ const Navbar: React.FC = () => {
   return (
     <Container>
       <Menu fluid stackable>
-        {!user && <Menu.Item onClick={() => signIn()}>Login</Menu.Item>}
+        {!user && (
+          <Menu.Item onClick={() => signIn()} icon="google">
+            Login (In Beta)
+          </Menu.Item>
+        )}
         {user && [
           <Menu.Item onClick={() => signOut()}>Logout</Menu.Item>,
           <Menu.Item link href="/dashboard">
