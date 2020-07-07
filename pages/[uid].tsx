@@ -75,7 +75,7 @@ const UserFeed: React.FC = () => {
                   }}
                   id="shareLink"
                   readOnly
-                  defaultValue={`${window.location.href}/${uid}`}
+                  defaultValue={window.location.href}
                 />
               </Grid.Column>
             </Grid>
