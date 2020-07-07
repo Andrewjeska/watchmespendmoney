@@ -83,11 +83,6 @@ const Dashboard: React.FC<DashboardProps> = ({ plaidPublicKey, plaidEnv }) => {
                 />
               </Grid.Column>
             </Grid.Row>
-            <Grid.Row>
-              <p>
-                View public transaction feed <a href={`/${user.uid}`}> here.</a>
-              </p>
-            </Grid.Row>
           </Grid>
         </Container>
       </div>

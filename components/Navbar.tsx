@@ -1,27 +1,30 @@
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Container, Menu } from "semantic-ui-react";
+import { Container, Icon, Menu } from "semantic-ui-react";
 import { googleSignIn } from "../utils";
-import { auth } from "../utils/firebase";
+import { auth, firebase } from "../utils/firebase";
 
 const Navbar: React.FC = () => {
-  const [user, setUser] = useState(auth.currentUser);
+  const [user, setUser] = useState(firebase.auth().currentUser);
   useEffect(() => {
     // will run on first render, like componentDidMount
 
     auth.onAuthStateChanged((user) => {
       if (user) setUser(user);
     });
+
+    setUser(firebase.auth().currentUser);
   }, []);
 
   const router = useRouter();
 
-  const signOut = async () => {
+  const logout = async () => {
     await auth.signOut();
-    router.push("/");
+    await router.push("/");
   };
 
-  const signIn = async () => {
+  const login = async () => {
     await router.push("/dashboard");
     await googleSignIn();
   };
@@ -29,19 +32,24 @@ const Navbar: React.FC = () => {
   return (
     <Container>
       <Menu fluid stackable>
+        <Link href="/" passHref>
+          <Menu.Item link>
+            <Icon name="home"></Icon>
+          </Menu.Item>
+        </Link>
         {!user && (
-          <Menu.Item onClick={() => signIn()} icon="google">
-            Login (In Beta)
+          <Menu.Item onClick={() => login()}>
+            <Icon name="google"></Icon>Login (Beta)
           </Menu.Item>
         )}
         {user && [
-          <Menu.Item onClick={() => signOut()}>Logout</Menu.Item>,
-          <Menu.Item link href="/dashboard">
-            Dashboard
-          </Menu.Item>,
-          <Menu.Item link href={`/${user.uid}`}>
-            Public Feed
-          </Menu.Item>,
+          <Menu.Item onClick={() => logout()}>Logout</Menu.Item>,
+          <Link href="/dashboard" passHref>
+            <Menu.Item link>Dashboard</Menu.Item>
+          </Link>,
+          <Link href="[uid]" as={`/${user.uid}`} passHref>
+            <Menu.Item link> Transaction Feed </Menu.Item>
+          </Link>,
         ]}
       </Menu>
     </Container>
