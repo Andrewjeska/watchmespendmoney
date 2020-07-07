@@ -1,6 +1,6 @@
 import axios from "axios";
 import "firebase/auth";
-import { useRouter } from "next/router";
+import { GetServerSideProps } from "next";
 import React, { useEffect, useState } from "react";
 import {
   Container,
@@ -14,10 +14,11 @@ import Navbar from "../components/Navbar";
 import TransactionFeed from "../components/TransactionFeed";
 import { auth } from "../utils/firebase";
 
-const UserFeed: React.FC = () => {
-  const router = useRouter();
-  const { uid } = router.query;
+interface UserFeedProps {
+  uid: string;
+}
 
+const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
   const [transactions, setTransactions] = useState([]);
   const [transPending, setTransPending] = useState(true);
 
@@ -35,10 +36,11 @@ const UserFeed: React.FC = () => {
 
   useEffect(() => {
     // will run on first render, like componentDidMount
+    console.log(uid);
     if (uid) fetchTransactions();
 
     auth.onAuthStateChanged((user) => {
-      if (user) setUser(user);
+      setUser(user);
     });
 
     //Fun fact: we have to wait for the auth object to initialize, hence this call here
@@ -100,20 +102,10 @@ const UserFeed: React.FC = () => {
   );
 };
 
-// export const getStaticProps: GetStaticProps = async () => {
-//   // this runs server-side
-//   return {
-//     props: {
-//       vercelURL: process.env.VERCEL_URL || "http://localhost:3000",
-//     },
-//   };
-// };
-
-// export async function getStaticPaths() {
-//   return {
-//     paths: [],
-//     fallback: true,
-//   };
-// }
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: { uid: context.query.uid }, // will be passed to the page component as props
+  };
+};
 
 export default UserFeed;

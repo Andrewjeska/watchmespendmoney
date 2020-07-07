@@ -11,7 +11,7 @@ const Navbar: React.FC = () => {
     // will run on first render, like componentDidMount
 
     auth.onAuthStateChanged((user) => {
-      if (user) setUser(user);
+      setUser(user);
     });
 
     setUser(firebase.auth().currentUser);
