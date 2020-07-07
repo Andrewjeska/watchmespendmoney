@@ -81,7 +81,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
       </Form.Group>
 
       <Button onClick={() => submitTransaction()} type="submit">
-        Submit
+        Add Transaction
       </Button>
     </Form>
   );
