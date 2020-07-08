@@ -10,6 +10,7 @@ import {
   Loader,
   Segment,
 } from "semantic-ui-react";
+import AddTransaction from "../components/AddTransaction";
 import Navbar from "../components/Navbar";
 import TransactionFeed from "../components/TransactionFeed";
 import { auth } from "../utils/firebase";
@@ -36,11 +37,13 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
 
   useEffect(() => {
     // will run on first render, like componentDidMount
-    console.log(uid);
     if (uid) fetchTransactions();
 
+    auth.getRedirectResult().then((res) => {
+      if (res.user) setUser(res.user);
+    });
     auth.onAuthStateChanged((user) => {
-      setUser(user);
+      if (user) setUser(user);
     });
 
     //Fun fact: we have to wait for the auth object to initialize, hence this call here
@@ -50,40 +53,47 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
   return (
     <div>
       <Navbar></Navbar>
-
       <Container style={{ paddingTop: "10vh" }} text>
         {user && user.uid === uid && (
-          <Segment>
-            <Grid textAlign="center">
-              <Grid.Row>
-                <Header as="h2">Share your Feed</Header>
-              </Grid.Row>
-              <Grid.Column width={12}>
-                <Input
-                  style={{ width: "100%" }}
-                  action={{
-                    color: "teal",
-                    labelPosition: "right",
-                    icon: "copy",
-                    content: "Copy",
-                    onClick: () => {
-                      var copy: any = document.getElementById("shareLink");
-                      if (copy) {
-                        copy.select();
-                        document.execCommand("copy");
-                        alert("Copied!");
-                      }
-                    },
-                  }}
-                  id="shareLink"
-                  readOnly
-                  defaultValue={window.location.href}
-                />
-              </Grid.Column>
-            </Grid>
-          </Segment>
+          <div>
+            <Segment>
+              <Grid textAlign="center">
+                <Grid.Row>
+                  <Header as="h2">Share your Feed</Header>
+                </Grid.Row>
+                <Grid.Column width={12}>
+                  <Input
+                    style={{ width: "100%" }}
+                    action={{
+                      color: "teal",
+                      labelPosition: "right",
+                      icon: "copy",
+                      content: "Copy",
+                      onClick: () => {
+                        var copy: any = document.getElementById("shareLink");
+                        if (copy) {
+                          copy.select();
+                          document.execCommand("copy");
+                          alert("Copied!");
+                        }
+                      },
+                    }}
+                    id="shareLink"
+                    readOnly
+                    defaultValue={window.location.href}
+                  />
+                </Grid.Column>
+              </Grid>
+            </Segment>
+            <Segment>
+              <AddTransaction
+                user={user}
+                postSubmit={() => fetchTransactions()}
+              />
+            </Segment>
+          </div>
         )}
-        <Grid textAlign="center">
+        <Grid textAlign="center" style={{ marginTop: "2vh" }}>
           <Grid.Row>
             {transPending && <Loader active />}
             {!transPending &&
@@ -91,6 +101,7 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
                 <TransactionFeed
                   transactions={transactions}
                   emailPopup={false}
+                  transactionPostDelete={() => fetchTransactions()}
                 />
               ) : (
                 <p>No Transactions</p>

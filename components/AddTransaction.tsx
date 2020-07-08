@@ -2,7 +2,7 @@ import axios from "axios";
 import "firebase/auth";
 import moment from "moment";
 import React, { useState } from "react";
-import { Button, Form } from "semantic-ui-react";
+import { Button, Form, Icon } from "semantic-ui-react";
 
 interface AddTransactionProps {
   user: firebase.User;
@@ -33,6 +33,10 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
           reason,
         },
       });
+      setAmount(0.0);
+      setDescription("");
+      setCategory("");
+      setReason("");
       postSubmit();
     } catch (err) {
       console.error(err);
@@ -80,7 +84,15 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
         />
       </Form.Group>
 
-      <Button onClick={() => submitTransaction()} type="submit">
+      <Button
+        color="teal"
+        icon
+        labelPosition="left"
+        style={{ position: "right" }}
+        onClick={() => submitTransaction()}
+        type="submit"
+      >
+        <Icon name="plus" />
         Add Transaction
       </Button>
     </Form>

@@ -22,23 +22,10 @@ const Home: React.FC = () => {
     }
   };
 
-  const [currentUser, setCurrentUser] = useState({
-    handle: "Anon",
-    profile: "",
-  });
-
   const router = useRouter();
 
   useEffect(() => {
-    // Prefetch the dashboard page as the user will go there after the login
-    router.prefetch("/dashboard");
-  }, []);
-
-  useEffect(() => {
     // will run on first render, like componentDidMount
-
-    fetchTransactions();
-
     auth.onAuthStateChanged((user) => {
       if (user && user.email) {
         // User is signed in.
@@ -46,21 +33,12 @@ const Home: React.FC = () => {
         // admin mode
         if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
           bake_cookie("admin", "true", moment().years(10).toDate());
-          setCurrentUser({
-            handle: user.displayName || "Michael Anderjaska",
-            profile: process.env.NEXT_PUBLIC_ADMIN_TWITTER || "",
-          });
         }
       }
     });
-  }, []);
 
-  useEffect(() => {
-    // will run on each render, like componentDidUpdate
-    if (!transactions.length) {
-      fetchTransactions();
-    }
-  });
+    fetchTransactions();
+  }, []);
 
   return (
     <div>
@@ -104,7 +82,10 @@ const Home: React.FC = () => {
 
           <Grid.Row>
             {transactions.length ? (
-              <TransactionFeed transactions={transactions} />
+              <TransactionFeed
+                transactions={transactions}
+                transactionPostDelete={() => fetchTransactions()}
+              />
             ) : (
               <Loader active />
             )}

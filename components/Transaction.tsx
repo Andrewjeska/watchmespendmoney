@@ -12,6 +12,7 @@ interface TransactionProps {
   currentUser: UserMeta;
   commenting: boolean;
   emailPopup: boolean;
+  postDelete: () => void;
 }
 
 const renderComments = (
@@ -40,6 +41,7 @@ const Transaction: React.FC<TransactionProps> = ({
   currentUser,
   commenting,
   emailPopup,
+  postDelete,
 }) => {
   //TODO: reconcile _id and id
   const { amount, date, category, description, _id, id, user } = transaction;
@@ -89,6 +91,15 @@ const Transaction: React.FC<TransactionProps> = ({
     }
   };
 
+  const deleteTransaction = async (_id: string) => {
+    try {
+      await axios.post("/api/transactions/delete", { _id });
+      postDelete();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <Feed.Event>
       <SignUpModal open={showModal} setOpen={setShowModal} />
@@ -112,7 +123,7 @@ const Transaction: React.FC<TransactionProps> = ({
             className="comment-meta"
             onClick={() => setShowComments(!showComments)}
           >
-            {showComments ? <p> [ - ] </p> : <p> [ + ] </p>}
+            {showComments ? <a> [ - ] </a> : <a> [ + ] </a>}
           </Feed.Meta>
         )}
         {commenting && (
@@ -122,7 +133,18 @@ const Transaction: React.FC<TransactionProps> = ({
               setShowReply(!showReply);
             }}
           >
-            <p> Leave a Comment</p>
+            <a> Leave a Comment</a>
+          </Feed.Meta>
+        )}
+
+        {user && _id && (
+          <Feed.Meta
+            className="comment-meta"
+            onClick={() => {
+              deleteTransaction(_id);
+            }}
+          >
+            <a> Delete</a>
           </Feed.Meta>
         )}
         {showReply && (

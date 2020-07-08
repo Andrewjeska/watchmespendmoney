@@ -25,7 +25,6 @@ const Navbar: React.FC = () => {
   };
 
   const login = async () => {
-    await router.push("/dashboard");
     await googleSignIn();
   };
 
@@ -44,9 +43,6 @@ const Navbar: React.FC = () => {
         )}
         {user && [
           <Menu.Item onClick={() => logout()}>Logout</Menu.Item>,
-          <Link href="/dashboard" passHref>
-            <Menu.Item link>Dashboard</Menu.Item>
-          </Link>,
           <Link href="[uid]" as={`/${user.uid}`} passHref>
             <Menu.Item link> Transaction Feed </Menu.Item>
           </Link>,
