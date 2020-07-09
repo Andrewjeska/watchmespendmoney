@@ -2,7 +2,7 @@ import moment from "moment";
 import React from "react";
 import { Grid, Modal } from "semantic-ui-react";
 import { bake_cookie, read_cookie } from "sfcookies";
-import SignUp from "./SignUp";
+import SignUp from "./EmailSignUp";
 
 interface SignUpModalProps {
   open: boolean;

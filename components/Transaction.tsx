@@ -5,16 +5,20 @@ import React, { useEffect, useState } from "react";
 import { Button, Divider, Feed, Form } from "semantic-ui-react";
 import { svgs } from "../common/imagery";
 import CommentThread from "./CommentThread";
-import SignUpModal from "./SignUpModal";
+import SignUpModal from "./EmailSignUpModal";
 
 interface TransactionProps {
   transaction: UserTransaction;
   currentUser: UserMeta;
+  commenting: boolean;
+  emailPopup: boolean;
+  postDelete: () => void;
 }
 
 const renderComments = (
   comments: Array<TransactionComment>,
-  currentUser: UserMeta
+  currentUser: UserMeta,
+  emailPopup: boolean
 ) => {
   if (comments.length > 0) {
     return _(comments)
@@ -25,6 +29,7 @@ const renderComments = (
           key={comment._id}
           meta={comment}
           currentUser={currentUser}
+          emailPopup={emailPopup}
         />
       ))
       .value();
@@ -34,15 +39,19 @@ const renderComments = (
 const Transaction: React.FC<TransactionProps> = ({
   transaction,
   currentUser,
+  commenting,
+  emailPopup,
+  postDelete,
 }) => {
-  const { amount, date, category, description, id } = transaction;
+  //TODO: reconcile _id and id
+  const { amount, date, category, description, _id, id, user } = transaction;
   const [comments, setComments] = useState([]);
 
   const fetchComments = async () => {
     try {
       const res = await axios.get("/api/transactions/comments", {
         params: {
-          transactionId: id,
+          transactionId: id || _id,
         },
       });
       setComments(res.data.comments);
@@ -53,7 +62,7 @@ const Transaction: React.FC<TransactionProps> = ({
 
   useEffect(() => {
     // will run on first render, like componentDidMount
-    fetchComments();
+    if (commenting) fetchComments();
   }, []);
 
   const [showReply, setShowReply] = useState(false);
@@ -69,16 +78,25 @@ const Transaction: React.FC<TransactionProps> = ({
           text,
           user: currentUser.handle,
           profile: currentUser.profile,
-          transactionId: id,
+          transactionId: id || _id,
         },
       });
       setShowReply(false);
       setReplyContent("");
       setShowComments(true);
-      setShowModal(true);
+      if (emailPopup) setShowModal(true);
       fetchComments();
     } catch {
       console.log("Error on comment children");
+    }
+  };
+
+  const deleteTransaction = async (_id: string) => {
+    try {
+      await axios.post("/api/transactions/delete", { _id });
+      postDelete();
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -91,23 +109,44 @@ const Transaction: React.FC<TransactionProps> = ({
       </Feed.Label>
       <Feed.Content>
         <Feed.Summary>
-          <a href="https://twitter.com/manderjaska">Michael</a>
-          {` spent \$${amount?.toFixed(2)} at ${description}`}
+          {user ? (
+            <Feed.User>{user}</Feed.User>
+          ) : (
+            <a href="https://twitter.com/anderjaska1">Michael</a>
+          )}
+          {` spent \$${amount ? amount.toFixed(2) : "Error"} on ${description}`}
           <Feed.Date>{moment(date).format("MM/DD")}</Feed.Date>
         </Feed.Summary>
         <Feed.Extra text>{`${category}`}</Feed.Extra>
-        <Feed.Meta
-          className="comment-meta"
-          onClick={() => setShowComments(!showComments)}
-        >
-          {showComments ? <p> [ - ] </p> : <p> [ + ] </p>}
-        </Feed.Meta>
-        <Feed.Meta
-          className="comment-meta"
-          onClick={() => setShowReply(!showReply)}
-        >
-          <p> Leave a Comment</p>
-        </Feed.Meta>
+        {commenting && (
+          <Feed.Meta
+            className="comment-meta"
+            onClick={() => setShowComments(!showComments)}
+          >
+            {showComments ? <a> [ - ] </a> : <a> [ + ] </a>}
+          </Feed.Meta>
+        )}
+        {commenting && (
+          <Feed.Meta
+            className="comment-meta"
+            onClick={() => {
+              setShowReply(!showReply);
+            }}
+          >
+            <a> Leave a Comment</a>
+          </Feed.Meta>
+        )}
+
+        {user && _id && (
+          <Feed.Meta
+            className="comment-meta"
+            onClick={() => {
+              deleteTransaction(_id);
+            }}
+          >
+            <a> Delete</a>
+          </Feed.Meta>
+        )}
         {showReply && (
           <Form style={{ marginTop: "1vh" }} reply>
             <Form.TextArea
@@ -131,7 +170,9 @@ const Transaction: React.FC<TransactionProps> = ({
             />
           </Form>
         )}
-        {showComments && renderComments(comments, currentUser)}
+        {showComments &&
+          commenting &&
+          renderComments(comments, currentUser, emailPopup)}
         <Divider />
       </Feed.Content>
     </Feed.Event>

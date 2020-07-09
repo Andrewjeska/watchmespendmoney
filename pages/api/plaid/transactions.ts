@@ -4,20 +4,29 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { prettyPrintError } from "../../../utils";
 import { client, connectToDatabase, processTransactions } from "../utils";
 
-//TODO: generalize
-//Hard code my account info for mvp
-const user = "m.anderjaska@gmail.com";
-
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const db = await connectToDatabase(envvar.string("MONGODB_URI"));
   const collection = await db.collection("users");
   //TODO: how to do DB stuff right?
+
+  const transactionCollection = await db.collection("plaidTransactions");
+  // await transactionCollection.drop();
+
+  const trans = await transactionCollection.find({}).toArray();
+  if (trans.length) {
+    return res.json({
+      error: null,
+      transactions: trans,
+    });
+  }
+
+  const user = req.query.user || "m.anderjaska@gmail.com";
   const userObj = await collection.find({ user }).toArray();
   const accessToken = userObj[0].accessToken;
 
   if (!accessToken)
     return res.status(403).json({
-      error: "Please authenticate with your bank(s)",
+      error: "Please add a bank account!",
     });
 
   const startDate = moment("2020-06-01").format("YYYY-MM-DD");
@@ -34,12 +43,16 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       if (error != null) {
         prettyPrintError(error);
         return res.json({
+          transactions: [],
           error,
         });
       }
+      const transactions = processTransactions(transactionsResponse);
+      if (!trans.length) transactionCollection.insertMany(transactions);
+
       return res.json({
         error: null,
-        transactions: processTransactions(transactionsResponse),
+        transactions,
       });
     }
   );

@@ -3,6 +3,7 @@ import _ from "lodash";
 import { Db, MongoClient } from "mongodb";
 import plaid from "plaid";
 import url from "url";
+import { prettyPrintInfo } from "../../utils";
 
 // ########### Plaid client setup ###########
 
@@ -57,6 +58,7 @@ export async function connectToDatabase(uri: string): Promise<Db> {
   // If the database connection is cached,
   // use it instead of creating a new connection
   if (cachedDb) {
+    prettyPrintInfo("cached!");
     return cachedDb;
   }
 

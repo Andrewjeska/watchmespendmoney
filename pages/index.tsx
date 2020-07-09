@@ -1,15 +1,21 @@
 import axios from "axios";
-import _ from "lodash";
+import "firebase/auth";
 import moment from "moment";
+import { GetStaticProps } from "next";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Container, Feed, Grid, Header, Loader } from "semantic-ui-react";
+import { Container, Grid, Header, Loader, Modal } from "semantic-ui-react";
 import { bake_cookie } from "sfcookies";
-import SignUp from "../components/SignUp";
-import Transaction from "../components/Transaction";
+import SignUp from "../components/EmailSignUp";
+import Navbar from "../components/Navbar";
+import TransactionFeed from "../components/TransactionFeed";
 import { auth } from "../utils/firebase";
 
-const Home: React.FC = () => {
-  const [plaidAuthenticated, setPlaidAuthenticated] = useState(true);
+interface HomeProps {
+  maintenance: boolean;
+}
+
+const Home: React.FC<HomeProps> = ({ maintenance }) => {
   const [transactions, setTransactions] = useState([]);
 
   const fetchTransactions = async () => {
@@ -17,18 +23,18 @@ const Home: React.FC = () => {
       const res = await axios.get("/api/plaid/transactions");
       setTransactions(res.data.transactions);
     } catch (err) {
-      setPlaidAuthenticated(false);
+      console.error(err);
     }
   };
 
-  const [currentUser, setCurrentUser] = useState({
-    handle: "Anon",
-    profile: "",
-  });
+  const router = useRouter();
 
   useEffect(() => {
     // will run on first render, like componentDidMount
-    fetchTransactions();
+
+    auth.getRedirectResult().then((res) => {
+      if (res.user) router.push(`/${res.user.uid}`);
+    });
 
     auth.onAuthStateChanged((user) => {
       if (user && user.email) {
@@ -37,24 +43,38 @@ const Home: React.FC = () => {
         // admin mode
         if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
           bake_cookie("admin", "true", moment().years(10).toDate());
-          setCurrentUser({
-            handle: "Michael",
-            profile: process.env.NEXT_PUBLIC_ADMIN_TWITTER || "",
-          });
         }
       }
     });
+
+    fetchTransactions();
   }, []);
 
-  useEffect(() => {
-    // will run on each render, like componentDidUpdate
-    if (plaidAuthenticated && transactions.length === 0) {
-      fetchTransactions();
-    }
-  });
+  if (maintenance) {
+    return (
+      <Modal open={maintenance}>
+        <Modal.Content>
+          <h3> We're currently down for maintenance!</h3>
+          <p>
+            If you're coming from hackernews, thanks for being a part of my
+            first ever Show HN! If you'd like to stay updated on
+            watchmespendmoney, sign up with your email below.
+          </p>
+          <Grid textAlign="center">
+            <Grid.Row>
+              <Grid.Column width={10}>
+                <SignUp />
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
+        </Modal.Content>
+      </Modal>
+    );
+  }
 
   return (
     <div>
+      <Navbar></Navbar>
       <Container style={{ paddingTop: "10vh" }} text>
         <Grid>
           <Grid textAlign="center">
@@ -93,16 +113,11 @@ const Home: React.FC = () => {
           </Grid>
 
           <Grid.Row>
-            {transactions.length > 0 ? (
-              <Feed style={{ width: "100%" }}>
-                {_.map(transactions, (t: UserTransaction, i: number) => (
-                  <Transaction
-                    key={t.id}
-                    transaction={t}
-                    currentUser={currentUser}
-                  />
-                ))}
-              </Feed>
+            {transactions.length ? (
+              <TransactionFeed
+                transactions={transactions}
+                transactionPostDelete={() => fetchTransactions()}
+              />
             ) : (
               <Loader active />
             )}
@@ -126,6 +141,15 @@ const Home: React.FC = () => {
       </Container>
     </div>
   );
+};
+
+export const getStaticProps: GetStaticProps = async () => {
+  // this runs server-side
+  return {
+    props: {
+      maintenance: process.env.MAINTENANCE_MODE === "true",
+    },
+  };
 };
 
 export default Home;
