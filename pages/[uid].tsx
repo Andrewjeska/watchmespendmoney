@@ -39,9 +39,6 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
     // will run on first render, like componentDidMount
     if (uid) fetchTransactions();
 
-    auth.getRedirectResult().then((res) => {
-      if (res.user) setUser(res.user);
-    });
     auth.onAuthStateChanged((user) => {
       if (user) setUser(user);
     });

@@ -1,16 +1,21 @@
 import axios from "axios";
 import "firebase/auth";
 import moment from "moment";
+import { GetStaticProps } from "next";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Container, Grid, Header, Loader } from "semantic-ui-react";
+import { Container, Grid, Header, Loader, Modal } from "semantic-ui-react";
 import { bake_cookie } from "sfcookies";
 import SignUp from "../components/EmailSignUp";
 import Navbar from "../components/Navbar";
 import TransactionFeed from "../components/TransactionFeed";
 import { auth } from "../utils/firebase";
 
-const Home: React.FC = () => {
+interface HomeProps {
+  maintenance: boolean;
+}
+
+const Home: React.FC<HomeProps> = ({ maintenance }) => {
   const [transactions, setTransactions] = useState([]);
 
   const fetchTransactions = async () => {
@@ -26,6 +31,11 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     // will run on first render, like componentDidMount
+
+    auth.getRedirectResult().then((res) => {
+      if (res.user) router.push(`/${res.user.uid}`);
+    });
+
     auth.onAuthStateChanged((user) => {
       if (user && user.email) {
         // User is signed in.
@@ -39,6 +49,28 @@ const Home: React.FC = () => {
 
     fetchTransactions();
   }, []);
+
+  if (maintenance) {
+    return (
+      <Modal open={maintenance}>
+        <Modal.Content>
+          <h3> We're currently down for maintenance!</h3>
+          <p>
+            If you're coming from hackernews, thanks for being a part of my
+            first ever Show HN! If you'd like to stay updated on
+            watchmespendmoney, sign up with your email below.
+          </p>
+          <Grid textAlign="center">
+            <Grid.Row>
+              <Grid.Column width={10}>
+                <SignUp />
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
+        </Modal.Content>
+      </Modal>
+    );
+  }
 
   return (
     <div>
@@ -109,6 +141,15 @@ const Home: React.FC = () => {
       </Container>
     </div>
   );
+};
+
+export const getStaticProps: GetStaticProps = async () => {
+  // this runs server-side
+  return {
+    props: {
+      maintenance: process.env.MAINTENANCE_MODE === "true",
+    },
+  };
 };
 
 export default Home;

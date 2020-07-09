@@ -24,7 +24,8 @@
       "NEXT_PUBLIC_FIREBASE_APP_ID": "1:122259965210:web:8f392e7bd75a3fd860d8a3",
       "NEXT_PUBLIC_EMAIL_SIGNUP": "https://emailoctopus.com/lists/589a8309-b670-11ea-a3d0-06b4694bee2a/forms/subscribe",
       "NEXT_PUBLIC_ADMIN_EMAIL": "m.anderjaska@gmail.com",
-      "NEXT_PUBLIC_ADMIN_TWITTER": "https://twitter.com/manderjaska"
+      "NEXT_PUBLIC_ADMIN_TWITTER": "https://twitter.com/manderjaska",
+      "MAINTENANCE_MODE": "true"
     }
   }
 }
