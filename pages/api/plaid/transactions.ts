@@ -1,4 +1,5 @@
 import envvar from "envvar";
+import _ from "lodash";
 import moment from "moment";
 import { NextApiRequest, NextApiResponse } from "next";
 import { prettyPrintError } from "../../../utils";
@@ -16,7 +17,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (trans.length) {
     return res.json({
       error: null,
-      transactions: trans,
+      transactions: _(trans).sortBy("date").reverse().value(),
     });
   }
 
