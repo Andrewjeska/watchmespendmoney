@@ -1,5 +1,6 @@
 import axios from "axios";
 import "firebase/auth";
+import moment from "moment";
 import { GetServerSideProps } from "next";
 import React, { useEffect, useState } from "react";
 import {
@@ -9,6 +10,7 @@ import {
   Input,
   Loader,
   Segment,
+  Statistic,
 } from "semantic-ui-react";
 import AddTransaction from "../components/AddTransaction";
 import Navbar from "../components/Navbar";
@@ -50,46 +52,68 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
   return (
     <div>
       <Navbar></Navbar>
-      <Container style={{ paddingTop: "10vh" }} text>
-        {user && user.uid === uid && (
-          <div>
-            <Segment>
-              <Grid textAlign="center">
-                <Grid.Row>
-                  <Header as="h2">Share your Feed</Header>
-                </Grid.Row>
-                <Grid.Column width={12}>
-                  <Input
-                    style={{ width: "100%" }}
-                    action={{
-                      color: "teal",
-                      labelPosition: "right",
-                      icon: "copy",
-                      content: "Copy",
-                      onClick: () => {
-                        var copy: any = document.getElementById("shareLink");
-                        if (copy) {
-                          copy.select();
-                          document.execCommand("copy");
-                          alert("Copied!");
-                        }
-                      },
-                    }}
-                    id="shareLink"
-                    readOnly
-                    defaultValue={window.location.href}
+      <Container style={{ paddingTop: "10vh" }}>
+        <Grid>
+          <Grid.Column width={8}>
+            {user && user.uid === uid && (
+              <div>
+                <Segment>
+                  <Grid textAlign="center">
+                    <Grid.Row>
+                      <Header as="h2">Share your Feed</Header>
+                    </Grid.Row>
+                    <Grid.Column width={12}>
+                      <Input
+                        style={{ width: "100%" }}
+                        action={{
+                          color: "teal",
+                          labelPosition: "right",
+                          icon: "copy",
+                          content: "Copy",
+                          onClick: () => {
+                            var copy: any = document.getElementById(
+                              "shareLink"
+                            );
+                            if (copy) {
+                              copy.select();
+                              document.execCommand("copy");
+                              alert("Copied!");
+                            }
+                          },
+                        }}
+                        id="shareLink"
+                        readOnly
+                        defaultValue={window.location.href}
+                      />
+                    </Grid.Column>
+                  </Grid>
+                </Segment>
+                <Segment>
+                  <AddTransaction
+                    user={user}
+                    postSubmit={() => fetchTransactions()}
                   />
-                </Grid.Column>
-              </Grid>
-            </Segment>
+                </Segment>
+              </div>
+            )}
+          </Grid.Column>
+          <Grid.Column width={8}>
             <Segment>
-              <AddTransaction
-                user={user}
-                postSubmit={() => fetchTransactions()}
-              />
+              <Statistic>
+                <Statistic.Label>
+                  Total spent in {moment().format("MMMM")}
+                </Statistic.Label>
+                <Statistic.Value>$5,550</Statistic.Value>
+              </Statistic>
+              <Statistic>
+                <Statistic.Label>
+                  Category with highest spend: Fast Food
+                </Statistic.Label>
+              </Statistic>
             </Segment>
-          </div>
-        )}
+          </Grid.Column>
+        </Grid>
+
         <Grid textAlign="center" style={{ marginTop: "2vh" }}>
           <Grid.Row>
             {transPending && <Loader active />}
