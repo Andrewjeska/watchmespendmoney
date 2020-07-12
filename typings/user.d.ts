@@ -1,17 +1,16 @@
 interface UserTransaction {
+  id: string;
+  uid?: string;
   date: string;
-  amount: number | null;
   description: string | null;
+  amount: number | null;
   category: string;
-  _id?: string;
-  id?: string;
-  user?: string;
 }
 //TODO: too many optional types
 
 interface UserMeta {
-  handle: string;
-  profile: string;
+  uid: string | null;
+  displayName: string | null;
 }
 
 declare module "sfcookies";

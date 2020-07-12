@@ -1,5 +1,5 @@
 import _ from "lodash";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Feed } from "semantic-ui-react";
 import { auth } from "../common/firebase";
 import Transaction from "./Transaction";
@@ -17,10 +17,17 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
   emailPopup = true,
   transactionPostDelete,
 }) => {
-  const currentUser = {
-    handle: auth.currentUser?.displayName || "Anon",
-    profile: "",
-  };
+  const [currentUID, setCurrentUID] = useState("");
+
+  // TODO: should we do this just once in a higher component?
+  useEffect(() => {
+    // will run on first render, like componentDidMount
+    auth.onAuthStateChanged((user) => {
+      if (user && user.uid) {
+        setCurrentUID("uid");
+      } else setCurrentUID("");
+    });
+  }, []);
 
   return (
     <Feed style={{ width: "100%" }}>
@@ -29,7 +36,7 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
           key={t.id}
           transaction={t}
           postDelete={transactionPostDelete}
-          currentUser={currentUser}
+          currentUID={currentUID}
           commenting={commenting}
           emailPopup={emailPopup}
         />

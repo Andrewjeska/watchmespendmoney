@@ -27,7 +27,10 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
 
   const fetchTransactions = async () => {
     try {
-      const res = await axios.get(`/api/transactions/${uid}`);
+      const res = await axios.get("/api/transactions/", {
+        params: { uid },
+      });
+      console.log(res.data);
       setTransactions(res.data.transactions);
       setTransPending(false);
     } catch (err) {

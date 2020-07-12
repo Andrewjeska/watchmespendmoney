@@ -7,13 +7,13 @@ import SignUpModal from "./EmailSignUpModal";
 
 interface CommentThreadProps {
   meta: TransactionComment;
-  currentUser: UserMeta;
+  currentUID: string;
   emailPopup: boolean;
 }
 
 const CommentThread: React.FC<CommentThreadProps> = ({
   meta,
-  currentUser,
+  currentUID,
   emailPopup,
 }) => {
   const [commentChildren, setCommentChildren] = useState([]);
@@ -22,7 +22,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
     try {
       const res = await axios.get("/api/transactions/comments", {
         params: {
-          parentId: meta._id,
+          parentId: meta.id,
         },
       });
       if (res.data.comments) setCommentChildren(res.data.comments);
@@ -35,15 +35,14 @@ const CommentThread: React.FC<CommentThreadProps> = ({
   const [replyContent, setReplyContent] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  const reply = async (text: string) => {
+  const reply = async (text: string, uid: string) => {
     try {
-      const res = await axios.post("/api/transactions/comment_reply", {
+      const res = await axios.post("/api/transactions/comments/reply", {
         comment: {
           dateTime: moment(),
           text,
-          user: currentUser.handle,
-          profile: currentUser.profile,
-          parentId: meta._id,
+          uid,
+          parentId: meta.id,
         },
       });
       setShowReply(false);
@@ -70,13 +69,15 @@ const CommentThread: React.FC<CommentThreadProps> = ({
           <Comment.Content>
             {showComment && (
               <div>
-                {meta.user && meta.user !== "Anon" ? (
+                {/* {meta.user && meta.user !== "Anon" ? (
                   <Comment.Author as="a" href={meta.profile}>
                     {meta.user}
                   </Comment.Author>
-                ) : (
-                  <Comment.Author as="a">Anon</Comment.Author>
-                )}
+                ) : ( */}
+
+                {/* TODO:  handle getting the display name right */}
+                <Comment.Author as="a">Anon</Comment.Author>
+                {/* )} */}
                 <Comment.Metadata>
                   <div>{moment(meta.dateTime).format("MM/DD/YY h:mm a")}</div>
                 </Comment.Metadata>
@@ -107,7 +108,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
                   labelPosition="left"
                   icon="edit"
                   primary
-                  onClick={() => reply(replyContent)}
+                  onClick={() => reply(replyContent, currentUID)}
                 />
                 <Button
                   content="Cancel"
@@ -120,7 +121,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
             )}
           </Comment.Content>
           {showComment &&
-            renderChildren(commentChildren, currentUser, emailPopup)}
+            renderChildren(commentChildren, currentUID, emailPopup)}
         </Comment>
       </Comment.Group>
     </Segment>
@@ -129,15 +130,15 @@ const CommentThread: React.FC<CommentThreadProps> = ({
 
 const renderChildren = (
   children: Array<TransactionComment>,
-  currentUser: UserMeta,
+  currentUID: string,
   emailPopup: boolean
 ) => {
   if (children.length > 0) {
     return _.map(children, (child: TransactionComment) => (
       <CommentThread
-        key={child._id}
+        key={child.id}
         meta={child}
-        currentUser={currentUser}
+        currentUID={currentUID}
         emailPopup={emailPopup}
       />
     ));

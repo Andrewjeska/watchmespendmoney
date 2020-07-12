@@ -25,10 +25,9 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
       const res = await axios.post("/api/transactions/create", {
         transaction: {
           uid: user.uid,
-          user: user.displayName,
           date,
-          amount,
           description,
+          amount,
           category,
           reason,
         },
@@ -58,6 +57,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
           label="What did you buy?"
           placeholder="Description"
           width={8}
+          value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
       </Form.Group>
@@ -68,18 +68,21 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
           label="Amount"
           placeholder="$"
           width={3}
+          value={amount}
           onChange={(e) => setAmount(parseFloat(e.target.value))}
         />
         <Form.Input
           label="Category"
           placeholder="Category"
           width={5}
+          value={category}
           onChange={(e) => setCategory(e.target.value)}
         />
         <Form.Input
           label="Reason"
           placeholder="Why did you buy this? (Optional)"
           width={8}
+          value={reason}
           onChange={(e) => setReason(e.target.value)}
         />
       </Form.Group>

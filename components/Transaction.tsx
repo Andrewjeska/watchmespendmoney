@@ -9,7 +9,7 @@ import SignUpModal from "./EmailSignUpModal";
 
 interface TransactionProps {
   transaction: UserTransaction;
-  currentUser: UserMeta;
+  currentUID: string;
   commenting: boolean;
   emailPopup: boolean;
   postDelete: () => void;
@@ -17,7 +17,7 @@ interface TransactionProps {
 
 const renderComments = (
   comments: Array<TransactionComment>,
-  currentUser: UserMeta,
+  currentUID: string,
   emailPopup: boolean
 ) => {
   if (comments.length > 0) {
@@ -26,9 +26,9 @@ const renderComments = (
       .reverse()
       .map((comment: TransactionComment) => (
         <CommentThread
-          key={comment._id}
+          key={comment.id}
           meta={comment}
-          currentUser={currentUser}
+          currentUID={currentUID}
           emailPopup={emailPopup}
         />
       ))
@@ -38,21 +38,22 @@ const renderComments = (
 
 const Transaction: React.FC<TransactionProps> = ({
   transaction,
-  currentUser,
+  currentUID,
   commenting,
   emailPopup,
   postDelete,
 }) => {
   //TODO: reconcile _id and id
-  const { amount, date, category, description, _id, id, user } = transaction;
+  const { id, uid, date, description, amount, category } = transaction;
   const [comments, setComments] = useState([]);
 
   const fetchComments = async () => {
     try {
       const res = await axios.get("/api/transactions/comments", {
         params: {
-          transactionId: id || _id,
+          transactionId: id,
         },
+        headers: { "Cache-Control": "no-cache" },
       });
       setComments(res.data.comments);
     } catch (err) {
@@ -70,15 +71,14 @@ const Transaction: React.FC<TransactionProps> = ({
   const [showComments, setShowComments] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
-  const reply = async (text: string, user: UserMeta) => {
+  const reply = async (text: string, uid: string) => {
     try {
-      const res = await axios.post("/api/transactions/comment_reply", {
+      const res = await axios.post("/api/transactions/comment", {
         comment: {
           dateTime: moment(),
           text,
-          user: currentUser.handle,
-          profile: currentUser.profile,
-          transactionId: id || _id,
+          uid,
+          transactionId: id,
         },
       });
       setShowReply(false);
@@ -91,14 +91,16 @@ const Transaction: React.FC<TransactionProps> = ({
     }
   };
 
-  const deleteTransaction = async (_id: string) => {
+  const deleteTransaction = async (id: string) => {
     try {
-      await axios.post("/api/transactions/delete", { _id });
+      await axios.post("/api/transactions/delete", { id });
       postDelete();
     } catch (err) {
       console.error(err);
     }
   };
+
+  //TODO: store display names with uids in a table on postgres
 
   return (
     <Feed.Event>
@@ -109,11 +111,7 @@ const Transaction: React.FC<TransactionProps> = ({
       </Feed.Label>
       <Feed.Content>
         <Feed.Summary>
-          {user ? (
-            <Feed.User>{user}</Feed.User>
-          ) : (
-            <a href="https://twitter.com/anderjaska1">Michael</a>
-          )}
+          <a href="https://twitter.com/anderjaska1">Michael</a>
           {` spent \$${amount ? amount.toFixed(2) : "Error"} on ${description}`}
           <Feed.Date>{moment(date).format("MM/DD")}</Feed.Date>
         </Feed.Summary>
@@ -136,12 +134,13 @@ const Transaction: React.FC<TransactionProps> = ({
             <a> Leave a Comment</a>
           </Feed.Meta>
         )}
+        {currentUID !== "" && currentUID === uid && id && (
+          // TODO: is this secure?
 
-        {user && _id && (
           <Feed.Meta
             className="comment-meta"
             onClick={() => {
-              deleteTransaction(_id);
+              deleteTransaction(id);
             }}
           >
             <a> Delete</a>
@@ -159,7 +158,7 @@ const Transaction: React.FC<TransactionProps> = ({
               labelPosition="left"
               icon="edit"
               primary
-              onClick={() => reply(replyContent, currentUser)}
+              onClick={() => reply(replyContent, currentUID)}
             />
             <Button
               content="Cancel"
@@ -172,7 +171,7 @@ const Transaction: React.FC<TransactionProps> = ({
         )}
         {showComments &&
           commenting &&
-          renderComments(comments, currentUser, emailPopup)}
+          renderComments(comments, currentUID, emailPopup)}
         <Divider />
       </Feed.Content>
     </Feed.Event>

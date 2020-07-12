@@ -47,7 +47,7 @@ export const client = new plaid.Client(
 
 // ########### Util functions ###########
 
-export const processTransactions = (
+export const processPlaidTransactions = (
   res: plaid.TransactionsResponse
 ): Array<UserTransaction> => {
   // TODO: we should have a a list of connected accounts for a user somehow
@@ -85,6 +85,30 @@ export const processTransactions = (
       .value()
   );
 };
+
+export const processTransactions = (rows: any[]): Array<UserTransaction> =>
+  _.map(rows, (transaction) => {
+    return {
+      id: transaction.id,
+      uid: transaction.uid,
+      date: transaction.date,
+      amount: transaction.amount,
+      description: transaction.description,
+      category: transaction.category,
+    };
+  });
+
+export const processComments = (rows: any[]): Array<TransactionComment> =>
+  _.map(rows, (comment) => {
+    return {
+      id: comment.id,
+      uid: comment.uid,
+      dateTime: comment.date_time,
+      text: comment.comment_text,
+      transactionId: comment.transaction_id,
+      parentId: comment.parent_id,
+    };
+  });
 
 export const prettyPrintInfo = (response: any) => {
   console.info(util.inspect(response, { colors: true, depth: 4 }));

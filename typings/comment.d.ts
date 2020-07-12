@@ -1,9 +1,8 @@
 interface TransactionComment {
-  _id: string;
+  id: string;
+  uid: string;
   dateTime: Date;
   text: string;
   transactionId?: string;
   parentId?: string;
-  user?: string;
-  profile?: string;
 }
