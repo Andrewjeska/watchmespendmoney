@@ -134,7 +134,7 @@ apiRoutes.get("/transactions", async (req, res) => {
   }
 });
 
-apiRoutes.post("/transactions/create", async (req, res) => {
+apiRoutes.post("/transactions/delete", async (req, res) => {
   const {
     uid,
     date,
@@ -178,6 +178,21 @@ apiRoutes.post("/transactions/create", async (req, res) => {
     return res.json({
       error,
       transactions: [],
+    });
+  }
+});
+
+apiRoutes.post("/transactions/delete", async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    await pgQuery("DELETE from transactions WHERE id = $1", [id]);
+    await pgQuery("DELETE from comments WHERE transaction_id = $1", [id]);
+    return res.status(200);
+  } catch (error) {
+    prettyPrintError(error);
+    return res.status(500).json({
+      error,
     });
   }
 });

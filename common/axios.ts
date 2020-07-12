@@ -4,7 +4,7 @@ import axios from "axios";
 // TODO: Set up TLS
 const instance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL
-    ? `http://${process.env.NEXT_PUBLIC_API_URL}`
+    ? `https://${process.env.NEXT_PUBLIC_API_URL}`
     : "http://localhost:5000",
 });
 
