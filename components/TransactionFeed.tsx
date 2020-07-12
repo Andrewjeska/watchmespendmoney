@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React from "react";
 import { Feed } from "semantic-ui-react";
-import { auth } from "../utils/firebase";
+import { auth } from "../common/firebase";
 import Transaction from "./Transaction";
 
 interface TransactionFeedProps {

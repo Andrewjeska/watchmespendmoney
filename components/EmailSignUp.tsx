@@ -1,8 +1,8 @@
-import axios from "axios";
 import moment from "moment";
 import React, { useState } from "react";
 import { Button, Form } from "semantic-ui-react";
 import { bake_cookie } from "sfcookies";
+import { axios } from "../common/axios";
 
 const signUp = async (email: string) => {
   try {

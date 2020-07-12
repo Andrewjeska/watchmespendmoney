@@ -3,15 +3,15 @@ module.exports = {
     config.module.rules.push({
       test: /\.(png|svg)$/,
       use: {
-        loader: 'url-loader',
+        loader: "url-loader",
         options: {
           limit: 8192,
-          publicPath: '/_next/static/',
-          outputPath: 'static/',
-          name: '[name].[ext]',
+          publicPath: "/_next/static/",
+          outputPath: "static/",
+          name: "[name].[ext]",
         },
       },
-    })
-    return config
+    });
+    return config;
   },
-}
+};

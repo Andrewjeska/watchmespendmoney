@@ -1,4 +1,3 @@
-import axios from "axios";
 import "firebase/auth";
 import moment from "moment";
 import { GetServerSideProps } from "next";
@@ -12,10 +11,11 @@ import {
   Segment,
   Statistic,
 } from "semantic-ui-react";
+import { axios } from "../common/axios";
+import { auth } from "../common/firebase";
 import AddTransaction from "../components/AddTransaction";
 import Navbar from "../components/Navbar";
 import TransactionFeed from "../components/TransactionFeed";
-import { auth } from "../utils/firebase";
 
 interface UserFeedProps {
   uid: string;

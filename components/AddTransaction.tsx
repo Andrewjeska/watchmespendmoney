@@ -1,8 +1,8 @@
-import axios from "axios";
 import "firebase/auth";
 import moment from "moment";
 import React, { useState } from "react";
 import { Button, Form, Icon } from "semantic-ui-react";
+import { axios } from "../common/axios";
 
 interface AddTransactionProps {
   user: firebase.User;

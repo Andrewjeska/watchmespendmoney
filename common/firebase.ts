@@ -13,3 +13,12 @@ if (!firebase.apps.length) {
 }
 const auth = firebase.auth();
 export { auth, firebase };
+
+export const googleSignIn = async (): Promise<void> => {
+  try {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithRedirect(provider);
+  } catch (err) {
+    console.error(err);
+  }
+};

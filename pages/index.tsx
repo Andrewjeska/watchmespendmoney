@@ -1,4 +1,3 @@
-import axios from "axios";
 import "firebase/auth";
 import moment from "moment";
 import { GetStaticProps } from "next";
@@ -6,10 +5,11 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Container, Grid, Header, Loader, Modal } from "semantic-ui-react";
 import { bake_cookie } from "sfcookies";
+import { axios } from "../common/axios";
+import { auth } from "../common/firebase";
 import SignUp from "../components/EmailSignUp";
 import Navbar from "../components/Navbar";
 import TransactionFeed from "../components/TransactionFeed";
-import { auth } from "../utils/firebase";
 
 interface HomeProps {
   maintenance: boolean;
@@ -20,7 +20,9 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
 
   const fetchTransactions = async () => {
     try {
-      const res = await axios.get("/api/plaid/transactions");
+      const res = await axios.get(`/api/plaid/transactions`, {
+        params: { uid: process.env.NEXT_PUBLIC_ADMIN_UID },
+      });
       setTransactions(res.data.transactions);
     } catch (err) {
       console.error(err);
@@ -37,11 +39,11 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
     });
 
     auth.onAuthStateChanged((user) => {
-      if (user && user.email) {
+      if (user && user.uid) {
         // User is signed in.
 
         // admin mode
-        if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+        if (user.uid === process.env.NEXT_PUBLIC_ADMIN_UID) {
           bake_cookie("admin", "true", moment().years(10).toDate());
         }
       }

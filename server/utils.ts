@@ -1,9 +1,7 @@
 import envvar from "envvar";
 import _ from "lodash";
-import { Db, MongoClient } from "mongodb";
 import plaid from "plaid";
-import url from "url";
-import { prettyPrintInfo } from "../../utils";
+import util from "util";
 
 // ########### Plaid client setup ###########
 
@@ -47,39 +45,6 @@ export const client = new plaid.Client(
   }
 );
 
-// ########### MongoDB setup ###########
-
-// Create cached connection variable
-let cachedDb: Db | null = null;
-
-// A function for connecting to MongoDB,
-// taking a single parameter of the connection string
-export async function connectToDatabase(uri: string): Promise<Db> {
-  // If the database connection is cached,
-  // use it instead of creating a new connection
-  if (cachedDb) {
-    prettyPrintInfo("cached!");
-    return cachedDb;
-  }
-
-  //TODO: handle deprecation warning
-  // If no connection is cached, create a new one
-  const client = await MongoClient.connect(uri, {
-    useNewUrlParser: true,
-  });
-
-  // Select the database through the connection,
-  // using the database path of the connection string
-  const parsedURI = url.parse(uri);
-  if (!parsedURI.pathname) throw new Error("MongoDB URI Malformed");
-
-  const db = await client.db(parsedURI.pathname.substr(1));
-
-  // Cache the database connection and return the connection
-  cachedDb = db;
-  return db;
-}
-
 // ########### Util functions ###########
 
 export const processTransactions = (
@@ -119,4 +84,12 @@ export const processTransactions = (
       .compact()
       .value()
   );
+};
+
+export const prettyPrintInfo = (response: any) => {
+  console.info(util.inspect(response, { colors: true, depth: 4 }));
+};
+
+export const prettyPrintError = (error: Error) => {
+  console.error(util.inspect(error, { colors: true, depth: 4 }));
 };

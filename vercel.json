@@ -22,8 +22,8 @@
       "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "watchmespendmoney-d69c1.appspot.com",
       "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "122259965210",
       "NEXT_PUBLIC_FIREBASE_APP_ID": "1:122259965210:web:8f392e7bd75a3fd860d8a3",
-      "NEXT_PUBLIC_ADMIN_EMAIL": "m.anderjaska@gmail.com",
-      "NEXT_PUBLIC_ADMIN_TWITTER": "https://twitter.com/manderjaska",
+      "NEXT_PUBLIC_ADMIN_UID": "@admin-uid",
+      "NEXT_PUBLIC_API_URL": "@wmsm-backend",
       "MAINTENANCE_MODE": "false"
     }
   }

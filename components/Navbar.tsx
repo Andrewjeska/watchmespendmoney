@@ -2,8 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Container, Icon, Menu } from "semantic-ui-react";
-import { googleSignIn } from "../utils";
-import { auth, firebase } from "../utils/firebase";
+import { auth, firebase, googleSignIn } from "../common/firebase";
 
 const Navbar: React.FC = () => {
   const [user, setUser] = useState(firebase.auth().currentUser);

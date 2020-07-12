@@ -1,8 +1,8 @@
-import axios from "axios";
 import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Button, Comment, Form, Segment } from "semantic-ui-react";
+import { axios } from "../common/axios";
 import SignUpModal from "./EmailSignUpModal";
 
 interface CommentThreadProps {

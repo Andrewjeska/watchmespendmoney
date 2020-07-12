@@ -1,10 +1,10 @@
-import axios from "axios";
 import envvar from "envvar";
 import { GetStaticProps } from "next";
 import React, { useEffect, useRef, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 import { Button, Container, Form } from "semantic-ui-react";
-import { auth } from "../utils/firebase";
+import { axios } from "../common/axios";
+import { auth } from "../common/firebase";
 
 interface AdminProps {
   plaidPublicKey: string;
@@ -14,19 +14,20 @@ interface AdminProps {
 const Admin: React.FC<AdminProps> = ({ plaidPublicKey, plaidEnv }) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [email, setEmail] = useState("");
-  const [pw, setPw] = useState("");
 
+  const [pw, setPw] = useState("");
+  const [uid, setUID] = useState("");
   // this a little dumb but we have to do it like this
-  const emailRef = useRef(email);
+  const uidRef = useRef(uid);
   useEffect(() => {
-    emailRef.current = email;
+    uidRef.current = uid;
   });
 
   //TODO: is there a better way to encapsulate this
   const onSuccess = async (token: string, meta: any) => {
     await axios.post("/api/plaid/get_access_token", {
       publicToken: token,
-      userName: emailRef.current,
+      uid: uidRef.current,
     });
   };
 
@@ -43,8 +44,9 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey, plaidEnv }) => {
   useEffect(() => {
     // will run on first render, like componentDidMount
     auth.onAuthStateChanged((user) => {
-      if (user && user.email) {
+      if (user && user.email && user.uid) {
         // User is signed in.
+        setUID(user.uid);
         setEmail(user.email);
         setAuthenticated(true);
       }

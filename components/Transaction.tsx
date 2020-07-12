@@ -1,8 +1,8 @@
-import axios from "axios";
 import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Button, Divider, Feed, Form } from "semantic-ui-react";
+import { axios } from "../common/axios";
 import { svgs } from "../common/imagery";
 import CommentThread from "./CommentThread";
 import SignUpModal from "./EmailSignUpModal";
