@@ -134,7 +134,7 @@ apiRoutes.get("/transactions", async (req, res) => {
   }
 });
 
-apiRoutes.post("/transactions/delete", async (req, res) => {
+apiRoutes.post("/transactions/create", async (req, res) => {
   const {
     uid,
     date,
@@ -174,7 +174,6 @@ apiRoutes.post("/transactions/delete", async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("error");
     prettyPrintError(error);
     return res.json({
       error,
