@@ -1,8 +1,8 @@
 import axios from "axios";
 
-axios.defaults.baseURL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+// We make an instance here so that /server doesn't use this axios
+const instance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000",
+});
 
-console.log(process.env.NEXT_PUBLIC_API_URL);
-
-export { axios };
+export { instance as axios };
