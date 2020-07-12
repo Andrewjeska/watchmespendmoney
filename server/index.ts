@@ -10,6 +10,10 @@ app.use(express.json());
 app.use(cors());
 app.use("/api", apiRoutes);
 
+app.get("/status", (req, res) => {
+  res.json({ status: "ok" });
+});
+
 // tslint:disable-next-line:no-console
 app.listen(port, (err) => {
   if (err) throw err;
