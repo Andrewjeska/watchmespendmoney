@@ -20,7 +20,7 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
 
   const fetchTransactions = async () => {
     try {
-      const res = await axios.get(`/api/plaid/transactions`, {
+      const res = await axios.get("/api/plaid/transactions", {
         params: { uid: process.env.NEXT_PUBLIC_ADMIN_UID },
       });
       setTransactions(res.data.transactions);

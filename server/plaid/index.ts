@@ -11,7 +11,7 @@ import {
 // This route is hit when the user authenticates with Plaid
 const plaidAPI = Router();
 
-plaidAPI.post("/plaid/get_access_token", (req, res) => {
+plaidAPI.post("/get_access_token", (req, res) => {
   prettyPrintInfo(req.body);
   const { publicToken, uid } = req.body;
   client.exchangePublicToken(publicToken, async (error, tokenResponse) => {
@@ -38,7 +38,7 @@ plaidAPI.post("/plaid/get_access_token", (req, res) => {
 });
 
 // TODO: we should periodically hit this endpoint, or abstract this to a function or something
-plaidAPI.get("/plaid/transactions", async (req, res) => {
+plaidAPI.get("/transactions", async (req, res) => {
   const { uid } = req.query;
   const { rows } = await query("SELECT * FROM users WHERE uid = $1", [uid]);
   const accessToken = rows[0].access_token;
