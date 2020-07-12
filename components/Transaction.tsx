@@ -1,7 +1,7 @@
 import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Button, Divider, Feed, Form } from "semantic-ui-react";
+import { Button, Divider, Feed, Form, Loader } from "semantic-ui-react";
 import { axios } from "../common/axios";
 import { svgs } from "../common/imagery";
 import CommentThread from "./CommentThread";
@@ -9,41 +9,19 @@ import SignUpModal from "./EmailSignUpModal";
 
 interface TransactionProps {
   transaction: UserTransaction;
-  currentUID: string;
+  currentUser: UserMeta;
   commenting: boolean;
   emailPopup: boolean;
   postDelete: () => void;
 }
 
-const renderComments = (
-  comments: Array<TransactionComment>,
-  currentUID: string,
-  emailPopup: boolean
-) => {
-  if (comments.length > 0) {
-    return _(comments)
-      .sortBy(["dateTime"])
-      .reverse()
-      .map((comment: TransactionComment) => (
-        <CommentThread
-          key={comment.id}
-          meta={comment}
-          currentUID={currentUID}
-          emailPopup={emailPopup}
-        />
-      ))
-      .value();
-  }
-};
-
 const Transaction: React.FC<TransactionProps> = ({
   transaction,
-  currentUID,
+  currentUser,
   commenting,
   emailPopup,
   postDelete,
 }) => {
-  //TODO: reconcile _id and id
   const { id, uid, date, description, amount, category } = transaction;
   const [comments, setComments] = useState([]);
 
@@ -61,9 +39,25 @@ const Transaction: React.FC<TransactionProps> = ({
     }
   };
 
+  const [displayName, setDisplayName] = useState(
+    emailPopup ? "anderjaska" : ""
+  );
+  //TODO: this will be fixed once plaid transactions are regular transactions, we branch on email popup since that's the landing page
+
   useEffect(() => {
     // will run on first render, like componentDidMount
     if (commenting) fetchComments();
+    if (uid) {
+      axios
+        .get("/api/users", {
+          params: { uid },
+        })
+        .then((res) => {
+          const user = res.data.user;
+          if (user.displayName) setDisplayName(user.displayName);
+          else console.error(`displayName wasn't available for uid ${uid}`);
+        });
+    }
   }, []);
 
   const [showReply, setShowReply] = useState(false);
@@ -71,13 +65,13 @@ const Transaction: React.FC<TransactionProps> = ({
   const [showComments, setShowComments] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
-  const reply = async (text: string, uid: string) => {
+  const reply = async (text: string, uid: string | null) => {
     try {
       const res = await axios.post("/api/transactions/comment", {
         comment: {
           dateTime: moment(),
           text,
-          uid,
+          uid: uid, // might default because it's null?
           transactionId: id,
         },
       });
@@ -86,14 +80,15 @@ const Transaction: React.FC<TransactionProps> = ({
       setShowComments(true);
       if (emailPopup) setShowModal(true);
       fetchComments();
-    } catch {
-      console.log("Error on comment children");
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const deleteTransaction = async (id: string) => {
     try {
       await axios.post("/api/transactions/delete", { id });
+      console.log("will call postdelete");
       postDelete();
     } catch (err) {
       console.error(err);
@@ -101,6 +96,8 @@ const Transaction: React.FC<TransactionProps> = ({
   };
 
   //TODO: store display names with uids in a table on postgres
+
+  if (displayName === "") return <Loader></Loader>;
 
   return (
     <Feed.Event>
@@ -111,14 +108,14 @@ const Transaction: React.FC<TransactionProps> = ({
       </Feed.Label>
       <Feed.Content>
         <Feed.Summary>
-          <a href="https://twitter.com/anderjaska1">Michael</a>
+          {displayName !== "" && <Feed.User>{displayName} </Feed.User>}
           {` spent \$${amount ? amount.toFixed(2) : "Error"} on ${description}`}
           <Feed.Date>{moment(date).format("MM/DD")}</Feed.Date>
         </Feed.Summary>
         <Feed.Extra text>{`${category}`}</Feed.Extra>
         {commenting && (
           <Feed.Meta
-            className="comment-meta"
+            className="wmsm-comment-meta"
             onClick={() => setShowComments(!showComments)}
           >
             {showComments ? <a> [ - ] </a> : <a> [ + ] </a>}
@@ -126,7 +123,7 @@ const Transaction: React.FC<TransactionProps> = ({
         )}
         {commenting && (
           <Feed.Meta
-            className="comment-meta"
+            className="wmsm-comment-meta"
             onClick={() => {
               setShowReply(!showReply);
             }}
@@ -134,11 +131,11 @@ const Transaction: React.FC<TransactionProps> = ({
             <a> Leave a Comment</a>
           </Feed.Meta>
         )}
-        {currentUID !== "" && currentUID === uid && id && (
+        {currentUser.uid && currentUser.uid === uid && (
           // TODO: is this secure?
 
           <Feed.Meta
-            className="comment-meta"
+            className="wmsm-comment-meta"
             onClick={() => {
               deleteTransaction(id);
             }}
@@ -158,7 +155,7 @@ const Transaction: React.FC<TransactionProps> = ({
               labelPosition="left"
               icon="edit"
               primary
-              onClick={() => reply(replyContent, currentUID)}
+              onClick={() => reply(replyContent, currentUser.uid)}
             />
             <Button
               content="Cancel"
@@ -169,13 +166,34 @@ const Transaction: React.FC<TransactionProps> = ({
             />
           </Form>
         )}
-        {showComments &&
-          commenting &&
-          renderComments(comments, currentUID, emailPopup)}
+        {commenting &&
+          renderComments(comments, currentUser, emailPopup, showComments)}
         <Divider />
       </Feed.Content>
     </Feed.Event>
   );
+};
+
+const renderComments = (
+  comments: Array<TransactionComment>,
+  currentUser: UserMeta,
+  emailPopup: boolean,
+  showComments: boolean
+) => {
+  return _(comments)
+    .sortBy(["dateTime"])
+    .reverse()
+    .map((comment: TransactionComment) => (
+      <CommentThread
+        style={!showComments ? { display: "none" } : {}}
+        key={comment.id}
+        meta={comment}
+        currentUser={currentUser}
+        emailPopup={emailPopup}
+        nest={0}
+      />
+    ))
+    .value();
 };
 
 export default Transaction;

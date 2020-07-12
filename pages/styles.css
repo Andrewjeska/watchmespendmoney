@@ -43,6 +43,23 @@
   }
 }
 
-.comment-meta {
+/* semantic ui overrides */
+
+.wmsm-comment-meta {
   margin: 0 0.3vw !important;
+}
+
+.wmsm-comment-content {
+  margin: 1rem 0 0.5rem 1rem;
+}
+
+.wmsm-comment-group {
+  margin-top: 0 !important;
+  padding: 0 0.6rem 0.3rem 0.6rem !important;
+}
+
+.wmsm-comment-segment {
+  margin: 0.5rem 0 0 0.1rem !important;
+  padding: 0 0.1rem 0.3rem 0.9rem !important;
+  width: 100% !important;
 }

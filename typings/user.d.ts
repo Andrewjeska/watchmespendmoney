@@ -10,7 +10,7 @@ interface UserTransaction {
 
 interface UserMeta {
   uid: string | null;
-  displayName: string | null;
+  displayName: string;
 }
 
 declare module "sfcookies";

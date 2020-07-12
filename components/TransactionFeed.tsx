@@ -1,6 +1,8 @@
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import { Feed } from "semantic-ui-react";
+import { axios } from "../common/axios";
+import { defaultDisplayName } from "../common/constants";
 import { auth } from "../common/firebase";
 import Transaction from "./Transaction";
 
@@ -17,15 +19,29 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
   emailPopup = true,
   transactionPostDelete,
 }) => {
-  const [currentUID, setCurrentUID] = useState("");
+  const [currentUser, setCurrentUser] = useState({
+    uid: "",
+    displayName: defaultDisplayName,
+  });
 
   // TODO: should we do this just once in a higher component?
   useEffect(() => {
     // will run on first render, like componentDidMount
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(async (user) => {
       if (user && user.uid) {
-        setCurrentUID("uid");
-      } else setCurrentUID("");
+        // get stored displayName
+        const { data: userMeta } = await axios.get("/api/users", {
+          params: { uid: user.uid },
+        });
+        setCurrentUser({
+          uid: user.uid,
+          displayName: userMeta.displayName,
+        });
+      } else
+        setCurrentUser({
+          uid: "",
+          displayName: defaultDisplayName,
+        });
     });
   }, []);
 
@@ -36,7 +52,7 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
           key={t.id}
           transaction={t}
           postDelete={transactionPostDelete}
-          currentUID={currentUID}
+          currentUser={currentUser}
           commenting={commenting}
           emailPopup={emailPopup}
         />

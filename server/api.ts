@@ -186,9 +186,18 @@ apiRoutes.post("/transactions/delete", async (req, res) => {
   const { id } = req.body;
 
   try {
-    await pgQuery("DELETE from transactions WHERE id = $1", [id]);
-    await pgQuery("DELETE from comments WHERE transaction_id = $1", [id]);
-    return res.status(200);
+    const {
+      rows,
+    } = await pgQuery("DELETE from transactions WHERE id = $1 RETURNING id", [
+      id,
+    ]);
+    prettyPrintInfo(rows);
+    const deletedComments = await pgQuery(
+      "DELETE from comments WHERE transaction_id = $1 RETURNING id",
+      [id]
+    );
+    prettyPrintInfo("comments: " + deletedComments.rows);
+    return res.status(200).json({ error: null });
   } catch (error) {
     prettyPrintError(error);
     return res.status(500).json({
@@ -281,6 +290,70 @@ apiRoutes.post("/transactions/comments/reply", async (req, res) => {
     return res.json({
       error,
       comments: [],
+    });
+  }
+});
+
+// ########### Users API ###########
+// get a user by UID
+apiRoutes.get("/users", async (req, res) => {
+  const { uid } = req.query;
+
+  try {
+    const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
+
+    prettyPrintInfo(rows);
+    return res.json({
+      user: { uid: rows[0].uid, displayName: rows[0].display_name },
+      error: null,
+    });
+  } catch (error) {
+    prettyPrintError(error);
+    return res.json({
+      user: null,
+      error,
+    });
+  }
+});
+
+// Create a new user (without plaid credentials)
+apiRoutes.post("/users/create", async (req, res) => {
+  const { uid } = req.body;
+
+  try {
+    await pgQuery(
+      "INSERT INTO users(uid, display_name, access_token, item_id) VALUES ($1, $2, $3, $4)",
+      [uid, `spender${uid.slice(0, 8)}`, null, null]
+    );
+
+    return res.json({
+      error: null,
+    });
+  } catch (error) {
+    prettyPrintError(error);
+    return res.json({
+      error,
+    });
+  }
+});
+
+// Set the display name for a user
+apiRoutes.post("/users/set_display_name", async (req, res) => {
+  const { uid, displayName } = req.body;
+
+  try {
+    await pgQuery("UPDATE users SET display_name=$1 WHERE uid = $2 ", [
+      uid,
+      displayName,
+    ]);
+
+    return res.json({
+      error: null,
+    });
+  } catch (error) {
+    prettyPrintError(error);
+    return res.json({
+      error,
     });
   }
 });

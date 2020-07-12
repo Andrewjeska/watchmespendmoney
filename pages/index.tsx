@@ -34,8 +34,15 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
   useEffect(() => {
     // will run on first render, like componentDidMount
 
-    auth.getRedirectResult().then((res) => {
-      if (res.user) router.push(`/${res.user.uid}`);
+    auth.getRedirectResult().then(async (res) => {
+      if (res.user) {
+        const user = res.user;
+        if (res.additionalUserInfo?.isNewUser)
+          await axios.post("/api/users/create", {
+            uid: user.uid,
+          });
+        await router.push(`/${user.uid}`);
+      }
     });
 
     auth.onAuthStateChanged((user) => {

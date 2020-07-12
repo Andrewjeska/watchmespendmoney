@@ -1,31 +1,39 @@
 import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Button, Comment, Form, Segment } from "semantic-ui-react";
+import { Button, Comment, Form, Loader, Segment } from "semantic-ui-react";
 import { axios } from "../common/axios";
+import { defaultDisplayName, maxNest } from "../common/constants";
 import SignUpModal from "./EmailSignUpModal";
 
 interface CommentThreadProps {
+  style?: React.CSSProperties;
   meta: TransactionComment;
-  currentUID: string;
+  currentUser: UserMeta;
   emailPopup: boolean;
+  nest: number;
 }
 
 const CommentThread: React.FC<CommentThreadProps> = ({
+  style,
   meta,
-  currentUID,
+  currentUser,
   emailPopup,
+  nest,
 }) => {
+  const { id, uid, dateTime, text, transactionId, parentId } = meta;
+
   const [commentChildren, setCommentChildren] = useState([]);
 
   const fetchChildren = async () => {
     try {
       const res = await axios.get("/api/transactions/comments", {
         params: {
-          parentId: meta.id,
+          parentId: id,
         },
       });
-      if (res.data.comments) setCommentChildren(res.data.comments);
+
+      if (res.data.comments.length) setCommentChildren(res.data.comments);
     } catch {
       console.log("Error on comment children");
     }
@@ -35,14 +43,14 @@ const CommentThread: React.FC<CommentThreadProps> = ({
   const [replyContent, setReplyContent] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  const reply = async (text: string, uid: string) => {
+  const reply = async (text: string, uid: string | null) => {
     try {
       const res = await axios.post("/api/transactions/comments/reply", {
         comment: {
           dateTime: moment(),
           text,
           uid,
-          parentId: meta.id,
+          parentId: id,
         },
       });
       setShowReply(false);
@@ -54,47 +62,51 @@ const CommentThread: React.FC<CommentThreadProps> = ({
     }
   };
 
+  const [displayName, setDisplayName] = useState(uid ? "" : defaultDisplayName);
+
   useEffect(() => {
     // will run on first render, like componentDidMount
     fetchChildren();
+
+    if (uid) {
+      axios
+        .get("/api/users", {
+          params: { uid },
+        })
+        .then((res) => {
+          const user = res.data.user;
+          if (user.displayName) setDisplayName(user.displayName);
+          else console.error(`displayName wasn't available for uid ${uid}`);
+        });
+    }
   }, []);
 
   const [showComment, setShowComment] = useState(true);
 
-  return (
-    <Segment className="comment-segment">
-      <SignUpModal open={showModal} setOpen={setShowModal} />
-      <Comment.Group>
-        <Comment>
-          <Comment.Content>
-            {showComment && (
-              <div>
-                {/* {meta.user && meta.user !== "Anon" ? (
-                  <Comment.Author as="a" href={meta.profile}>
-                    {meta.user}
-                  </Comment.Author>
-                ) : ( */}
+  if (displayName === "") return <Loader></Loader>;
 
-                {/* TODO:  handle getting the display name right */}
-                <Comment.Author as="a">Anon</Comment.Author>
-                {/* )} */}
-                <Comment.Metadata>
-                  <div>{moment(meta.dateTime).format("MM/DD/YY h:mm a")}</div>
-                </Comment.Metadata>
-                <Comment.Text>{meta.text}</Comment.Text>
-              </div>
-            )}
+  return (
+    <Segment style={style} className="wmsm-comment-segment">
+      <SignUpModal open={showModal} setOpen={setShowModal} />
+      <Comment.Group className="wmsm-comment-group">
+        <Comment className="wmsm-comment">
+          <Comment.Content className="wmsm-comment-content">
+            <Comment.Author as="a">{displayName}</Comment.Author>
+            <Comment.Metadata>
+              <div>{moment(dateTime).format("MM/DD/YY h:mm a")}</div>
+            </Comment.Metadata>
+            {showComment && <Comment.Text>{text}</Comment.Text>}
 
             <Comment.Actions>
-              <Comment.Action
-                // className="comment-meta"
-                onClick={() => setShowComment(!showComment)}
-              >
+              <Comment.Action onClick={() => setShowComment(!showComment)}>
                 {showComment ? <p> [ - ] </p> : <p> [ + ] </p>}
               </Comment.Action>
-              <Comment.Action onClick={() => setShowReply(!showReply)}>
-                Reply
-              </Comment.Action>
+
+              {nest < maxNest && showComment && (
+                <Comment.Action onClick={() => setShowReply(!showReply)}>
+                  Reply
+                </Comment.Action>
+              )}
             </Comment.Actions>
             {showReply && (
               <Form style={{ marginTop: "1vh" }} reply>
@@ -108,7 +120,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
                   labelPosition="left"
                   icon="edit"
                   primary
-                  onClick={() => reply(replyContent, currentUID)}
+                  onClick={() => reply(replyContent, currentUser.uid)}
                 />
                 <Button
                   content="Cancel"
@@ -120,8 +132,13 @@ const CommentThread: React.FC<CommentThreadProps> = ({
               </Form>
             )}
           </Comment.Content>
-          {showComment &&
-            renderChildren(commentChildren, currentUID, emailPopup)}
+          {renderChildren(
+            commentChildren,
+            currentUser,
+            emailPopup,
+            nest,
+            showComment
+          )}
         </Comment>
       </Comment.Group>
     </Segment>
@@ -130,19 +147,21 @@ const CommentThread: React.FC<CommentThreadProps> = ({
 
 const renderChildren = (
   children: Array<TransactionComment>,
-  currentUID: string,
-  emailPopup: boolean
+  currentUser: UserMeta,
+  emailPopup: boolean,
+  nest: number,
+  showComment: boolean
 ) => {
-  if (children.length > 0) {
-    return _.map(children, (child: TransactionComment) => (
-      <CommentThread
-        key={child.id}
-        meta={child}
-        currentUID={currentUID}
-        emailPopup={emailPopup}
-      />
-    ));
-  }
+  return _.map(children, (child: TransactionComment) => (
+    <CommentThread
+      style={!showComment ? { display: "none" } : {}}
+      key={child.id}
+      meta={child}
+      currentUser={currentUser}
+      emailPopup={emailPopup}
+      nest={nest + 1}
+    />
+  ));
 };
 
 export default CommentThread;
