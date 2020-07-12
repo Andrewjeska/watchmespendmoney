@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "concurrently -r config/dotenv \"nodemon\" \"next\"",
-    "build": "next build",
     "start": "next start",
-    "buildAPI": "tsc --project tsconfig.server.json",
+    "build": "tsc --project tsconfig.server.json",
     "startAPI": "NODE_ENV=production node dist/index.js",
     "deploy": "vercel --prod && git push dokku master"
   },
