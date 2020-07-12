@@ -34,9 +34,12 @@ yarn-error.log*
 .vercel
 # vercel.json
 
+# test builds
+
+# this has envvars
+nodemon.json
 
 /dist
 
-
-nodemon.json
+/old
 

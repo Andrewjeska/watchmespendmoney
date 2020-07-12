@@ -1,3 +1,4 @@
+import apicache from "apicache";
 import cors from "cors";
 import express from "express";
 import apiRoutes from "./api";
@@ -5,9 +6,13 @@ const port = parseInt(process.env.PORT || "5000", 10);
 
 const app = express();
 
+let cache = apicache.middleware;
+app.use(cache("5 minutes"));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
+
 app.use("/api", apiRoutes);
 
 app.get("/status", (req, res) => {

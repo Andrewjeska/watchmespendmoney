@@ -11,6 +11,6 @@ CREATE TABLE IF NOT EXISTS users (
 );
 `;
 
-export const query = async (text: string, params: any = []) => {
+export const pgQuery = async (text: string, params: any = []) => {
   return await pool.query(text, params);
 };

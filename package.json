@@ -9,12 +9,14 @@
     "deploy": "vercel --prod && git push dokku master"
   },
   "dependencies": {
+    "@types/apicache": "^1.2.2",
     "@types/cors": "^2.8.6",
     "@types/express": "^4.17.7",
     "@types/firebase": "^3.2.1",
     "@types/lodash": "^4.14.155",
     "@types/pg": "^7.14.4",
     "@types/react-mailchimp-subscribe": "^2.0.2",
+    "apicache": "^1.5.3",
     "axios": "^0.19.2",
     "concurrently": "^5.2.0",
     "cors": "^2.8.5",
