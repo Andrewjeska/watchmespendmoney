@@ -174,6 +174,7 @@ apiRoutes.post("/transactions/delete", async (req, res) => {
       });
     }
   } catch (error) {
+    console.log("error");
     prettyPrintError(error);
     return res.json({
       error,
