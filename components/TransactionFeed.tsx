@@ -27,7 +27,7 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
   // TODO: should we do this just once in a higher component?
   useEffect(() => {
     // will run on first render, like componentDidMount
-    auth.onAuthStateChanged(async (user) => {
+    const firebaseUnsub = auth.onAuthStateChanged(async (user) => {
       if (user && user.uid) {
         // get stored displayName
         const { data: userMeta } = await axios.get("/api/users", {
@@ -43,6 +43,10 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
           displayName: defaultDisplayName,
         });
     });
+
+    return function cleanup() {
+      firebaseUnsub();
+    };
   }, []);
 
   return (

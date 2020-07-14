@@ -45,7 +45,7 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
       }
     });
 
-    auth.onAuthStateChanged((user) => {
+    const firebaseUnsub = auth.onAuthStateChanged((user) => {
       if (user && user.uid) {
         // User is signed in.
 
@@ -54,6 +54,10 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
           bake_cookie("admin", "true", moment().years(10).toDate());
         }
       }
+
+      return function cleanup() {
+        firebaseUnsub();
+      };
     });
 
     fetchTransactions();

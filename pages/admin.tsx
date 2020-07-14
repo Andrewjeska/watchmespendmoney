@@ -43,7 +43,7 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey, plaidEnv }) => {
 
   useEffect(() => {
     // will run on first render, like componentDidMount
-    auth.onAuthStateChanged((user) => {
+    const firebaseUnsub = auth.onAuthStateChanged((user) => {
       if (user && user.email && user.uid) {
         // User is signed in.
         setUID(user.uid);
@@ -51,6 +51,10 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey, plaidEnv }) => {
         setAuthenticated(true);
       }
     });
+
+    return function cleanup() {
+      firebaseUnsub();
+    };
   }, []);
 
   const handleSubmit = (event: React.FormEvent) => {

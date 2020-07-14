@@ -9,11 +9,14 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     // will run on first render, like componentDidMount
 
-    auth.onAuthStateChanged((user) => {
+    const firebaseUnsub = auth.onAuthStateChanged((user) => {
       setUser(user);
     });
 
     setUser(firebase.auth().currentUser);
+    return function cleanup() {
+      firebaseUnsub();
+    };
   }, []);
 
   const router = useRouter();
@@ -36,14 +39,16 @@ const Navbar: React.FC = () => {
           </Menu.Item>
         </Link>
         {!user && (
-          <Menu.Item onClick={() => login()}>
+          <Menu.Item key="login" onClick={() => login()}>
             <Icon name="google"></Icon>Login (Beta)
           </Menu.Item>
         )}
         {user && [
-          <Menu.Item onClick={() => logout()}>Logout</Menu.Item>,
-          <Link href="[uid]" as={`/${user.uid}`} passHref>
-            <Menu.Item link> Transaction Feed </Menu.Item>
+          <Menu.Item key="logout" onClick={() => logout()}>
+            Logout
+          </Menu.Item>,
+          <Link key="transFeed" href="[uid]" as={`/${user.uid}`} passHref>
+            <Menu.Item link> Your Transaction Feed </Menu.Item>
           </Link>,
         ]}
       </Menu>

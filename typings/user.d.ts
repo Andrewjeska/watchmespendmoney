@@ -3,7 +3,7 @@ interface UserTransaction {
   uid?: string;
   date: string;
   description: string | null;
-  amount: number | null;
+  amount: number;
   category: string;
 }
 //TODO: too many optional types
@@ -11,6 +11,12 @@ interface UserTransaction {
 interface UserMeta {
   uid: string | null;
   displayName: string;
+}
+
+interface UserStats {
+  currentMonthSpend: number;
+  daysSinceLastSpend: number | string;
+  avgSpendPerDay: number;
 }
 
 declare module "sfcookies";

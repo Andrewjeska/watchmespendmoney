@@ -23,7 +23,7 @@
       "NEXT_PUBLIC_FIREBASE_APP_ID": "1:122259965210:web:8f392e7bd75a3fd860d8a3",
       "NEXT_PUBLIC_ADMIN_UID": "@admin-uid",
       "NEXT_PUBLIC_API_URL": "@wmsm-backend",
-      "MAINTENANCE_MODE": "false"
+      "MAINTENANCE_MODE": "true"
     }
   }
 }

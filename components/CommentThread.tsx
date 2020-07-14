@@ -47,7 +47,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
     try {
       const res = await axios.post("/api/transactions/comments/reply", {
         comment: {
-          dateTime: moment(),
+          dateTime: moment().toISOString(),
           text,
           uid,
           parentId: id,
@@ -67,7 +67,6 @@ const CommentThread: React.FC<CommentThreadProps> = ({
   useEffect(() => {
     // will run on first render, like componentDidMount
     fetchChildren();
-
     if (uid) {
       axios
         .get("/api/users", {

@@ -54,8 +54,12 @@ const Transaction: React.FC<TransactionProps> = ({
         })
         .then((res) => {
           const user = res.data.user;
-          if (user.displayName) setDisplayName(user.displayName);
+
+          if (user && user.displayName) setDisplayName(user.displayName);
           else console.error(`displayName wasn't available for uid ${uid}`);
+        })
+        .catch((err) => {
+          alert(err);
         });
     }
   }, []);
@@ -69,7 +73,7 @@ const Transaction: React.FC<TransactionProps> = ({
     try {
       const res = await axios.post("/api/transactions/comment", {
         comment: {
-          dateTime: moment(),
+          dateTime: moment().toISOString(),
           text,
           uid: uid, // might default because it's null?
           transactionId: id,
@@ -88,17 +92,13 @@ const Transaction: React.FC<TransactionProps> = ({
   const deleteTransaction = async (id: string) => {
     try {
       await axios.post("/api/transactions/delete", { id });
-      console.log("will call postdelete");
       postDelete();
     } catch (err) {
       console.error(err);
     }
   };
 
-  //TODO: store display names with uids in a table on postgres
-
   if (displayName === "") return <Loader></Loader>;
-
   return (
     <Feed.Event>
       <SignUpModal open={showModal} setOpen={setShowModal} />
@@ -110,6 +110,7 @@ const Transaction: React.FC<TransactionProps> = ({
         <Feed.Summary>
           {displayName !== "" && <Feed.User>{displayName} </Feed.User>}
           {` spent \$${amount ? amount.toFixed(2) : "Error"} on ${description}`}
+          {/* moment is a bit weird about rendering midnight */}
           <Feed.Date>{moment(date).format("MM/DD")}</Feed.Date>
         </Feed.Summary>
         <Feed.Extra text>{`${category}`}</Feed.Extra>

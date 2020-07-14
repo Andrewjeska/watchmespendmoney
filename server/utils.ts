@@ -1,5 +1,6 @@
 import envvar from "envvar";
 import _ from "lodash";
+import moment from "moment";
 import plaid from "plaid";
 import util from "util";
 
@@ -86,17 +87,18 @@ export const processPlaidTransactions = (
   );
 };
 
-export const processTransactions = (rows: any[]): Array<UserTransaction> =>
-  _.map(rows, (transaction) => {
+export const processTransactions = (rows: any[]): Array<UserTransaction> => {
+  return _.map(rows, (transaction) => {
     return {
       id: transaction.id,
       uid: transaction.uid,
-      date: transaction.date,
+      date: transaction.date_time,
       amount: transaction.amount,
       description: transaction.description,
       category: transaction.category,
     };
   });
+};
 
 export const processComments = (rows: any[]): Array<TransactionComment> =>
   _.map(rows, (comment) => {
@@ -109,6 +111,50 @@ export const processComments = (rows: any[]): Array<TransactionComment> =>
       parentId: comment.parent_id,
     };
   });
+
+// Transaction Stats
+
+export const getSpendForMonth = (
+  transactions: Array<UserTransaction>,
+  currentDate: string
+): number => {
+  const requestedDate = moment(currentDate);
+  return _.reduce(
+    transactions,
+    (acc, t) => {
+      const transDate = moment(t.date);
+      if (
+        requestedDate.month() === transDate.month() &&
+        requestedDate.year() === transDate.year()
+      )
+        return (acc += t.amount);
+      else return 0;
+    },
+    0
+  );
+};
+
+export const getDaysSinceLastSpend = (
+  transactions: Array<UserTransaction>,
+  currentDate: string
+): number => {
+  const requestedDate = moment(currentDate);
+  const sorted = _(transactions).orderBy("date_time", "desc").value();
+  return moment(requestedDate).diff(sorted[0].date, "days");
+};
+
+export const getAverageSpendPerDay = (
+  transactions: Array<UserTransaction>
+): number => {
+  const sorted = _(transactions).orderBy("date_time").value();
+  const sum = _.reduce(sorted, (acc, t) => (acc += t.amount), 0.0);
+  const numDays =
+    Math.abs(
+      moment(sorted[0].date).diff(sorted[sorted.length - 1].date, "days")
+    ) || 1;
+  const avg = sum / numDays;
+  return avg;
+};
 
 export const prettyPrintInfo = (response: any) => {
   console.info(util.inspect(response, { colors: true, depth: 4 }));

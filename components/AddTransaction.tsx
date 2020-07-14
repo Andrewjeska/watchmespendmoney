@@ -25,7 +25,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
       const res = await axios.post("/api/transactions/create", {
         transaction: {
           uid: user.uid,
-          date,
+          date: moment(date).toISOString(),
           description,
           amount,
           category,

@@ -10,6 +10,9 @@ import {
 } from "./db";
 import {
   client,
+  getAverageSpendPerDay,
+  getDaysSinceLastSpend,
+  getSpendForMonth,
   prettyPrintError,
   prettyPrintInfo,
   processComments,
@@ -121,15 +124,13 @@ apiRoutes.get("/transactions", async (req, res) => {
     );
 
     prettyPrintInfo(rows);
-    return res.json({
-      error: null,
+    return res.status(200).json({
       transactions: processTransactions(rows),
     });
   } catch (error) {
     prettyPrintError(error);
-    return res.json({
+    return res.status(500).json({
       error,
-      transactions: [],
     });
   }
 });
@@ -144,8 +145,6 @@ apiRoutes.post("/transactions/create", async (req, res) => {
     reason,
   } = req.body.transaction;
 
-  prettyPrintInfo(req.body);
-
   try {
     const {
       rows,
@@ -156,28 +155,24 @@ apiRoutes.post("/transactions/create", async (req, res) => {
     prettyPrintInfo(rows);
 
     if (reason.length) {
-      prettyPrintInfo("hit");
       const commentRes = await pgQuery(
-        "INSERT INTO comments(uid, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5)",
-        [uid, rows[0].id, null, moment(), reason]
+        "INSERT INTO comments(uid, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+        [uid, rows[0].id, null, moment().toISOString(), reason]
       );
 
       return res.json({
-        error: null,
-        transactions: processTransactions(rows),
-        comments: processComments(commentRes.rows),
+        transaction: rows[0].id,
+        comment: commentRes.rows[0].id,
       });
     } else {
       return res.json({
-        error: null,
         transactions: processTransactions(rows),
       });
     }
   } catch (error) {
     prettyPrintError(error);
-    return res.json({
+    return res.status(500).json({
       error,
-      transactions: [],
     });
   }
 });
@@ -196,8 +191,9 @@ apiRoutes.post("/transactions/delete", async (req, res) => {
       "DELETE from comments WHERE transaction_id = $1 RETURNING id",
       [id]
     );
-    prettyPrintInfo("comments: " + deletedComments.rows);
-    return res.status(200).json({ error: null });
+    console.log("Deleted Comments:");
+    prettyPrintInfo(deletedComments.rows);
+    return res.status(200).json({ id });
   } catch (error) {
     prettyPrintError(error);
     return res.status(500).json({
@@ -295,6 +291,7 @@ apiRoutes.post("/transactions/comments/reply", async (req, res) => {
 });
 
 // ########### Users API ###########
+
 // get a user by UID
 apiRoutes.get("/users", async (req, res) => {
   const { uid } = req.query;
@@ -353,6 +350,39 @@ apiRoutes.post("/users/set_display_name", async (req, res) => {
   } catch (error) {
     prettyPrintError(error);
     return res.json({
+      error,
+    });
+  }
+});
+
+// ########### Statistics API ###########
+
+// Get relevant statistics for a uid
+apiRoutes.get("/stats", async (req, res) => {
+  const { uid, dateTime } = req.query;
+
+  try {
+    const { rows } = await pgQuery(
+      "SELECT * FROM transactions WHERE uid = $1",
+      [uid]
+    );
+
+    const transactions = processTransactions(rows);
+    const stats = {
+      currentMonthSpend: getSpendForMonth(transactions, dateTime as string),
+      daysSinceLastSpend: rows.length
+        ? getDaysSinceLastSpend(transactions, dateTime as string)
+        : "N/A",
+      avgSpendPerDay: getAverageSpendPerDay(transactions),
+    };
+    prettyPrintInfo(stats);
+
+    return res.json({
+      stats,
+    });
+  } catch (error) {
+    prettyPrintError(error);
+    return res.status(500).json({
       error,
     });
   }
