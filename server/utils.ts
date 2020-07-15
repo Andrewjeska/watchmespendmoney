@@ -51,19 +51,21 @@ export const client = new plaid.Client(
 export const processPlaidTransactions = (
   res: plaid.TransactionsResponse
 ): Array<UserTransaction> => {
-  // TODO: we should have a a list of connected accounts for a user somehow
-  const accountId = _.find(
-    res.accounts,
-    (account: plaid.Account) => account.mask === envvar.string("LAST_FOUR")
-  )?.account_id;
-  if (!accountId) throw new Error("Account Not Available");
+  // TODO: we should have a a list of connected accounts for a user
+
+  // TODO: remove this crutch for yourself too
+  // const accountId = _.find(
+  //   res.accounts,
+  //   (account: plaid.Account) => account.mask === envvar.string("LAST_FOUR")
+  // )?.account_id;
+  // if (!accountId) throw new Error("Account Not Available");
 
   const categoryFilters = ["Personal Care"];
 
   return (
     _(res.transactions)
       // eslint-disable-next-line @typescript-eslint/camelcase
-      .filter({ account_id: accountId })
+      // .filter({ account_id: accountId })
       .filter({ pending: false })
       .filter((t: plaid.Transaction): boolean =>
         t.amount ? t.amount >= 0.0 : false

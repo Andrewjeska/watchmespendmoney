@@ -11,8 +11,8 @@ const pool = new Pool({
 export const userTableQuery = `
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  uid TEXT NOT NULL,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid() UNIQUE,
+  uid TEXT NOT NULL UNIQUE,
   access_token TEXT,
   display_name TEXT,
   item_id TEXT 
@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 export const commentTableQuery = `
 CREATE TABLE IF NOT EXISTS comments (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  uid TEXT,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid() UNIQUE,
+  uid TEXT UNIQUE,
   transaction_id TEXT,
   parent_id TEXT,
   date_time timestamptz,
@@ -30,11 +30,12 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 `;
 
+// postgres will ignore null values when applying the UNIQUE constraint
 export const transactionTableQuery = `
 CREATE TABLE IF NOT EXISTS transactions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  plaidId TEXT,
-  uid TEXT NOT NULL,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid() UNIQUE,
+  plaidId TEXT UNIQUE,
+  uid TEXT NOT NULL UNIQUE,
   date_time timestamptz,
   description TEXT,
   amount FLOAT(2),	
