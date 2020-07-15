@@ -62,6 +62,7 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
         if (user.uid === process.env.NEXT_PUBLIC_ADMIN_UID) {
           bake_cookie("admin", "true", moment().years(10).toDate());
         }
+        setUser(user);
       }
 
       return function cleanup() {
