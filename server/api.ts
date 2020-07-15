@@ -39,10 +39,17 @@ apiRoutes.post("/plaid/get_access_token", (req, res) => {
       var itemId = tokenResponse.item_id;
 
       await pgQuery(userTableQuery);
-      await pgQuery(
-        "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3)",
-        [uid, accessToken, itemId]
-      );
+      if (envvar.string("PLAID_ENV") === "sandbox") {
+        await pgQuery(
+          "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3)",
+          ["sandbox", accessToken, itemId]
+        );
+      } else {
+        await pgQuery(
+          "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3)",
+          [uid, accessToken, itemId]
+        );
+      }
 
       const { rows } = await pgQuery("SELECT * FROM users");
       prettyPrintInfo(rows);
