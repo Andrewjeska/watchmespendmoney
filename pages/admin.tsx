@@ -65,8 +65,7 @@ const Admin: React.FC<AdminProps> = ({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("handle submit");
-    console.log(email);
+
     auth.signInWithEmailAndPassword(email, pw).catch((error) => {
       console.error(error.message);
     });
@@ -115,7 +114,7 @@ export const getStaticProps: GetStaticProps = async () => {
     props: {
       plaidPublicKey: envvar.string("PLAID_PUBLIC_KEY"),
       plaidEnv: envvar.string("PLAID_ENV", "sandbox"),
-      plaidHookURL: envvar.string("PLAID_WEBHOOK"),
+      plaidWebhook: envvar.string("PLAID_WEBHOOK"),
     },
   };
 };

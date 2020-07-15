@@ -23,8 +23,11 @@ webhookRoutes.post("/plaid", async (req, res) => {
     case plaidTransactionsWebhook:
       await transactionsWebhookHandler(req.body, res);
 
+    case "WEBHOOK_UPDATE_ACKNOWLEDGED":
+      prettyPrintInfo(req.body);
+
     default:
-      prettyPrintError(new Error("Received unsupported Plaid Webhook"));
+      prettyPrintInfo("Received unsupported Plaid Webhook");
       prettyPrintInfo(req.body);
       return res.status(200).end();
   }
@@ -70,12 +73,15 @@ export const transactionsWebhookHandler = async (
 
       switch (webhook_code) {
         case "INITIAL_UPDATE":
-        case "HISTORICAL_UPDATE":
+        // case "HISTORICAL_UPDATE":
         case "DEFAULT_UPDATE":
           await addTransactions(uid, accessToken, new_transactions as number);
 
         case "TRANSACTIONS_REMOVED":
           prettyPrintInfo("no-op");
+
+        default:
+          prettyPrintInfo("received unsupposed transaction webhook code");
       }
     } catch (err) {
       prettyPrintError(err);
@@ -92,8 +98,8 @@ const addTransactions = async (
   // make a call to the plaid api to get the new transactions
   return client.getTransactions(
     accessToken,
-    moment().subtract(1, "week").toISOString(),
-    moment().toISOString(),
+    moment().subtract(1, "week").format("YYYY-MM-DD"),
+    moment().format("YYYY-MM-DD"),
     {
       count: numTransactions,
       offset: 0,
