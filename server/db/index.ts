@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS comments (
   transaction_id TEXT,
   parent_id TEXT,
   date_time timestamptz,
-  comment_text TEXT NOT NULL;
+  comment_text TEXT NOT NULL
 );
 `;
 

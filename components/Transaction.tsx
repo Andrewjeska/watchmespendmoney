@@ -30,6 +30,7 @@ const Transaction: React.FC<TransactionProps> = ({
       const res = await axios.get("/api/transactions/comments", {
         params: {
           transactionId: id,
+          parentId: null,
         },
         headers: { "Cache-Control": "no-cache" },
       });
@@ -42,6 +43,7 @@ const Transaction: React.FC<TransactionProps> = ({
   const [displayName, setDisplayName] = useState(
     emailPopup ? "anderjaska" : ""
   );
+
   //TODO: this will be fixed once plaid transactions are regular transactions, we branch on email popup since that's the landing page
 
   useEffect(() => {
@@ -56,7 +58,9 @@ const Transaction: React.FC<TransactionProps> = ({
           const user = res.data.user;
 
           if (user && user.displayName) setDisplayName(user.displayName);
-          else console.error(`displayName wasn't available for uid ${uid}`);
+          else {
+            console.error(`displayName wasn't available for uid ${uid}`);
+          }
         })
         .catch((err) => {
           alert(err);
