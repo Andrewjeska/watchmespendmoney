@@ -1,5 +1,6 @@
 import "firebase/auth";
 import moment from "moment";
+import { GetServerSideProps } from "next";
 import React, { useEffect, useState } from "react";
 import {
   Container,

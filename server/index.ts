@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import apiRoutes from "./api";
+import webhookRoutes from "./hooks";
 const port = parseInt(process.env.PORT || "5000", 10);
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/api", apiRoutes);
+app.use("/hooks", webhookRoutes);
 
 app.get("/status", (req, res) => {
   res.json({ status: "ok" });

@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+import { Pool, QueryConfig } from "pg";
 
 const maxConnections = process.env.NODE_ENV === "production" ? 10 : 5;
 
@@ -11,7 +11,7 @@ export const userTableQuery = `
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  uid TEXT,
+  uid TEXT NOT NULL,
   access_token TEXT NULL,
   display_name TEXT NULL,
   item_id TEXT NULL
@@ -25,14 +25,15 @@ CREATE TABLE IF NOT EXISTS comments (
   transaction_id TEXT NULL,
   parent_id TEXT NULL,
   date_time timestamptz,
-  comment_text TEXT
+  comment_text TEXT NOT NULL;
 );
 `;
 
 export const transactionTableQuery = `
 CREATE TABLE IF NOT EXISTS transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  uid TEXT NULL,
+  plaidId TEXT,
+  uid TEXT NOT NULL,
   date_time timestamptz,
   description TEXT,
   amount FLOAT(2),	
@@ -40,7 +41,7 @@ CREATE TABLE IF NOT EXISTS transactions (
 );
 `;
 
-export const pgQuery = async (text: string, params: any = []) => {
+export const pgQuery = async (text: string | QueryConfig, params: any = []) => {
   const client = await pool.connect();
   const queryRes = await client.query(text, params);
   client.release();

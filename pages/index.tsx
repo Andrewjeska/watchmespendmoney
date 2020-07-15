@@ -1,12 +1,21 @@
 import "firebase/auth";
 import moment from "moment";
 import { GetStaticProps } from "next";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Container, Grid, Header, Loader, Modal } from "semantic-ui-react";
+import {
+  Button,
+  Container,
+  Grid,
+  Header,
+  Icon,
+  Loader,
+  Modal,
+} from "semantic-ui-react";
 import { bake_cookie } from "sfcookies";
 import { axios } from "../common/axios";
-import { auth } from "../common/firebase";
+import { auth, googleSignIn } from "../common/firebase";
 import SignUp from "../components/EmailSignUp";
 import Navbar from "../components/Navbar";
 import TransactionFeed from "../components/TransactionFeed";
@@ -29,7 +38,7 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
     }
   };
 
-  const router = useRouter();
+  const [user, setUser] = useState(auth.currentUser);
 
   useEffect(() => {
     // will run on first render, like componentDidMount
@@ -41,7 +50,7 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
           await axios.post("/api/users/create", {
             uid: user.uid,
           });
-        await router.push(`/${user.uid}`);
+        setUser(user);
       }
     });
 
@@ -85,6 +94,8 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
     );
   }
 
+  const router = useRouter();
+
   return (
     <div>
       <Navbar></Navbar>
@@ -94,30 +105,48 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
             <Grid.Row>
               <Header as="h1">Watch me spend money.</Header>
             </Grid.Row>
+            {!user && (
+              <Grid.Row>
+                <p>
+                  Hi! My name's Michael Anderjaska. I'm just a guy who's really
+                  into saving money. My expenses are public for the world to
+                  see, pulled from my bank accounts. Feel free to roast me about
+                  my purchases in the feed below.
+                </p>
+              </Grid.Row>
+            )}
 
-            <Grid.Row>
-              <p>
-                Hi! My name's Michael Anderjaska. I'm just a guy who's really
-                into saving money. My expenses are public for the world to see,
-                pulled from my bank accounts. Feel free to roast me about my
-                purchases in the feed below.
-              </p>
-            </Grid.Row>
+            {!user && (
+              <Grid.Row>
+                <p>
+                  <b>watchmespendmoney</b> is an accountablity tool that keeps
+                  you honest on your expenses by making them public (or, if
+                  you'd rather, a select group of close friends). Sign in with
+                  google below to give out beta a try!
+                </p>
+              </Grid.Row>
+            )}
 
-            <Grid.Row>
-              <p>
-                <b>watchmespendmoney</b> is an accountablity tool that keeps you
-                honest on your expenses by making them public (or, if you'd
-                rather, a select group of close friends). Stay updated on
-                development and be the first to know when the beta is released
-                by signing up below.
-              </p>
-            </Grid.Row>
             <Grid.Row>
               <Grid.Column width={10}>
-                <SignUp />
+                {user ? (
+                  <Link href="[uid]" as={`/${user.uid}`} passHref>
+                    <Button primary type="submit">
+                      View your transaction feed here!
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button
+                    primary
+                    onClick={async () => await googleSignIn()}
+                    type="submit"
+                  >
+                    <Icon name="google"></Icon> Login with Google
+                  </Button>
+                )}
               </Grid.Column>
             </Grid.Row>
+
             <Grid.Row>
               <a href="https://www.buymeacoffee.com/anderjaska">
                 Buy me a coffee?
@@ -144,11 +173,11 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
               </a>
             </Grid.Row>
 
-            <Grid.Row>
+            {/* <Grid.Row>
               <Grid.Column width={10}>
                 <SignUp />
               </Grid.Column>
-            </Grid.Row>
+            </Grid.Row> */}
           </Grid>
         )}
       </Container>

@@ -49,6 +49,35 @@ apiRoutes.post("/plaid/get_access_token", (req, res) => {
   });
 });
 
+// Updates item for uid with
+apiRoutes.post("/plaid/webhook/update", async (req, res) => {
+  const { uid } = req.body;
+  const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
+  const accessToken = rows[0].access_token;
+
+  if (!accessToken)
+    return res.status(403).json({
+      error: `No associated access_token for ${uid}`,
+    });
+
+  return client.updateItemWebhook(
+    accessToken,
+    envvar.string("PLAID_WEBHOOK"),
+    (error, updateItemWebhookResponse) => {
+      if (error != null) {
+        prettyPrintError(error);
+        return res.status(500).json({
+          error,
+        });
+      }
+      prettyPrintInfo(updateItemWebhookResponse);
+      return res.status(200).json({
+        error: null,
+      });
+    }
+  );
+});
+
 // TODO: we should periodically hit this endpoint, or abstract this to a function or something
 apiRoutes.get("/plaid/transactions", async (req, res) => {
   const { uid } = req.query;

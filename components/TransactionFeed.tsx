@@ -16,7 +16,7 @@ interface TransactionFeedProps {
 const TransactionFeed: React.FC<TransactionFeedProps> = ({
   transactions,
   commenting = true,
-  emailPopup = true,
+  emailPopup = false,
   transactionPostDelete,
 }) => {
   const [currentUser, setCurrentUser] = useState({

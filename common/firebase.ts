@@ -12,6 +12,7 @@ if (!firebase.apps.length) {
   firebase.initializeApp(config);
 }
 const auth = firebase.auth();
+
 export { auth, firebase };
 
 export const googleSignIn = async (): Promise<void> => {

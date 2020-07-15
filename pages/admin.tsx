@@ -9,9 +9,14 @@ import { auth } from "../common/firebase";
 interface AdminProps {
   plaidPublicKey: string;
   plaidEnv: string;
+  plaidWebhook: string;
 }
 
-const Admin: React.FC<AdminProps> = ({ plaidPublicKey, plaidEnv }) => {
+const Admin: React.FC<AdminProps> = ({
+  plaidPublicKey,
+  plaidEnv,
+  plaidWebhook,
+}) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [email, setEmail] = useState("");
 
@@ -36,6 +41,7 @@ const Admin: React.FC<AdminProps> = ({ plaidPublicKey, plaidEnv }) => {
     env: plaidEnv,
     product: ["auth", "transactions"],
     publicKey: plaidPublicKey,
+    webhook: plaidWebhook,
     onSuccess,
   };
 
@@ -109,6 +115,7 @@ export const getStaticProps: GetStaticProps = async () => {
     props: {
       plaidPublicKey: envvar.string("PLAID_PUBLIC_KEY"),
       plaidEnv: envvar.string("PLAID_ENV"),
+      plaidHookURL: envvar.string("PLAID_WEBHOOK"),
     },
   };
 };
