@@ -19,16 +19,15 @@ webhookRoutes.post("/plaid", async (req, res) => {
     return res.status(500).end();
   }
 
+  prettyPrintInfo(req.body);
   switch (req.body.webhook_type) {
     case plaidTransactionsWebhook:
       await transactionsWebhookHandler(req.body, res);
 
     case "WEBHOOK_UPDATE_ACKNOWLEDGED":
-      prettyPrintInfo(req.body);
 
     default:
       prettyPrintInfo("Received unsupported Plaid Webhook");
-      prettyPrintInfo(req.body);
       return res.status(200).end();
   }
 });
@@ -81,7 +80,7 @@ export const transactionsWebhookHandler = async (
           prettyPrintInfo("no-op");
 
         default:
-          prettyPrintInfo("received unsupposed transaction webhook code");
+          prettyPrintInfo("Received unsupported transaction webhook code");
       }
     } catch (err) {
       prettyPrintError(err);
@@ -110,12 +109,13 @@ const addTransactions = async (
         return;
       }
       const transactions = processPlaidTransactions(transactionsResponse);
+
       _.map(transactions, async (transaction) => {
         const { date, description, amount, category, id } = transaction;
         const {
           rows,
         } = await pgQuery(
-          "INSERT INTO transactions(uid, plaidId, date_time, description, amount, category) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+          "INSERT INTO transactions(uid, plaid_id, date_time, description, amount, category) VALUES ($1, $2, $3, $4, $5, $6)",
           [uid, id, date, description, amount, category]
         );
       });
