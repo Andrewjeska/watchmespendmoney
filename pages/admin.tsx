@@ -114,7 +114,7 @@ export const getStaticProps: GetStaticProps = async () => {
   return {
     props: {
       plaidPublicKey: envvar.string("PLAID_PUBLIC_KEY"),
-      plaidEnv: envvar.string("PLAID_ENV"),
+      plaidEnv: envvar.string("PLAID_ENV", "sandbox"),
       plaidHookURL: envvar.string("PLAID_WEBHOOK"),
     },
   };

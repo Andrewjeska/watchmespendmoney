@@ -13,6 +13,7 @@ import {
   getAverageSpendPerDay,
   getDaysSinceLastSpend,
   getSpendForMonth,
+  PLAID_ENV,
   prettyPrintError,
   prettyPrintInfo,
   processComments,
@@ -39,7 +40,7 @@ apiRoutes.post("/plaid/get_access_token", (req, res) => {
       var itemId = tokenResponse.item_id;
 
       await pgQuery(userTableQuery);
-      if (envvar.string("PLAID_ENV") === "sandbox") {
+      if (PLAID_ENV === "sandbox") {
         await pgQuery(
           "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3)",
           ["sandbox", accessToken, itemId]

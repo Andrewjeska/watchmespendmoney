@@ -2,7 +2,7 @@
   "name": "watchmespendmoney",
   "version": "1.0.0",
   "scripts": {
-    "dev": "concurrently -r config/dotenv \"nodemon\" \"next\"",
+    "dev": "concurrently \"nodemon\" \"next\"",
     "devNext": "next",
     "start": "next start",
     "build": "tsc --project tsconfig.server.json",
