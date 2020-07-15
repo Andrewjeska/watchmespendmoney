@@ -25,57 +25,69 @@ const apiRoutes = Router();
 // ###########  Plaid API ###########
 
 apiRoutes.post("/plaid/get_access_token", (req, res) => {
-  prettyPrintInfo(req.body);
-  const { publicToken, uid } = req.body;
-  client.exchangePublicToken(publicToken, async (error, tokenResponse) => {
-    if (error != null) {
-      prettyPrintError(error);
-      return res.status(500).json({
-        error,
-      });
-    }
-    var accessToken = tokenResponse.access_token;
-    var itemId = tokenResponse.item_id;
-
-    await pgQuery(userTableQuery);
-    await pgQuery(
-      "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3)",
-      [uid, accessToken, itemId]
-    );
-
-    const { rows } = await pgQuery("SELECT * FROM users");
-    prettyPrintInfo(rows);
-    return res.status(200).json({ message: "token generated" });
-  });
-});
-
-// Updates item for uid with
-apiRoutes.post("/plaid/webhook/update", async (req, res) => {
-  const { uid } = req.body;
-  const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
-  const accessToken = rows[0].access_token;
-
-  if (!accessToken)
-    return res.status(403).json({
-      error: `No associated access_token for ${uid}`,
-    });
-
-  return client.updateItemWebhook(
-    accessToken,
-    envvar.string("PLAID_WEBHOOK"),
-    (error, updateItemWebhookResponse) => {
+  try {
+    prettyPrintInfo(req.body);
+    const { publicToken, uid } = req.body;
+    client.exchangePublicToken(publicToken, async (error, tokenResponse) => {
       if (error != null) {
         prettyPrintError(error);
         return res.status(500).json({
           error,
         });
       }
-      prettyPrintInfo(updateItemWebhookResponse);
-      return res.status(200).json({
-        error: null,
+      var accessToken = tokenResponse.access_token;
+      var itemId = tokenResponse.item_id;
+
+      await pgQuery(userTableQuery);
+      await pgQuery(
+        "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3)",
+        [uid, accessToken, itemId]
+      );
+
+      const { rows } = await pgQuery("SELECT * FROM users");
+      prettyPrintInfo(rows);
+      return res.status(200).json({ message: "token generated" });
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error,
+    });
+  }
+});
+
+// Updates item for uid with
+apiRoutes.post("/plaid/webhook/update", async (req, res) => {
+  const { uid } = req.body;
+  try {
+    const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
+    const accessToken = rows[0].access_token;
+
+    if (!accessToken)
+      return res.status(403).json({
+        error: `No associated access_token for ${uid}`,
       });
-    }
-  );
+
+    return client.updateItemWebhook(
+      accessToken,
+      envvar.string("PLAID_WEBHOOK"),
+      (error, updateItemWebhookResponse) => {
+        if (error != null) {
+          prettyPrintError(error);
+          return res.status(500).json({
+            error,
+          });
+        }
+        prettyPrintInfo(updateItemWebhookResponse);
+        return res.status(200).json({
+          error: null,
+        });
+      }
+    );
+  } catch (error) {
+    return res.status(500).json({
+      error,
+    });
+  }
 });
 
 // TODO: we should periodically hit this endpoint, or abstract this to a function or something

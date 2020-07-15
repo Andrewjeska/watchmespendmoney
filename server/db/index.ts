@@ -1,4 +1,5 @@
-import { Pool, QueryConfig } from "pg";
+import { Pool, PoolClient, QueryConfig } from "pg";
+import { prettyPrintError } from "../utils";
 
 const maxConnections = process.env.NODE_ENV === "production" ? 10 : 5;
 
@@ -42,8 +43,15 @@ CREATE TABLE IF NOT EXISTS transactions (
 `;
 
 export const pgQuery = async (text: string | QueryConfig, params: any = []) => {
-  const client = await pool.connect();
-  const queryRes = await client.query(text, params);
-  client.release();
-  return queryRes;
+  var client: PoolClient | null = null;
+  try {
+    client = await pool.connect();
+    const queryRes = await client.query(text, params);
+    return queryRes;
+  } catch (error) {
+    prettyPrintError(error);
+    throw error;
+  } finally {
+    if (client) client.release();
+  }
 };
