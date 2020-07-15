@@ -23,8 +23,11 @@ webhookRoutes.post("/plaid", async (req, res) => {
   switch (req.body.webhook_type) {
     case plaidTransactionsWebhook:
       await transactionsWebhookHandler(req.body, res);
+      break;
 
     case "WEBHOOK_UPDATE_ACKNOWLEDGED":
+      prettyPrintInfo("Webhook registered");
+      break;
 
     default:
       prettyPrintInfo("Received unsupported Plaid Webhook");
@@ -72,12 +75,15 @@ export const transactionsWebhookHandler = async (
 
       switch (webhook_code) {
         case "INITIAL_UPDATE":
+        //TODO: do we want this lol
         // case "HISTORICAL_UPDATE":
         case "DEFAULT_UPDATE":
           await addTransactions(uid, accessToken, new_transactions as number);
+          break;
 
         case "TRANSACTIONS_REMOVED":
           prettyPrintInfo("no-op");
+          break;
 
         default:
           prettyPrintInfo("Received unsupported transaction webhook code");
@@ -110,6 +116,7 @@ const addTransactions = async (
       }
       const transactions = processPlaidTransactions(transactionsResponse);
 
+      //TODO: can we make this faster?
       _.map(transactions, async (transaction) => {
         const { date, description, amount, category, id } = transaction;
         const {
@@ -118,6 +125,7 @@ const addTransactions = async (
           "INSERT INTO transactions(uid, plaid_id, date_time, description, amount, category) VALUES ($1, $2, $3, $4, $5, $6)",
           [uid, id, date, description, amount, category]
         );
+        prettyPrintInfo(rows[0].id);
       });
     }
   );
