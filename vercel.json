@@ -5,10 +5,7 @@
     "PLAID_SECRET": "@plaid-secret-dev",
     "PLAID_PRODUCTS": "transactions",
     "PLAID_COUNTRY_CODES": "US",
-    "PLAID_ENV": "development",
-    "LAST_FOUR": "@csr-last-four",
-    "EMAIL_OCTOPUS_API_KEY": "@email-octopus-api-key",
-    "EMAIL_OCTOPUS_LIST_ID": "@email-octopus-list-id"
+    "PLAID_ENV": "development"
   },
   "build": {
     "env": {
@@ -23,6 +20,7 @@
       "NEXT_PUBLIC_FIREBASE_APP_ID": "1:122259965210:web:8f392e7bd75a3fd860d8a3",
       "NEXT_PUBLIC_ADMIN_UID": "@admin-uid",
       "NEXT_PUBLIC_API_URL": "@wmsm-backend",
+
       "MAINTENANCE_MODE": "true"
     }
   }

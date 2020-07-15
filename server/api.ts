@@ -265,7 +265,7 @@ apiRoutes.get("/transactions/comments", async (req, res) => {
     const {
       rows,
     } = await pgQuery(
-      `SELECT * FROM comments WHERE transaction_id = $1 OR parent_id = $2`,
+      "SELECT * FROM comments WHERE transaction_id = $1 OR parent_id = $2",
       [transactionId, parentId]
     );
     if (rows.length) prettyPrintInfo(rows);
