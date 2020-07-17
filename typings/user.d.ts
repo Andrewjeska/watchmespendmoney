@@ -6,7 +6,6 @@ interface UserTransaction {
   amount: number;
   category: string;
 }
-//TODO: too many optional types
 
 interface UserMeta {
   uid: string | null;

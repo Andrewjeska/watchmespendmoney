@@ -3,6 +3,7 @@ import moment from "moment";
 import React, { useState } from "react";
 import { Button, Form, Icon } from "semantic-ui-react";
 import { axios } from "../common/axios";
+import { auth } from "../common/firebase";
 
 interface AddTransactionProps {
   user: firebase.User;
@@ -22,14 +23,26 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
 
   const submitTransaction = async () => {
     try {
-      const res = await axios.post("/api/transactions/create", {
-        transaction: {
-          uid: user.uid,
-          date: moment(date).toISOString(),
-          description,
-          amount,
-          category,
-          reason,
+      const firebaseUser = auth.currentUser;
+      var token = "";
+      if (firebaseUser) token = await firebaseUser.getIdToken(true);
+      else {
+        console.error("firebase.auth() not ready");
+        return;
+      }
+      await axios({
+        method: "post",
+        url: "/api/transactions/create",
+        data: {
+          transaction: {
+            uid: user.uid,
+            date: moment(date).toISOString(),
+            description,
+            amount,
+            category,
+            reason,
+          },
+          headers: { AuthToken: token },
         },
       });
       setAmount(0.0);

@@ -2,6 +2,7 @@ import { Router } from "express";
 import _ from "lodash";
 import moment from "moment";
 import { plaidTransactionsWebhook } from "./constants";
+import { decrypt } from "./crypto";
 import { pgQuery } from "./db";
 import {
   client,
@@ -71,11 +72,19 @@ export const transactionsWebhookHandler = async (
 
       // it is NOT possible for another user to have a different plaid item_id
       const uid = rows[0].uid;
-      const accessToken = rows[0].access_token;
+      const accessTokenCtext = rows[0].access_token;
+
+      if (!accessTokenCtext)
+        return res.status(403).json({
+          error: `No associated access_token for ${uid}`,
+        });
+
+      const accessToken = decrypt(accessTokenCtext);
 
       switch (webhook_code) {
-        case "INITIAL_UPDATE":
-        //TODO: do we want this lol
+        // we will do our own initial updates
+        // case "INITIAL_UPDATE":
+
         // case "HISTORICAL_UPDATE":
         case "DEFAULT_UPDATE":
           await addTransactions(uid, accessToken, new_transactions as number);

@@ -3,6 +3,7 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Button, Divider, Feed, Form, Loader } from "semantic-ui-react";
 import { axios } from "../common/axios";
+import { auth } from "../common/firebase";
 import { svgs } from "../common/imagery";
 import CommentThread from "./CommentThread";
 import SignUpModal from "./EmailSignUpModal";
@@ -40,11 +41,11 @@ const Transaction: React.FC<TransactionProps> = ({
     }
   };
 
+  //TODO: this will be fixed once plaid transactions are regular transactions, we branch on email popup since that's the landing page
+
   const [displayName, setDisplayName] = useState(
     emailPopup ? "anderjaska" : ""
   );
-
-  //TODO: this will be fixed once plaid transactions are regular transactions, we branch on email popup since that's the landing page
 
   useEffect(() => {
     // will run on first render, like componentDidMount
@@ -95,9 +96,22 @@ const Transaction: React.FC<TransactionProps> = ({
 
   const deleteTransaction = async (id: string) => {
     try {
-      await axios.post("/api/transactions/delete", { id });
-      postDelete();
+      const firebaseUser = auth.currentUser;
+      if (firebaseUser) {
+        const token = await firebaseUser.getIdToken(true);
+        await axios({
+          method: "post",
+          url: "/api/transactions/delete",
+          data: { id },
+          headers: { AuthToken: token },
+        });
+        postDelete();
+      } else {
+        // not great if this happens, but it will resolve
+        console.error("firebase.auth() not ready");
+      }
     } catch (err) {
+      alert(err);
       console.error(err);
     }
   };
@@ -137,8 +151,7 @@ const Transaction: React.FC<TransactionProps> = ({
           </Feed.Meta>
         )}
         {currentUser.uid && currentUser.uid === uid && (
-          // TODO: is this secure?
-
+          // {/* // TODO: is this secure? */}
           <Feed.Meta
             className="wmsm-comment-meta"
             onClick={() => {

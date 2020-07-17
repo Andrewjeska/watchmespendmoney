@@ -2,12 +2,14 @@ import axios from "axios";
 import envvar from "envvar";
 import { Router } from "express";
 import moment from "moment";
+import { decrypt, encrypt } from "./crypto";
 import {
   commentTableQuery,
   pgQuery,
   transactionTableQuery,
   userTableQuery,
 } from "./db";
+import { checkAuth } from "./middleware";
 import {
   client,
   getAverageSpendPerDay,
@@ -36,19 +38,19 @@ apiRoutes.post("/plaid/get_access_token", (req, res) => {
           error,
         });
       }
-      var accessToken = tokenResponse.access_token;
+      var accessTokenCtext = encrypt(tokenResponse.access_token);
       var itemId = tokenResponse.item_id;
 
       await pgQuery(userTableQuery);
       if (PLAID_ENV === "sandbox") {
         await pgQuery(
-          "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3)",
-          ["sandbox", accessToken, itemId]
+          "UPDATE users SET access_token=$1 item_id=$2 WHERE uid = $3",
+          [accessTokenCtext, itemId, "sandbox"]
         );
       } else {
         await pgQuery(
-          "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3)",
-          [uid, accessToken, itemId]
+          "UPDATE users SET access_token=$1 item_id=$2 WHERE uid = $3",
+          [accessTokenCtext, itemId, uid]
         );
       }
 
@@ -63,18 +65,19 @@ apiRoutes.post("/plaid/get_access_token", (req, res) => {
   }
 });
 
-// Updates item for uid with
+// Updates item for uid with the webhook (will be deprecrated, here for convenience)
 apiRoutes.post("/plaid/webhook/update", async (req, res) => {
   const { uid } = req.body;
   try {
     const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
-    const accessToken = rows[0].access_token;
+    const accessTokenCtext = rows[0].access_token;
 
-    if (!accessToken)
+    if (!accessTokenCtext)
       return res.status(403).json({
         error: `No associated access_token for ${uid}`,
       });
 
+    const accessToken = decrypt(accessTokenCtext);
     return client.updateItemWebhook(
       accessToken,
       envvar.string("PLAID_WEBHOOK"),
@@ -98,17 +101,18 @@ apiRoutes.post("/plaid/webhook/update", async (req, res) => {
   }
 });
 
-// TODO: we should periodically hit this endpoint, or abstract this to a function or something
+// TODO: we can use this to grab the current month's transactions when the user signs up
 apiRoutes.get("/plaid/transactions", async (req, res) => {
   const { uid } = req.query;
   const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
-  const accessToken = rows[0].access_token;
+  const accessTokenCtext = rows[0].access_token;
 
-  if (!accessToken)
+  if (!accessTokenCtext)
     return res.status(403).json({
       error: "Please add a bank account!",
     });
 
+  const accessToken = decrypt(accessTokenCtext);
   const startDate = moment("2020-06-01").format("YYYY-MM-DD");
   const endDate = moment().format("YYYY-MM-DD");
   return client.getTransactions(
@@ -184,7 +188,7 @@ apiRoutes.get("/transactions", async (req, res) => {
   }
 });
 
-apiRoutes.post("/transactions/create", async (req, res) => {
+apiRoutes.post("/transactions/create", checkAuth, async (req, res) => {
   const {
     uid,
     date,
@@ -226,7 +230,7 @@ apiRoutes.post("/transactions/create", async (req, res) => {
   }
 });
 
-apiRoutes.post("/transactions/delete", async (req, res) => {
+apiRoutes.post("/transactions/delete", checkAuth, async (req, res) => {
   const { id } = req.body;
 
   try {
@@ -341,7 +345,8 @@ apiRoutes.post("/transactions/comments/reply", async (req, res) => {
 
 // ########### Users API ###########
 
-// get a user by UID
+// get a user and displayName by UID
+//TODO: can postgres select particular fields?
 apiRoutes.get("/users", async (req, res) => {
   const { uid } = req.query;
 
@@ -384,13 +389,13 @@ apiRoutes.post("/users/create", async (req, res) => {
 });
 
 // Set the display name for a user
-apiRoutes.post("/users/set_display_name", async (req, res) => {
+apiRoutes.post("/users/set_display_name", checkAuth, async (req, res) => {
   const { uid, displayName } = req.body;
 
   try {
-    await pgQuery("UPDATE users SET display_name=$1 WHERE uid = $2 ", [
-      uid,
+    await pgQuery("UPDATE users SET display_name=$1 WHERE uid = $2", [
       displayName,
+      uid,
     ]);
 
     return res.json({
@@ -417,11 +422,16 @@ apiRoutes.get("/stats", async (req, res) => {
     );
 
     const transactions = processTransactions(rows);
+    if (!transactions.length)
+      return res.json({
+        stats: null,
+      });
     const stats = {
       currentMonthSpend: getSpendForMonth(transactions, dateTime as string),
-      daysSinceLastSpend: rows.length
-        ? getDaysSinceLastSpend(transactions, dateTime as string)
-        : "N/A",
+      daysSinceLastSpend: getDaysSinceLastSpend(
+        transactions,
+        dateTime as string
+      ),
       avgSpendPerDay: getAverageSpendPerDay(transactions),
     };
     prettyPrintInfo(stats);

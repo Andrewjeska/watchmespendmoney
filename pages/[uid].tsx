@@ -125,44 +125,46 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
             </Grid.Row>
           )}
 
-          {stats ? (
-            <Grid.Row width={16}>
-              <Segment style={{ width: "100%" }}>
-                <Grid textAlign="center">
-                  <Grid.Row>
-                    <Header as="h2">
-                      Stats for {user ? user.displayName : "Loading..."}
-                    </Header>
-                  </Grid.Row>
+          <Grid.Row width={16}>
+            <Segment style={{ width: "100%" }}>
+              <Grid textAlign="center">
+                <Grid.Row>
+                  <Header as="h2">
+                    Stats for {user ? user.displayName : "Loading..."}
+                  </Header>
+                </Grid.Row>
 
-                  <Grid.Row>
-                    <Statistic>
-                      <Statistic.Label>
-                        Total spend in {moment().format("MMMM")}
-                      </Statistic.Label>
-                      <Statistic.Value>
-                        ${stats.currentMonthSpend.toFixed(2)}
-                      </Statistic.Value>
-                    </Statistic>
-                    <Statistic>
-                      <Statistic.Label>Average Daily Spend</Statistic.Label>
-                      <Statistic.Value>
-                        ${stats.avgSpendPerDay.toFixed(2)}
-                      </Statistic.Value>
-                    </Statistic>
-                    <Statistic>
-                      <Statistic.Label>Days since last spend</Statistic.Label>
-                      <Statistic.Value>
-                        {stats.daysSinceLastSpend}
-                      </Statistic.Value>
-                    </Statistic>
-                  </Grid.Row>
-                </Grid>
-              </Segment>
-            </Grid.Row>
-          ) : (
-            <div></div>
-          )}
+                <Grid.Row>
+                  <Statistic>
+                    <Statistic.Label>
+                      Total spend in {moment().format("MMMM")}
+                    </Statistic.Label>
+                    <Statistic.Value>
+                      {stats && stats.currentMonthSpend
+                        ? "$" + stats.currentMonthSpend.toFixed(2)
+                        : "N/A"}
+                    </Statistic.Value>
+                  </Statistic>
+                  <Statistic>
+                    <Statistic.Label>Average Daily Spend</Statistic.Label>
+                    <Statistic.Value>
+                      {stats && stats.avgSpendPerDay
+                        ? "$" + stats.avgSpendPerDay.toFixed(2)
+                        : "N/A"}
+                    </Statistic.Value>
+                  </Statistic>
+                  <Statistic>
+                    <Statistic.Label>Days since last spend</Statistic.Label>
+                    <Statistic.Value>
+                      {stats && stats.daysSinceLastSpend
+                        ? stats.daysSinceLastSpend
+                        : "N/A"}
+                    </Statistic.Value>
+                  </Statistic>
+                </Grid.Row>
+              </Grid>
+            </Segment>
+          </Grid.Row>
         </Grid>
 
         <Grid textAlign="center" style={{ marginTop: "2vh" }}>

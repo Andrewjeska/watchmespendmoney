@@ -25,6 +25,7 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ maintenance }) => {
+  //TODO: transactions pending
   const [transactions, setTransactions] = useState([]);
 
   const fetchTransactions = async () => {

@@ -24,7 +24,6 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
     displayName: defaultDisplayName,
   });
 
-  // TODO: should we do this just once in a higher component?
   useEffect(() => {
     // will run on first render, like componentDidMount
     const firebaseUnsub = auth.onAuthStateChanged(async (user) => {
