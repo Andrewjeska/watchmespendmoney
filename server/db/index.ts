@@ -13,9 +13,11 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   uid TEXT NOT NULL UNIQUE,
-  access_token TEXT,
   display_name TEXT,
-  item_id TEXT 
+  access_token TEXT,
+  item_id TEXT,
+  accounts jsonb[],
+  accounts_denylist TEXT[]
 );
 `;
 

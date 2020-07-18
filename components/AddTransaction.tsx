@@ -42,8 +42,8 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
             category,
             reason,
           },
-          headers: { AuthToken: token },
         },
+        headers: { authToken: token },
       });
       setAmount(0.0);
       setDescription("");

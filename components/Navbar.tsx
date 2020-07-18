@@ -50,6 +50,9 @@ const Navbar: React.FC = () => {
           <Link key="transFeed" href="[uid]" as={`/${user.uid}`} passHref>
             <Menu.Item link> Your Transaction Feed </Menu.Item>
           </Link>,
+          <Link key="settings" href="settings" passHref>
+            <Menu.Item link> Settings</Menu.Item>
+          </Link>,
         ]}
       </Menu>
     </Container>

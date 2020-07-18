@@ -1,6 +1,7 @@
 import axios from "axios";
 import envvar from "envvar";
 import { Router } from "express";
+import _ from "lodash";
 import moment from "moment";
 import { decrypt, encrypt } from "./crypto";
 import {
@@ -15,7 +16,6 @@ import {
   getAverageSpendPerDay,
   getDaysSinceLastSpend,
   getSpendForMonth,
-  PLAID_ENV,
   prettyPrintError,
   prettyPrintInfo,
   processComments,
@@ -27,37 +27,61 @@ const apiRoutes = Router();
 
 // ###########  Plaid API ###########
 
-apiRoutes.post("/plaid/get_access_token", (req, res) => {
+apiRoutes.post("/plaid/add_item", checkAuth, async (req, res) => {
   try {
-    prettyPrintInfo(req.body);
     const { publicToken, uid } = req.body;
-    client.exchangePublicToken(publicToken, async (error, tokenResponse) => {
-      if (error != null) {
-        prettyPrintError(error);
-        return res.status(500).json({
-          error,
-        });
-      }
-      var accessTokenCtext = encrypt(tokenResponse.access_token);
-      var itemId = tokenResponse.item_id;
 
-      await pgQuery(userTableQuery);
-      if (PLAID_ENV === "sandbox") {
-        await pgQuery(
-          "UPDATE users SET access_token=$1 item_id=$2 WHERE uid = $3",
-          [accessTokenCtext, itemId, "sandbox"]
-        );
-      } else {
-        await pgQuery(
-          "UPDATE users SET access_token=$1 item_id=$2 WHERE uid = $3",
-          [accessTokenCtext, itemId, uid]
-        );
-      }
+    const tokenResponse = await client.exchangePublicToken(publicToken);
 
-      const { rows } = await pgQuery("SELECT * FROM users");
-      prettyPrintInfo(rows);
-      return res.status(200).json({ message: "token generated" });
+    const accessToken = tokenResponse.access_token;
+    const itemId = tokenResponse.item_id;
+
+    const accountInfo = await client.getAccounts(accessToken);
+    prettyPrintInfo(accountInfo);
+
+    const accounts = _.map(accountInfo.accounts, (account) => {
+      return { name: account.name, mask: account.mask };
     });
+
+    const accessTokenCtext = encrypt(accessToken);
+    await pgQuery(userTableQuery);
+    await pgQuery(
+      "UPDATE users SET access_token = $1, item_id = $2, accounts = $3, accounts_denylist = $4 WHERE uid = $5",
+      [accessTokenCtext, itemId, accounts, _.map(accounts, "mask"), uid]
+    );
+
+    prettyPrintInfo({ accounts });
+
+    return res.status(200).json({ accounts });
+  } catch (error) {
+    return res.status(500).json({
+      error,
+    });
+  }
+});
+
+apiRoutes.post("/plaid/remove_item", checkAuth, async (req, res) => {
+  try {
+    const { uid } = req.body;
+
+    const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
+    const accessTokenCtext = rows[0].access_token;
+
+    if (!accessTokenCtext)
+      return res.status(403).json({
+        error: `No associated access_token for ${uid}`,
+      });
+
+    const accessToken = decrypt(accessTokenCtext);
+    console.log(accessToken);
+    const itemRemoveResult = await client.removeItem(accessToken);
+    const removed = itemRemoveResult.removed;
+
+    await pgQuery(
+      "UPDATE users SET access_token = null, item_id = null, accounts = null, accounts_denylist = null WHERE uid = $1",
+      [uid]
+    );
+    return res.status(200).json({ removed });
   } catch (error) {
     return res.status(500).json({
       error,
@@ -362,6 +386,74 @@ apiRoutes.get("/users", async (req, res) => {
     prettyPrintError(error);
     return res.json({
       user: null,
+      error,
+    });
+  }
+});
+
+apiRoutes.get("/users/bank_accounts", checkAuth, async (req, res) => {
+  const { uid } = req.query;
+
+  try {
+    const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
+    prettyPrintInfo(rows);
+    const { accounts, accounts_denylist } = rows[0];
+    return res.json({ accounts: accounts, denylist: accounts_denylist });
+  } catch (error) {
+    prettyPrintError(error);
+    return res.json({
+      error,
+    });
+  }
+});
+
+apiRoutes.post("/users/bank_accounts/delete", checkAuth, async (req, res) => {
+  const { uid, mask } = req.body;
+
+  try {
+    const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
+    prettyPrintInfo(rows);
+    const { accounts, accounts_denylist } = rows[0];
+    const newAccounts = _.reject(accounts, ["mask", mask]);
+    const newDeny = _.reject(accounts_denylist, (denied) => denied === mask);
+
+    await pgQuery(
+      "UPDATE users SET accounts = $1, accounts_denylist = $2 WHERE uid = $3",
+      [newAccounts, newDeny, uid]
+    );
+    prettyPrintInfo({ accounts: newAccounts, denylist: newDeny });
+    return res.json({ accounts: newAccounts, denylist: newDeny });
+  } catch (error) {
+    prettyPrintError(error);
+    return res.json({
+      error,
+    });
+  }
+});
+
+apiRoutes.post("/users/bank_accounts/toggle", checkAuth, async (req, res) => {
+  const { uid, mask, checked } = req.body;
+
+  try {
+    const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
+    const { accounts_denylist } = rows[0];
+
+    let newDeny = accounts_denylist;
+    if (checked)
+      newDeny = _.reject(accounts_denylist, (denied) => denied === mask);
+    else accounts_denylist.push(mask);
+
+    await pgQuery("UPDATE users SET accounts_denylist = $1 WHERE uid = $2", [
+      newDeny,
+      uid,
+    ]);
+
+    const resJson = { denylist: newDeny };
+    prettyPrintInfo(resJson);
+    return res.json(resJson);
+  } catch (error) {
+    prettyPrintError(error);
+    return res.json({
       error,
     });
   }

@@ -18,4 +18,9 @@ interface UserStats {
   avgSpendPerDay: number;
 }
 
+interface UserBankAccount {
+  name: string;
+  mask: string;
+}
+
 declare module "sfcookies";

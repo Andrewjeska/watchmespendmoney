@@ -30,7 +30,7 @@ const Admin: React.FC<AdminProps> = ({
 
   //TODO: is there a better way to encapsulate this
   const onSuccess = async (token: string, meta: any) => {
-    await axios.post("/api/plaid/get_access_token", {
+    await axios.post("/api/plaid/add_bank_account", {
       publicToken: token,
       uid: uidRef.current,
     });

@@ -2,8 +2,8 @@ import crypto from "crypto";
 import envvar from "envvar";
 const algorithm = "aes-256-cbc";
 
-const key = new Buffer(envvar.string("AES_KEY"), "base64").toString("ascii");
-const iv = new Buffer(envvar.string("AES_IV"), "base64").toString("ascii");
+const key = Buffer.from(envvar.string("AES_KEY"), "base64").toString("ascii");
+const iv = Buffer.from(envvar.string("AES_IV"), "base64").toString("ascii");
 
 export const encrypt = (text: string) => {
   let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);

@@ -48,7 +48,7 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
       if (res.user) {
         const user = res.user;
         if (res.additionalUserInfo?.isNewUser)
-          await axios.post("/api/users/create", {
+          await axios.post("/api/userss/create", {
             uid: user.uid,
           });
         setUser(user);
