@@ -103,16 +103,19 @@ export const processTransactions = (rows: any[]): Array<UserTransaction> => {
 };
 
 export const processComments = (rows: any[]): Array<TransactionComment> =>
-  _.map(rows, (comment) => {
-    return {
-      id: comment.id,
-      uid: comment.uid,
-      dateTime: comment.date_time,
-      text: comment.comment_text,
-      transactionId: comment.transaction_id,
-      parentId: comment.parent_id,
-    };
-  });
+  _(rows)
+    .map((comment) => {
+      return {
+        id: comment.id,
+        uid: comment.uid,
+        dateTime: comment.date_time,
+        text: comment.comment_text,
+        transactionId: comment.transaction_id,
+        parentId: comment.parent_id,
+      };
+    })
+    .orderBy(["date"], ["desc"])
+    .value();
 
 // Transaction Stats
 

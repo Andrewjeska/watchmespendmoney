@@ -204,7 +204,6 @@ const UserFeed: React.FC<SettingsProps> = ({
                   negative
                   onClick={() => unlinkAccount(currentUser)}
                   type="submit"
-                  // disabled={!(bankAccounts && bankAccounts.length > 0)}
                 >
                   <Icon name="delete"></Icon> Unlink your Bank Account
                 </Button>
@@ -275,6 +274,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
       plaidPublicKey: envvar.string("PLAID_PUBLIC_KEY"),
       plaidEnv: envvar.string("PLAID_ENV", "sandbox"),
       plaidWebhook: envvar.string("PLAID_WEBHOOK"),
+      plaidLinkFF: envvar.boolean("PLAID_LINK+FF"),
     }, // will be passed to the page component as props
   };
 };

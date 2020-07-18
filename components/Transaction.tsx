@@ -1,8 +1,10 @@
 import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Button, Feed, Form, Loader } from "semantic-ui-react";
+import { Button, Divider, Feed, Form, Loader } from "semantic-ui-react";
 import { axios } from "../common/axios";
+import { auth } from "../common/firebase";
+import { svgs } from "../common/imagery";
 import CommentThread from "./CommentThread";
 import SignUpModal from "./EmailSignUpModal";
 

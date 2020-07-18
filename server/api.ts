@@ -74,7 +74,6 @@ apiRoutes.post("/plaid/remove_item", checkAuth, async (req, res) => {
       });
 
     const accessToken = decrypt(accessTokenCtext);
-    console.log(accessToken);
     const itemRemoveResult = await client.removeItem(accessToken);
     const removed = itemRemoveResult.removed;
 
@@ -181,7 +180,6 @@ apiRoutes.post("/email", async (req, res) => {
     });
     return res.status(200).json({ message: `submitted ${email}` });
   } catch (error) {
-    prettyPrintError(error.response);
     return res.status(500).json({
       error,
     });

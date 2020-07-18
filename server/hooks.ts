@@ -27,7 +27,7 @@ webhookRoutes.post("/plaid", async (req, res) => {
       break;
 
     case "WEBHOOK_UPDATE_ACKNOWLEDGED":
-      prettyPrintInfo("Webhook registered");
+      prettyPrintInfo(`Webhook registered for item_id ${req.body.item_id}`);
       break;
 
     default:
@@ -62,6 +62,7 @@ export const transactionsWebhookHandler = async (
     prettyPrintError(error);
     res.status(500).end();
   } else {
+    // this makes plaid happy
     res.status(200).end();
 
     // get user uid by item_id
@@ -70,14 +71,19 @@ export const transactionsWebhookHandler = async (
         item_id,
       ]);
 
+      if (!rows.length) {
+        prettyPrintInfo(`No user find with item_id ${item_id}`);
+        return;
+      }
+
       // it is NOT possible for another user to have a different plaid item_id
       const uid = rows[0].uid;
       const accessTokenCtext = rows[0].access_token;
 
-      if (!accessTokenCtext)
-        return res.status(403).json({
-          error: `No associated access_token for ${uid}`,
-        });
+      if (!accessTokenCtext) {
+        prettyPrintInfo(`No associated access_token for ${uid}`);
+        return;
+      }
 
       const accessToken = decrypt(accessTokenCtext);
 
@@ -91,7 +97,10 @@ export const transactionsWebhookHandler = async (
           break;
 
         case "TRANSACTIONS_REMOVED":
-          prettyPrintInfo("no-op");
+          // TODO: when is transactions removed actually sent
+          prettyPrintInfo(
+            "no-op, I don't think we need to support this for our usecase"
+          );
           break;
 
         default:
