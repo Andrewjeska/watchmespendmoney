@@ -3,6 +3,7 @@ import express from "express";
 import admin from "firebase-admin";
 import apiRoutes from "./api";
 import webhookRoutes from "./hooks";
+
 const port = parseInt(process.env.PORT || "5000", 10);
 
 const app = express();
@@ -20,6 +21,8 @@ admin.initializeApp({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
+
+app.set("trust proxy", 1);
 
 app.use("/api", apiRoutes);
 app.use("/hooks", webhookRoutes);
