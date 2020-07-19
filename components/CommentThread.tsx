@@ -22,31 +22,31 @@ const CommentThread: React.FC<CommentThreadProps> = ({
   emailPopup,
   nest,
 }) => {
-  const { id, uid, dateTime, text, transactionId, parentId } = meta;
+  const { id, uid, dateTime, text, transactionId, children } = meta;
 
-  const [commentChildren, setCommentChildren] = useState([]);
+  const [commentChildren, setCommentChildren] = useState(children);
 
-  const fetchChildren = async () => {
-    try {
-      const res = await axios.get("/api/transactions/comments", {
-        params: {
-          parentId: id,
-        },
-      });
+  // const fetchChildren = async () => {
+  //   try {
+  //     const res = await axios.get("/api/transactions/comments", {
+  //       params: {
+  //         parentId: id,
+  //       },
+  //     });
 
-      if (res.data.comments.length) setCommentChildren(res.data.comments);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  //     if (res.data.comments.length) setCommentChildren(res.data.comments);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
 
   const [showReply, setShowReply] = useState(false);
   const [showModal, setShowModal] = useState(false);
+
   const [displayName, setDisplayName] = useState(uid ? "" : defaultDisplayName);
 
   useEffect(() => {
     // will run on first render, like componentDidMount
-    fetchChildren();
     if (uid) {
       axios
         .get("/api/users", {
@@ -75,6 +75,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
               <div>{moment(dateTime).format("MM/DD/YY h:mm a")}</div>
             </Comment.Metadata>
             {showComment && <Comment.Text>{text}</Comment.Text>}
+
             <Comment.Actions>
               <Comment.Action onClick={() => setShowComment(!showComment)}>
                 {showComment ? <p> [ - ] </p> : <p> [ + ] </p>}
@@ -91,12 +92,14 @@ const CommentThread: React.FC<CommentThreadProps> = ({
                 uid={currentUser.uid}
                 transactionId={transactionId}
                 parentId={id}
-                postSubmit={() => {
+                postSubmit={(newComment) => {
                   setShowReply(false);
                   if (emailPopup) setShowModal(true);
-                  fetchChildren();
+                  setCommentChildren(_.concat(commentChildren, newComment));
                 }}
-                onClose={() => setShowReply(false)}
+                onClose={() => {
+                  setShowReply(false);
+                }}
               ></AddComment>
             )}
           </Comment.Content>

@@ -8,7 +8,7 @@ const port = parseInt(process.env.PORT || "5000", 10);
 
 const app = express();
 
-// let cache = apicache.middleware;
+//
 // app.use(cache("5 minutes"));
 
 const serviceAccount = require("./firebaseAdminPrivKey.json");

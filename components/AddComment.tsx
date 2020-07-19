@@ -8,7 +8,7 @@ interface AddCommentProps {
   uid: string | null;
   transactionId: string;
   parentId?: string;
-  postSubmit: () => void;
+  postSubmit: (newComment?: any) => void;
   onClose: () => void;
 }
 
@@ -33,7 +33,7 @@ const AddComment: React.FC<AddCommentProps> = ({
       });
       setSubmitError(null);
       setReplyContent("");
-      postSubmit();
+      postSubmit(res.data.comments);
     } catch (err) {
       console.error(err);
       if (err.response.data.errors) {

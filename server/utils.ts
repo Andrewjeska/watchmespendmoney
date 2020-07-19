@@ -105,17 +105,59 @@ export const processTransactions = (rows: any[]): Array<UserTransaction> => {
     .value();
 };
 
-export const processComments = (rows: any[]): Array<TransactionComment> =>
-  _.map(rows, (comment) => {
+export const processNewComment = (comment: any): TransactionComment => {
+  return {
+    id: comment.id,
+    uid: comment.uid,
+    dateTime: comment.date_time,
+    text: comment.comment_text,
+    transactionId: comment.transaction_id,
+    children: [],
+  };
+};
+
+export const processTransactionComments = (
+  rows: any[]
+): Array<TransactionComment> => {
+  // can we make a tree here?
+  const baseComments = _.filter(rows, (comment) => !comment.parent_id);
+
+  return _.map(baseComments, (comment) => {
     return {
       id: comment.id,
       uid: comment.uid,
       dateTime: comment.date_time,
       text: comment.comment_text,
       transactionId: comment.transaction_id,
-      parentId: comment.parent_id,
+      children: processTransactionCommentsHelper(
+        _.filter(rows, (child) => child.parent_id === comment.id),
+        rows
+      ),
     };
   });
+};
+
+// look ma, recursion!
+const processTransactionCommentsHelper = (
+  comments: any[],
+  allComments: any[]
+): Array<TransactionComment> => {
+  if (!comments.length) return [] as Array<TransactionComment>;
+
+  return _.map(comments, (comment) => {
+    return {
+      id: comment.id,
+      uid: comment.uid,
+      dateTime: comment.date_time,
+      text: comment.comment_text,
+      transactionId: comment.transaction_id,
+      children: processTransactionCommentsHelper(
+        _.filter(allComments, (child) => child.parent_id === comment.id),
+        allComments
+      ),
+    };
+  });
+};
 
 // Transaction Stats
 

@@ -25,14 +25,13 @@ const Transaction: React.FC<TransactionProps> = ({
   postDelete,
 }) => {
   const { id, uid, date, description, amount, category } = transaction;
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState([] as Array<TransactionComment>);
 
   const fetchComments = async () => {
     try {
       const res = await axios.get("/api/transactions/comments", {
         params: {
           transactionId: id,
-          parentId: null,
         },
         headers: { "Cache-Control": "no-cache" },
       });
@@ -58,7 +57,6 @@ const Transaction: React.FC<TransactionProps> = ({
         })
         .then((res) => {
           const user = res.data.user;
-
           if (user && user.displayName) setDisplayName(user.displayName);
           else {
             console.error(`displayName wasn't available for uid ${uid}`);
@@ -145,11 +143,11 @@ const Transaction: React.FC<TransactionProps> = ({
           <AddComment
             uid={currentUser.uid}
             transactionId={id}
-            postSubmit={() => {
+            postSubmit={(newComment: TransactionComment) => {
               setShowReply(false);
               setShowComments(true);
               if (emailPopup) setShowModal(true);
-              fetchComments();
+              setComments(_.concat(comments, newComment));
             }}
             onClose={() => setShowReply(false)}
           ></AddComment>
@@ -169,8 +167,7 @@ const renderComments = (
   showComments: boolean
 ) => {
   return _(comments)
-    .sortBy(["dateTime"])
-    .reverse()
+    .orderBy(["dateTime"], ["desc"])
     .map((comment: TransactionComment) => (
       <CommentThread
         style={!showComments ? { display: "none" } : {}}

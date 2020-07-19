@@ -7,8 +7,13 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
     admin
       .auth()
       .verifyIdToken(req.headers.authtoken as string)
-      .then(() => {
-        next();
+      .then((decodedToken) => {
+        const tokenUID = decodedToken.uid;
+        if (req.query.uid && req.query.uid !== tokenUID)
+          res.status(403).send("Unauthorized");
+        else if (req.body.uid && req.body.uid !== tokenUID)
+          res.status(403).send("Unauthorized");
+        else next();
       })
       .catch(() => {
         res.status(403).send("Unauthorized");
@@ -32,12 +37,8 @@ const textValidator = (key: string, message: string) => {
 
 export const validateComment = [
   textValidator("text", "Please write something before clicking Reply"),
-
   body("dateTime").isISO8601().withMessage("Invalid date"),
-  // body("transactionId")
-  // .if(body("transactionId").exists())
-  // .isUUID()
-  // .withMessage("Invalid transactionId"),
+  body("transactionId").isUUID().withMessage("Invalid transactionId"),
   // body("parentId")
   //   // .if(body("transactionId").exists())
   //   .isUUID()

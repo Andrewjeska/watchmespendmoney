@@ -27,7 +27,7 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
   useEffect(() => {
     // will run on first render, like componentDidMount
     const firebaseUnsub = auth.onAuthStateChanged(async (user) => {
-      if (user && user.uid) {
+      if (user && user.uid && user.displayName) {
         // get stored displayName
         const { data: userMeta } = await axios.get("/api/users", {
           params: { uid: user.uid },

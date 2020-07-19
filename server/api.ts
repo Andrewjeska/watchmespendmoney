@@ -1,3 +1,4 @@
+import apicache from "apicache";
 import axios from "axios";
 import envvar from "envvar";
 import { Request, Response, Router } from "express";
@@ -23,12 +24,14 @@ import {
   getSpendForMonth,
   prettyPrintError,
   prettyPrintInfo,
-  processComments,
+  processNewComment,
   processPlaidTransactions,
+  processTransactionComments,
   processTransactions,
 } from "./utils";
 
 const apiRoutes = Router();
+let cache = apicache.middleware;
 
 // ###########  Plaid API ###########
 
@@ -300,9 +303,12 @@ apiRoutes.get("/transactions/comments", async (req, res) => {
     );
     if (rows.length) prettyPrintInfo(rows);
 
+    const comments = processTransactionComments(rows);
+    prettyPrintInfo(comments);
+
     return res.json({
       error: null,
-      comments: processComments(rows),
+      comments,
     });
   } catch (error) {
     prettyPrintError(error);
@@ -325,14 +331,15 @@ apiRoutes.post(
       const {
         rows,
       } = await pgQuery(
-        "INSERT INTO comments(uid, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5)",
+        "INSERT INTO comments(uid, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         [uid, transactionId, parentId, dateTime, text]
       );
 
-      prettyPrintInfo(rows);
+      const comment = processNewComment(rows[0]);
+      prettyPrintInfo(comment);
       return res.json({
         error: null,
-        comments: rows,
+        comments: [comment],
       });
     } catch (error) {
       prettyPrintError(error);
@@ -347,8 +354,7 @@ apiRoutes.post(
 // ########### Users API ###########
 
 // get a user and displayName by UID
-//TODO: can postgres select particular fields?
-apiRoutes.get("/users", async (req, res) => {
+apiRoutes.get("/users", cache("5 minutes"), async (req, res) => {
   const { uid } = req.query;
 
   try {

@@ -4,5 +4,6 @@ interface TransactionComment {
   dateTime: Date;
   text: string;
   transactionId: string;
-  parentId?: string;
+  // parentId?: string;
+  children: Array<TransactionComment>;
 }
