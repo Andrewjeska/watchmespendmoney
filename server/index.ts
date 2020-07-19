@@ -22,6 +22,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
+// max 20 requests per minute
+// const apiRateLimiter = rateLimit({
+//   windowMs: 60 * 1000,
+//   max: 20,
+// });
+// app.use(apiRateLimiter);
+
 app.set("trust proxy", 1);
 
 app.use("/api", apiRoutes);

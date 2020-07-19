@@ -1,9 +1,10 @@
 import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Button, Comment, Form, Loader, Segment } from "semantic-ui-react";
+import { Comment, Loader, Segment } from "semantic-ui-react";
 import { axios } from "../common/axios";
 import { defaultDisplayName, maxNest } from "../common/constants";
+import AddComment from "./AddComment";
 import SignUpModal from "./EmailSignUpModal";
 
 interface CommentThreadProps {
@@ -40,26 +41,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
   };
 
   const [showReply, setShowReply] = useState(false);
-  const [replyContent, setReplyContent] = useState("");
   const [showModal, setShowModal] = useState(false);
-
-  const reply = async (text: string, uid: string | null) => {
-    try {
-      const res = await axios.post("/api/transactions/comments/reply", {
-        dateTime: moment().toISOString(),
-        text,
-        uid,
-        parentId: id,
-      });
-      setShowReply(false);
-      setReplyContent("");
-      if (emailPopup) setShowModal(true);
-      fetchChildren();
-    } catch {
-      console.log("Error on comment children");
-    }
-  };
-
   const [displayName, setDisplayName] = useState(uid ? "" : defaultDisplayName);
 
   useEffect(() => {
@@ -93,7 +75,6 @@ const CommentThread: React.FC<CommentThreadProps> = ({
               <div>{moment(dateTime).format("MM/DD/YY h:mm a")}</div>
             </Comment.Metadata>
             {showComment && <Comment.Text>{text}</Comment.Text>}
-
             <Comment.Actions>
               <Comment.Action onClick={() => setShowComment(!showComment)}>
                 {showComment ? <p> [ - ] </p> : <p> [ + ] </p>}
@@ -106,27 +87,17 @@ const CommentThread: React.FC<CommentThreadProps> = ({
               )}
             </Comment.Actions>
             {showReply && (
-              <Form style={{ marginTop: "1vh" }} reply>
-                <Form.TextArea
-                  onChange={(e) =>
-                    setReplyContent((e.target as HTMLTextAreaElement).value)
-                  }
-                />
-                <Button
-                  content="Reply"
-                  labelPosition="left"
-                  icon="edit"
-                  primary
-                  onClick={() => reply(replyContent, currentUser.uid)}
-                />
-                <Button
-                  content="Cancel"
-                  labelPosition="left"
-                  icon="cancel"
-                  primary
-                  onClick={() => setShowReply(!showReply)}
-                />
-              </Form>
+              <AddComment
+                uid={currentUser.uid}
+                transactionId={transactionId}
+                parentId={id}
+                postSubmit={() => {
+                  setShowReply(false);
+                  if (emailPopup) setShowModal(true);
+                  fetchChildren();
+                }}
+                onClose={() => setShowReply(false)}
+              ></AddComment>
             )}
           </Comment.Content>
           {renderChildren(

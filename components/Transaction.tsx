@@ -1,10 +1,11 @@
 import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Button, Divider, Feed, Form, Loader } from "semantic-ui-react";
+import { Divider, Feed, Loader } from "semantic-ui-react";
 import { axios } from "../common/axios";
 import { auth } from "../common/firebase";
 import { svgs } from "../common/imagery";
+import AddComment from "./AddComment";
 import CommentThread from "./CommentThread";
 import SignUpModal from "./EmailSignUpModal";
 
@@ -70,40 +71,8 @@ const Transaction: React.FC<TransactionProps> = ({
   }, []);
 
   const [showReply, setShowReply] = useState(false);
-  const [replyContent, setReplyContent] = useState("");
   const [showComments, setShowComments] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [commentError, setCommentError] = useState(null as null | string);
-
-  const reply = async (text: string, uid: string | null) => {
-    try {
-      const res = await axios.post("/api/transactions/comment", {
-        dateTime: moment().toISOString(),
-        text,
-        uid: uid, // might default because it's null?
-        transactionId: id,
-      });
-      setCommentError(null);
-      setShowReply(false);
-      setReplyContent("");
-      setShowComments(true);
-      if (emailPopup) setShowModal(true);
-      fetchComments();
-    } catch (err) {
-      console.error(err);
-      if (err.response.data.errors) {
-        const validationErrors = err.response.data.errors;
-        const errorMsgs = _.reduce(
-          validationErrors,
-          (acc, err) => {
-            return `${acc}${err}\n`;
-          },
-          ""
-        );
-        setCommentError(errorMsgs);
-      }
-    }
-  };
 
   const deleteTransaction = async (id: string) => {
     try {
@@ -173,36 +142,17 @@ const Transaction: React.FC<TransactionProps> = ({
           </Feed.Meta>
         )}
         {showReply && (
-          <Form style={{ marginTop: "1vh" }} reply>
-            {commentError && (
-              <p
-                style={{ color: "red" }}
-                dangerouslySetInnerHTML={{ __html: commentError }}
-              ></p>
-            )}
-            <Form.TextArea
-              onChange={(e) =>
-                setReplyContent((e.target as HTMLTextAreaElement).value)
-              }
-            />
-            <Button
-              content="Reply"
-              labelPosition="left"
-              icon="edit"
-              primary
-              onClick={() => reply(replyContent, currentUser.uid)}
-            />
-            <Button
-              content="Cancel"
-              labelPosition="left"
-              icon="cancel"
-              primary
-              onClick={() => {
-                setShowReply(!showReply);
-                setCommentError(null);
-              }}
-            />
-          </Form>
+          <AddComment
+            uid={currentUser.uid}
+            transactionId={id}
+            postSubmit={() => {
+              setShowReply(false);
+              setShowComments(true);
+              if (emailPopup) setShowModal(true);
+              fetchComments();
+            }}
+            onClose={() => setShowReply(false)}
+          ></AddComment>
         )}
         {commenting &&
           renderComments(comments, currentUser, emailPopup, showComments)}

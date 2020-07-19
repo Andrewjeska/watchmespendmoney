@@ -3,6 +3,6 @@ interface TransactionComment {
   uid: string;
   dateTime: Date;
   text: string;
-  transactionId?: string;
+  transactionId: string;
   parentId?: string;
 }

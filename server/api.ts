@@ -1,7 +1,6 @@
 import axios from "axios";
 import envvar from "envvar";
 import { Request, Response, Router } from "express";
-import rateLimit from "express-rate-limit";
 import _ from "lodash";
 import moment from "moment";
 import { decrypt, encrypt } from "./crypto";
@@ -320,51 +319,14 @@ apiRoutes.post(
   validateComment,
   returnValidationErrors,
   async (req: Request, res: Response) => {
-    const { uid, dateTime, text, transactionId } = req.body;
+    const { uid, dateTime, text, transactionId, parentId } = req.body;
 
     try {
       const {
         rows,
       } = await pgQuery(
         "INSERT INTO comments(uid, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5)",
-        [uid, transactionId, null, dateTime, text]
-      );
-
-      prettyPrintInfo(rows);
-      return res.json({
-        error: null,
-        comments: rows,
-      });
-    } catch (error) {
-      prettyPrintError(error);
-      return res.json({
-        error,
-        comments: [],
-      });
-    }
-  }
-);
-
-// max 10 requests per minute
-const commentApiLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 10,
-});
-// Reply to a comment
-apiRoutes.post(
-  "/transactions/comments/reply",
-  commentApiLimiter,
-  validateComment,
-  returnValidationErrors,
-  async (req: Request, res: Response) => {
-    const { uid, dateTime, text, parentId } = req.body;
-
-    try {
-      const {
-        rows,
-      } = await pgQuery(
-        "INSERT INTO comments(uid, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5)",
-        [uid, null, parentId, dateTime, text]
+        [uid, transactionId, parentId, dateTime, text]
       );
 
       prettyPrintInfo(rows);
