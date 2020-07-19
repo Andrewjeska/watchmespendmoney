@@ -1,4 +1,5 @@
 import "firebase/auth";
+import _ from "lodash";
 import moment from "moment";
 import React, { useState } from "react";
 import { Button, Form, Icon } from "semantic-ui-react";
@@ -21,6 +22,8 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
   // reason will appear as the top comment
   const [reason, setReason] = useState("");
 
+  const [submitError, setSumbmitError] = useState(null as null | string);
+
   const submitTransaction = async () => {
     try {
       const firebaseUser = auth.currentUser;
@@ -34,14 +37,12 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
         method: "post",
         url: "/api/transactions/create",
         data: {
-          transaction: {
-            uid: user.uid,
-            date: moment(date).toISOString(),
-            description,
-            amount,
-            category,
-            reason,
-          },
+          uid: user.uid,
+          date: moment(date).toISOString(),
+          description,
+          amount,
+          category,
+          reason,
         },
         headers: { authToken: token },
       });
@@ -49,14 +50,32 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
       setDescription("");
       setCategory("");
       setReason("");
+      setSumbmitError(null);
       postSubmit();
     } catch (err) {
       console.error(err);
+      if (err.response.data.errors) {
+        const validationErrors = err.response.data.errors;
+        const errorMsgs = _.reduce(
+          validationErrors,
+          (acc, err) => {
+            return `${acc}${err}<br/>`;
+          },
+          ""
+        );
+        setSumbmitError(errorMsgs);
+      }
     }
   };
 
   return (
     <Form>
+      {submitError && (
+        <p
+          style={{ color: "red" }}
+          dangerouslySetInnerHTML={{ __html: submitError }}
+        ></p>
+      )}
       <Form.Group>
         <Form.Input
           label="Date"

@@ -1,6 +1,6 @@
 import axios from "axios";
 import envvar from "envvar";
-import { Router } from "express";
+import { Request, Response, Router } from "express";
 import rateLimit from "express-rate-limit";
 import _ from "lodash";
 import moment from "moment";
@@ -11,7 +11,12 @@ import {
   transactionTableQuery,
   userTableQuery,
 } from "./db";
-import { checkAuth } from "./middleware";
+import {
+  checkAuth,
+  checkTransaction,
+  returnValidationErrors,
+  validateComment,
+} from "./middleware";
 import {
   client,
   getAverageSpendPerDay,
@@ -211,47 +216,46 @@ apiRoutes.get("/transactions", async (req, res) => {
   }
 });
 
-apiRoutes.post("/transactions/create", checkAuth, async (req, res) => {
-  const {
-    uid,
-    date,
-    description,
-    amount,
-    category,
-    reason,
-  } = req.body.transaction;
+apiRoutes.post(
+  "/transactions/create",
+  checkAuth,
+  checkTransaction,
+  returnValidationErrors,
+  async (req: Request, res: Response) => {
+    const { uid, date, description, amount, category, reason } = req.body;
 
-  try {
-    const {
-      rows,
-    } = await pgQuery(
-      "INSERT INTO transactions(uid, date_time, description, amount, category) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-      [uid, date, description, amount, category]
-    );
-    prettyPrintInfo(rows);
-
-    if (reason.length) {
-      const commentRes = await pgQuery(
-        "INSERT INTO comments(uid, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-        [uid, rows[0].id, null, moment().toISOString(), reason]
+    try {
+      const {
+        rows,
+      } = await pgQuery(
+        "INSERT INTO transactions(uid, date_time, description, amount, category) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+        [uid, date, description, amount, category]
       );
+      prettyPrintInfo(rows);
 
-      return res.json({
-        transaction: rows[0].id,
-        comment: commentRes.rows[0].id,
-      });
-    } else {
-      return res.json({
-        transactions: processTransactions(rows),
+      if (reason.length) {
+        const commentRes = await pgQuery(
+          "INSERT INTO comments(uid, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+          [uid, rows[0].id, null, moment().toISOString(), reason]
+        );
+
+        return res.json({
+          transaction: rows[0].id,
+          comment: commentRes.rows[0].id,
+        });
+      } else {
+        return res.json({
+          transactions: processTransactions(rows),
+        });
+      }
+    } catch (error) {
+      prettyPrintError(error);
+      return res.status(500).json({
+        error,
       });
     }
-  } catch (error) {
-    prettyPrintError(error);
-    return res.status(500).json({
-      error,
-    });
   }
-});
+);
 
 apiRoutes.post("/transactions/delete", checkAuth, async (req, res) => {
   const { id } = req.body;
@@ -311,32 +315,35 @@ apiRoutes.get("/transactions/comments", async (req, res) => {
 });
 
 // Comment on a transaction
-apiRoutes.post("/transactions/comment", async (req, res) => {
-  const {
-    comment: { uid, dateTime, text, transactionId },
-  } = req.body;
+apiRoutes.post(
+  "/transactions/comment",
+  validateComment,
+  returnValidationErrors,
+  async (req: Request, res: Response) => {
+    const { uid, dateTime, text, transactionId } = req.body;
 
-  try {
-    const {
-      rows,
-    } = await pgQuery(
-      "INSERT INTO comments(uid, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5)",
-      [uid, transactionId, null, dateTime, text]
-    );
+    try {
+      const {
+        rows,
+      } = await pgQuery(
+        "INSERT INTO comments(uid, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5)",
+        [uid, transactionId, null, dateTime, text]
+      );
 
-    prettyPrintInfo(rows);
-    return res.json({
-      error: null,
-      comments: rows,
-    });
-  } catch (error) {
-    prettyPrintError(error);
-    return res.json({
-      error,
-      comments: [],
-    });
+      prettyPrintInfo(rows);
+      return res.json({
+        error: null,
+        comments: rows,
+      });
+    } catch (error) {
+      prettyPrintError(error);
+      return res.json({
+        error,
+        comments: [],
+      });
+    }
   }
-});
+);
 
 // max 10 requests per minute
 const commentApiLimiter = rateLimit({
@@ -347,10 +354,10 @@ const commentApiLimiter = rateLimit({
 apiRoutes.post(
   "/transactions/comments/reply",
   commentApiLimiter,
-  async (req, res) => {
-    const {
-      comment: { uid, dateTime, text, parentId },
-    } = req.body;
+  validateComment,
+  returnValidationErrors,
+  async (req: Request, res: Response) => {
+    const { uid, dateTime, text, parentId } = req.body;
 
     try {
       const {

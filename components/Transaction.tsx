@@ -73,17 +73,17 @@ const Transaction: React.FC<TransactionProps> = ({
   const [replyContent, setReplyContent] = useState("");
   const [showComments, setShowComments] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [commentError, setCommentError] = useState(null as null | string);
 
   const reply = async (text: string, uid: string | null) => {
     try {
       const res = await axios.post("/api/transactions/comment", {
-        comment: {
-          dateTime: moment().toISOString(),
-          text,
-          uid: uid, // might default because it's null?
-          transactionId: id,
-        },
+        dateTime: moment().toISOString(),
+        text,
+        uid: uid, // might default because it's null?
+        transactionId: id,
       });
+      setCommentError(null);
       setShowReply(false);
       setReplyContent("");
       setShowComments(true);
@@ -91,6 +91,17 @@ const Transaction: React.FC<TransactionProps> = ({
       fetchComments();
     } catch (err) {
       console.error(err);
+      if (err.response.data.errors) {
+        const validationErrors = err.response.data.errors;
+        const errorMsgs = _.reduce(
+          validationErrors,
+          (acc, err) => {
+            return `${acc}${err}\n`;
+          },
+          ""
+        );
+        setCommentError(errorMsgs);
+      }
     }
   };
 
@@ -163,6 +174,12 @@ const Transaction: React.FC<TransactionProps> = ({
         )}
         {showReply && (
           <Form style={{ marginTop: "1vh" }} reply>
+            {commentError && (
+              <p
+                style={{ color: "red" }}
+                dangerouslySetInnerHTML={{ __html: commentError }}
+              ></p>
+            )}
             <Form.TextArea
               onChange={(e) =>
                 setReplyContent((e.target as HTMLTextAreaElement).value)
@@ -180,7 +197,10 @@ const Transaction: React.FC<TransactionProps> = ({
               labelPosition="left"
               icon="cancel"
               primary
-              onClick={() => setShowReply(!showReply)}
+              onClick={() => {
+                setShowReply(!showReply);
+                setCommentError(null);
+              }}
             />
           </Form>
         )}

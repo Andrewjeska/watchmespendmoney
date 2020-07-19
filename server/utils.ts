@@ -90,32 +90,32 @@ export const processPlaidTransactions = (
 };
 
 export const processTransactions = (rows: any[]): Array<UserTransaction> => {
-  return _.map(rows, (transaction) => {
-    return {
-      id: transaction.id,
-      uid: transaction.uid,
-      date: transaction.date_time,
-      amount: transaction.amount,
-      description: transaction.description,
-      category: transaction.category,
-    };
-  });
-};
-
-export const processComments = (rows: any[]): Array<TransactionComment> =>
-  _(rows)
-    .map((comment) => {
+  return _(rows)
+    .map((transaction) => {
       return {
-        id: comment.id,
-        uid: comment.uid,
-        dateTime: comment.date_time,
-        text: comment.comment_text,
-        transactionId: comment.transaction_id,
-        parentId: comment.parent_id,
+        id: transaction.id,
+        uid: transaction.uid,
+        date: transaction.date_time,
+        amount: transaction.amount,
+        description: transaction.description,
+        category: transaction.category,
       };
     })
     .orderBy(["date"], ["desc"])
     .value();
+};
+
+export const processComments = (rows: any[]): Array<TransactionComment> =>
+  _.map(rows, (comment) => {
+    return {
+      id: comment.id,
+      uid: comment.uid,
+      dateTime: comment.date_time,
+      text: comment.comment_text,
+      transactionId: comment.transaction_id,
+      parentId: comment.parent_id,
+    };
+  });
 
 // Transaction Stats
 

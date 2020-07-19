@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { body, validationResult } from "express-validator";
 import admin from "firebase-admin";
 
 export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
@@ -15,4 +16,65 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
   } else {
     res.status(403).send("Unauthorized");
   }
+};
+
+const textValidator = (key: string, message: string) => {
+  return body(key)
+    .not()
+    .isEmpty()
+    .withMessage(message)
+    .not()
+    .contains("<script>")
+    .withMessage("Please don't try to hack me")
+    .escape()
+    .trim();
+};
+
+export const validateComment = [
+  textValidator("text", "Please write something before clicking Reply"),
+
+  body("dateTime").isISO8601().withMessage("Invalid date"),
+  // body("transactionId")
+  // .if(body("transactionId").exists())
+  // .isUUID()
+  // .withMessage("Invalid transactionId"),
+  // body("parentId")
+  //   // .if(body("transactionId").exists())
+  //   .isUUID()
+  //   .withMessage("Invalid transactionId"),
+];
+
+export const checkTransaction = [
+  body("date").isISO8601().withMessage("Invalid date"),
+  body("amount")
+    .isCurrency({ allow_negatives: false })
+    .isFloat({ min: 0.01, max: 100000 })
+    .withMessage("Invalid Amount"),
+  textValidator("description", "Please write in a Description"),
+  textValidator("category", "Please write in a Category"),
+  body("reason")
+    .optional()
+    .not()
+    .contains("<script>")
+    .withMessage("Please don't try to hack me")
+    .escape()
+    .trim(),
+];
+
+export const returnValidationErrors = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const errors = validationResult(req);
+  if (errors.isEmpty()) {
+    return next();
+  }
+  const extractedErrors: Array<Record<string, string>> = [];
+  // errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }));
+  errors.array().map((err) => extractedErrors.push(err.msg));
+
+  return res.status(422).json({
+    errors: extractedErrors,
+  });
 };

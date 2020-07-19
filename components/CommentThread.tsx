@@ -34,8 +34,8 @@ const CommentThread: React.FC<CommentThreadProps> = ({
       });
 
       if (res.data.comments.length) setCommentChildren(res.data.comments);
-    } catch {
-      console.log("Error on comment children");
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -46,12 +46,10 @@ const CommentThread: React.FC<CommentThreadProps> = ({
   const reply = async (text: string, uid: string | null) => {
     try {
       const res = await axios.post("/api/transactions/comments/reply", {
-        comment: {
-          dateTime: moment().toISOString(),
-          text,
-          uid,
-          parentId: id,
-        },
+        dateTime: moment().toISOString(),
+        text,
+        uid,
+        parentId: id,
       });
       setShowReply(false);
       setReplyContent("");
