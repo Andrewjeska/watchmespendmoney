@@ -2,6 +2,7 @@ import apicache from "apicache";
 import axios from "axios";
 import envvar from "envvar";
 import { Request, Response, Router } from "express";
+import admin from "firebase-admin";
 import _ from "lodash";
 import moment from "moment";
 import { decrypt, encrypt } from "./crypto";
@@ -12,10 +13,12 @@ import {
   userTableQuery,
 } from "./db";
 import {
+  adminOnly,
   checkAuth,
-  checkTransaction,
   returnValidationErrors,
+  textValidator,
   validateComment,
+  validateTransaction,
 } from "./middleware";
 import {
   client,
@@ -25,7 +28,6 @@ import {
   prettyPrintError,
   prettyPrintInfo,
   processNewComment,
-  processPlaidTransactions,
   processTransactionComments,
   processTransactions,
 } from "./utils";
@@ -35,7 +37,7 @@ let cache = apicache.middleware;
 
 // ###########  Plaid API ###########
 
-apiRoutes.post("/plaid/add_item", checkAuth, async (req, res) => {
+apiRoutes.post("/plaid/add_item", adminOnly, async (req, res) => {
   try {
     const { publicToken, uid } = req.body;
 
@@ -68,7 +70,7 @@ apiRoutes.post("/plaid/add_item", checkAuth, async (req, res) => {
   }
 });
 
-apiRoutes.post("/plaid/remove_item", checkAuth, async (req, res) => {
+apiRoutes.post("/plaid/remove_item", adminOnly, async (req, res) => {
   try {
     const { uid } = req.body;
 
@@ -97,7 +99,7 @@ apiRoutes.post("/plaid/remove_item", checkAuth, async (req, res) => {
 });
 
 // Updates item for uid with the webhook (will be deprecrated, here for convenience)
-apiRoutes.post("/plaid/webhook/update", async (req, res) => {
+apiRoutes.post("/plaid/webhook/update", adminOnly, async (req, res) => {
   const { uid } = req.body;
   try {
     const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
@@ -133,43 +135,43 @@ apiRoutes.post("/plaid/webhook/update", async (req, res) => {
 });
 
 // TODO: we can use this to grab the current month's transactions when the user signs up
-apiRoutes.get("/plaid/transactions", async (req, res) => {
-  const { uid } = req.query;
-  const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
-  const accessTokenCtext = rows[0].access_token;
+// apiRoutes.get("/plaid/transactions", async (req, res) => {
+//   const { uid } = req.query;
+//   const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
+//   const accessTokenCtext = rows[0].access_token;
 
-  if (!accessTokenCtext)
-    return res.status(403).json({
-      error: "Please add a bank account!",
-    });
+//   if (!accessTokenCtext)
+//     return res.status(403).json({
+//       error: "Please add a bank account!",
+//     });
 
-  const accessToken = decrypt(accessTokenCtext);
-  const startDate = moment("2020-06-01").format("YYYY-MM-DD");
-  const endDate = moment().format("YYYY-MM-DD");
-  return client.getTransactions(
-    accessToken,
-    startDate,
-    endDate,
-    {
-      count: 100,
-      offset: 0,
-    },
-    (error, transactionsResponse) => {
-      if (error != null) {
-        prettyPrintError(error);
-        return res.json({
-          transactions: [],
-          error,
-        });
-      }
+//   const accessToken = decrypt(accessTokenCtext);
+//   const startDate = moment("2020-06-01").format("YYYY-MM-DD");
+//   const endDate = moment().format("YYYY-MM-DD");
+//   return client.getTransactions(
+//     accessToken,
+//     startDate,
+//     endDate,
+//     {
+//       count: 100,
+//       offset: 0,
+//     },
+//     (error, transactionsResponse) => {
+//       if (error != null) {
+//         prettyPrintError(error);
+//         return res.json({
+//           transactions: [],
+//           error,
+//         });
+//       }
 
-      return res.json({
-        error: null,
-        transactions: processPlaidTransactions(transactionsResponse),
-      });
-    }
-  );
-});
+//       return res.json({
+//         error: null,
+//         transactions: processPlaidTransactions(transactionsResponse),
+//       });
+//     }
+//   );
+// });
 
 // ###########  Email Octpus API ###########
 
@@ -221,24 +223,32 @@ apiRoutes.get("/transactions", async (req, res) => {
 apiRoutes.post(
   "/transactions/create",
   checkAuth,
-  checkTransaction,
+  validateTransaction,
   returnValidationErrors,
   async (req: Request, res: Response) => {
     const { uid, date, description, amount, category, reason } = req.body;
 
     try {
+      const userRecord = await admin.auth().getUser(uid);
       const {
         rows,
       } = await pgQuery(
-        "INSERT INTO transactions(uid, date_time, description, amount, category) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-        [uid, date, description, amount, category]
+        "INSERT INTO transactions(uid, display_name, date_time, description, amount, category) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+        [uid, userRecord.displayName, date, description, amount, category]
       );
       prettyPrintInfo(rows);
 
       if (reason.length) {
         const commentRes = await pgQuery(
-          "INSERT INTO comments(uid, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-          [uid, rows[0].id, null, moment().toISOString(), reason]
+          "INSERT INTO comments(uid, display_name, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+          [
+            uid,
+            userRecord.displayName,
+            rows[0].id,
+            null,
+            moment().toISOString(),
+            reason,
+          ]
         );
 
         return res.json({
@@ -328,11 +338,14 @@ apiRoutes.post(
     const { uid, dateTime, text, transactionId, parentId } = req.body;
 
     try {
+      const userRecord = await admin.auth().getUser(uid);
+      prettyPrintInfo(userRecord);
+
       const {
         rows,
       } = await pgQuery(
-        "INSERT INTO comments(uid, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-        [uid, transactionId, parentId, dateTime, text]
+        "INSERT INTO comments(uid, display_name, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+        [uid, userRecord.displayName, transactionId, parentId, dateTime, text]
       );
 
       const comment = processNewComment(rows[0]);
@@ -353,28 +366,63 @@ apiRoutes.post(
 
 // ########### Users API ###########
 
-// get a user and displayName by UID
-apiRoutes.get("/users", cache("5 minutes"), async (req, res) => {
-  const { uid } = req.query;
+// Create a new user (without plaid credentials)
+apiRoutes.post("/users/create", async (req, res) => {
+  const { uid } = req.body;
 
   try {
-    const { rows } = await pgQuery("SELECT * FROM users WHERE uid = $1", [uid]);
+    await pgQuery(
+      "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3, $4)",
+      [uid, `spender${uid.slice(0, 8)}`, null, null]
+    );
 
-    prettyPrintInfo(rows);
     return res.json({
-      user: { uid: rows[0].uid, displayName: rows[0].display_name },
       error: null,
     });
   } catch (error) {
     prettyPrintError(error);
     return res.json({
-      user: null,
       error,
     });
   }
 });
 
-apiRoutes.get("/users/bank_accounts", checkAuth, async (req, res) => {
+// Set the display name for a user
+apiRoutes.post(
+  "/users/set_display_name",
+  checkAuth,
+  [textValidator("displayName", "Empty Display Name is not allowed")],
+  returnValidationErrors,
+  async (req: Request, res: Response) => {
+    const { uid, displayName } = req.body;
+
+    try {
+      await admin.auth().updateUser(uid as string, { displayName });
+
+      // update associated comments and transactions, this is fine because setting the display name is rare
+      await pgQuery("UPDATE comments SET display_name=$1 WHERE uid = $2", [
+        displayName,
+        uid,
+      ]);
+
+      await pgQuery("UPDATE transactions SET display_name=$1 WHERE uid = $2", [
+        displayName,
+        uid,
+      ]);
+
+      return res.status(200).json({
+        error: null,
+      });
+    } catch (error) {
+      prettyPrintError(error);
+      return res.status(500).json({
+        error,
+      });
+    }
+  }
+);
+
+apiRoutes.get("/users/bank_accounts", adminOnly, async (req, res) => {
   const { uid } = req.query;
 
   try {
@@ -390,7 +438,7 @@ apiRoutes.get("/users/bank_accounts", checkAuth, async (req, res) => {
   }
 });
 
-apiRoutes.post("/users/bank_accounts/delete", checkAuth, async (req, res) => {
+apiRoutes.post("/users/bank_accounts/delete", adminOnly, async (req, res) => {
   const { uid, mask } = req.body;
 
   try {
@@ -414,7 +462,7 @@ apiRoutes.post("/users/bank_accounts/delete", checkAuth, async (req, res) => {
   }
 });
 
-apiRoutes.post("/users/bank_accounts/toggle", checkAuth, async (req, res) => {
+apiRoutes.post("/users/bank_accounts/toggle", adminOnly, async (req, res) => {
   const { uid, mask, checked } = req.body;
 
   try {
@@ -442,48 +490,6 @@ apiRoutes.post("/users/bank_accounts/toggle", checkAuth, async (req, res) => {
   }
 });
 
-// Create a new user (without plaid credentials)
-apiRoutes.post("/users/create", async (req, res) => {
-  const { uid } = req.body;
-
-  try {
-    await pgQuery(
-      "INSERT INTO users(uid, display_name, access_token, item_id) VALUES ($1, $2, $3, $4)",
-      [uid, `spender${uid.slice(0, 8)}`, null, null]
-    );
-
-    return res.json({
-      error: null,
-    });
-  } catch (error) {
-    prettyPrintError(error);
-    return res.json({
-      error,
-    });
-  }
-});
-
-// Set the display name for a user
-apiRoutes.post("/users/set_display_name", checkAuth, async (req, res) => {
-  const { uid, displayName } = req.body;
-
-  try {
-    await pgQuery("UPDATE users SET display_name=$1 WHERE uid = $2", [
-      displayName,
-      uid,
-    ]);
-
-    return res.json({
-      error: null,
-    });
-  } catch (error) {
-    prettyPrintError(error);
-    return res.json({
-      error,
-    });
-  }
-});
-
 // ########### Statistics API ###########
 
 // Get relevant statistics for a uid
@@ -491,6 +497,8 @@ apiRoutes.get("/stats", async (req, res) => {
   const { uid, dateTime } = req.query;
 
   try {
+    const userRecord = await admin.auth().getUser(uid as string);
+
     const { rows } = await pgQuery(
       "SELECT * FROM transactions WHERE uid = $1",
       [uid]
@@ -508,6 +516,7 @@ apiRoutes.get("/stats", async (req, res) => {
         dateTime as string
       ),
       avgSpendPerDay: getAverageSpendPerDay(transactions),
+      displayName: userRecord.displayName,
     };
     prettyPrintInfo(stats);
 

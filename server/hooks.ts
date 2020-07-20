@@ -1,4 +1,5 @@
 import { Router } from "express";
+import admin from "firebase-admin";
 import _ from "lodash";
 import moment from "moment";
 import { plaidTransactionsWebhook } from "./constants";
@@ -118,6 +119,7 @@ const addTransactions = async (
   accessToken: string,
   numTransactions: number
 ) => {
+  const userRecord = await admin.auth().getUser(uid);
   // make a call to the plaid api to get the new transactions
   return client.getTransactions(
     accessToken,
@@ -132,7 +134,11 @@ const addTransactions = async (
         prettyPrintError(error);
         return;
       }
-      const transactions = processPlaidTransactions(transactionsResponse);
+      const transactions = processPlaidTransactions(
+        transactionsResponse,
+        uid,
+        userRecord.displayName as string
+      );
 
       //TODO: can we make this faster?
       _.map(transactions, async (transaction) => {

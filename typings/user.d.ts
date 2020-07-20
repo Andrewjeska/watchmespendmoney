@@ -1,6 +1,7 @@
 interface UserTransaction {
   id: string;
-  uid?: string;
+  uid: string;
+  displayName: string;
   date: string;
   description: string | null;
   amount: number;
@@ -16,6 +17,7 @@ interface UserStats {
   currentMonthSpend: number;
   daysSinceLastSpend: number | string;
   avgSpendPerDay: number;
+  displayName: string;
 }
 
 interface UserBankAccount {

@@ -49,7 +49,9 @@ export const client = new plaid.Client(
 // ########### Util functions ###########
 
 export const processPlaidTransactions = (
-  res: plaid.TransactionsResponse
+  res: plaid.TransactionsResponse,
+  uid: string,
+  displayName: string
 ): Array<UserTransaction> => {
   // TODO: we should have a a list of connected accounts for a user
 
@@ -76,11 +78,13 @@ export const processPlaidTransactions = (
       .map((t: plaid.Transaction): UserTransaction | null => {
         if (t.name && t.amount && t.category)
           return {
+            id: t.transaction_id,
+            uid,
+            displayName,
             date: t.date,
             amount: t.amount,
             description: t.name,
             category: t.category[t.category.length - 1],
-            id: t.transaction_id,
           };
         return null;
       })
@@ -95,6 +99,7 @@ export const processTransactions = (rows: any[]): Array<UserTransaction> => {
       return {
         id: transaction.id,
         uid: transaction.uid,
+        displayName: transaction.display_name,
         date: transaction.date_time,
         amount: transaction.amount,
         description: transaction.description,
@@ -105,10 +110,12 @@ export const processTransactions = (rows: any[]): Array<UserTransaction> => {
     .value();
 };
 
+//TODO: type the database rows
 export const processNewComment = (comment: any): TransactionComment => {
   return {
     id: comment.id,
     uid: comment.uid,
+    displayName: comment.display_name,
     dateTime: comment.date_time,
     text: comment.comment_text,
     transactionId: comment.transaction_id,
@@ -126,6 +133,7 @@ export const processTransactionComments = (
     return {
       id: comment.id,
       uid: comment.uid,
+      displayName: comment.display_name,
       dateTime: comment.date_time,
       text: comment.comment_text,
       transactionId: comment.transaction_id,
@@ -148,6 +156,7 @@ const processTransactionCommentsHelper = (
     return {
       id: comment.id,
       uid: comment.uid,
+      displayName: comment.display_name,
       dateTime: comment.date_time,
       text: comment.comment_text,
       transactionId: comment.transaction_id,

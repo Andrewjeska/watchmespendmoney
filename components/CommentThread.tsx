@@ -1,9 +1,8 @@
 import _ from "lodash";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
-import { Comment, Loader, Segment } from "semantic-ui-react";
-import { axios } from "../common/axios";
-import { defaultDisplayName, maxNest } from "../common/constants";
+import React, { useState } from "react";
+import { Comment, Segment } from "semantic-ui-react";
+import { maxNest } from "../common/constants";
 import AddComment from "./AddComment";
 import SignUpModal from "./EmailSignUpModal";
 
@@ -22,7 +21,15 @@ const CommentThread: React.FC<CommentThreadProps> = ({
   emailPopup,
   nest,
 }) => {
-  const { id, uid, dateTime, text, transactionId, children } = meta;
+  const {
+    id,
+    uid,
+    displayName,
+    dateTime,
+    text,
+    transactionId,
+    children,
+  } = meta;
 
   const [commentChildren, setCommentChildren] = useState(children);
 
@@ -43,26 +50,22 @@ const CommentThread: React.FC<CommentThreadProps> = ({
   const [showReply, setShowReply] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const [displayName, setDisplayName] = useState(uid ? "" : defaultDisplayName);
-
-  useEffect(() => {
-    // will run on first render, like componentDidMount
-    if (uid) {
-      axios
-        .get("/api/users", {
-          params: { uid },
-        })
-        .then((res) => {
-          const user = res.data.user;
-          if (user.displayName) setDisplayName(user.displayName);
-          else console.error(`displayName wasn't available for uid ${uid}`);
-        });
-    }
-  }, []);
+  // useEffect(() => {
+  //   // will run on first render, like componentDidMount
+  //   if (uid) {
+  //     axios
+  //       .get("/api/users", {
+  //         params: { uid },
+  //       })
+  //       .then((res) => {
+  //         const user = res.data.user;
+  //         if (user.displayName) setDisplayName(user.displayName);
+  //         else console.error(`displayName wasn't available for uid ${uid}`);
+  //       });
+  //   }
+  // }, []);
 
   const [showComment, setShowComment] = useState(true);
-
-  if (displayName === "") return <Loader></Loader>;
 
   return (
     <Segment style={style} className="wmsm-comment-segment">

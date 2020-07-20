@@ -1,8 +1,14 @@
+import envvar from "envvar";
 import { NextFunction, Request, Response } from "express";
 import { body, validationResult } from "express-validator";
 import admin from "firebase-admin";
 
 export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
+  if (process.env.NODE_ENV !== "production") {
+    next();
+    return;
+  }
+
   if (req.headers.authtoken) {
     admin
       .auth()
@@ -23,7 +29,32 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const textValidator = (key: string, message: string) => {
+export const adminOnly = (req: Request, res: Response, next: NextFunction) => {
+  if (process.env.NODE_ENV !== "production") {
+    next();
+    return;
+  }
+
+  const adminUID = envvar.string("ADMIN_UID");
+
+  if (req.headers.authtoken) {
+    admin
+      .auth()
+      .verifyIdToken(req.headers.authtoken as string)
+      .then((decodedToken) => {
+        const tokenUID = decodedToken.uid;
+        if (tokenUID === adminUID) next();
+        else res.status(403).send("Unauthorized");
+      })
+      .catch(() => {
+        res.status(403).send("Unauthorized");
+      });
+  } else {
+    res.status(403).send("Unauthorized");
+  }
+};
+
+export const textValidator = (key: string, message: string) => {
   return body(key)
     .not()
     .isEmpty()
@@ -45,7 +76,7 @@ export const validateComment = [
   //   .withMessage("Invalid transactionId"),
 ];
 
-export const checkTransaction = [
+export const validateTransaction = [
   body("date").isISO8601().withMessage("Invalid date"),
   body("amount")
     .isCurrency({ allow_negatives: false })

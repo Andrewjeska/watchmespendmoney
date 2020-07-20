@@ -52,8 +52,8 @@ const Navbar: React.FC = () => {
           </Link>,
           <Menu.Menu position="right">
             <Link key="settings" href="settings" passHref>
-              <Menu.Item link>
-                <Icon name="settings"></Icon>Settings
+              <Menu.Item link name="Settings">
+                <Icon name="settings"></Icon>
               </Menu.Item>
             </Link>
           </Menu.Menu>,

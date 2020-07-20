@@ -1,7 +1,6 @@
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import { Feed } from "semantic-ui-react";
-import { axios } from "../common/axios";
 import { defaultDisplayName } from "../common/constants";
 import { auth } from "../common/firebase";
 import Transaction from "./Transaction";
@@ -22,23 +21,21 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
   const [currentUser, setCurrentUser] = useState({
     uid: "",
     displayName: defaultDisplayName,
-  });
+  } as UserMeta);
 
   useEffect(() => {
     // will run on first render, like componentDidMount
     const firebaseUnsub = auth.onAuthStateChanged(async (user) => {
       if (user && user.uid && user.displayName) {
         // get stored displayName
-        const { data: userMeta } = await axios.get("/api/users", {
-          params: { uid: user.uid },
-        });
+
         setCurrentUser({
           uid: user.uid,
-          displayName: userMeta.displayName,
+          displayName: user.displayName,
         });
       } else
         setCurrentUser({
-          uid: "",
+          uid: null,
           displayName: defaultDisplayName,
         });
     });

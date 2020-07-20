@@ -1,7 +1,7 @@
 import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Divider, Feed, Loader } from "semantic-ui-react";
+import { Divider, Feed } from "semantic-ui-react";
 import { axios } from "../common/axios";
 import { auth } from "../common/firebase";
 import { svgs } from "../common/imagery";
@@ -24,7 +24,15 @@ const Transaction: React.FC<TransactionProps> = ({
   emailPopup,
   postDelete,
 }) => {
-  const { id, uid, date, description, amount, category } = transaction;
+  const {
+    id,
+    uid,
+    displayName,
+    date,
+    description,
+    amount,
+    category,
+  } = transaction;
   const [comments, setComments] = useState([] as Array<TransactionComment>);
 
   const fetchComments = async () => {
@@ -43,29 +51,29 @@ const Transaction: React.FC<TransactionProps> = ({
 
   //TODO: this will be fixed once plaid transactions are regular transactions, we branch on email popup since that's the landing page
 
-  const [displayName, setDisplayName] = useState(
-    emailPopup ? "anderjaska" : ""
-  );
+  // const [displayName, setDisplayName] = useState(
+  //   emailPopup ? "anderjaska" : ""
+  // );
 
   useEffect(() => {
     // will run on first render, like componentDidMount
     if (commenting) fetchComments();
-    if (uid) {
-      axios
-        .get("/api/users", {
-          params: { uid },
-        })
-        .then((res) => {
-          const user = res.data.user;
-          if (user && user.displayName) setDisplayName(user.displayName);
-          else {
-            console.error(`displayName wasn't available for uid ${uid}`);
-          }
-        })
-        .catch((err) => {
-          alert(err);
-        });
-    }
+    // if (uid) {
+    //   axios
+    //     .get("/api/users", {
+    //       params: { uid },
+    //     })
+    //     .then((res) => {
+    //       const user = res.data.user;
+    //       if (user && user.displayName) setDisplayName(user.displayName);
+    //       else {
+    //         console.error(`displayName wasn't available for uid ${uid}`);
+    //       }
+    //     })
+    //     .catch((err) => {
+    //       alert(err);
+    //     });
+    // }
   }, []);
 
   const [showReply, setShowReply] = useState(false);
@@ -94,7 +102,6 @@ const Transaction: React.FC<TransactionProps> = ({
     }
   };
 
-  if (displayName === "") return <Loader></Loader>;
   return (
     <Feed.Event>
       <SignUpModal open={showModal} setOpen={setShowModal} />
@@ -104,7 +111,7 @@ const Transaction: React.FC<TransactionProps> = ({
       </Feed.Label>
       <Feed.Content>
         <Feed.Summary>
-          {displayName !== "" && <Feed.User>{displayName} </Feed.User>}
+          <Feed.User>{displayName} </Feed.User>
           {` spent \$${amount ? amount.toFixed(2) : "Error"} on ${description}`}
           {/* moment is a bit weird about rendering midnight */}
           <Feed.Date>{moment(date).format("MM/DD")}</Feed.Date>

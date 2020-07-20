@@ -9,10 +9,11 @@ import {
   Container,
   Grid,
   Icon,
+  Input,
   Loader,
   Table,
 } from "semantic-ui-react";
-import { axios } from "../common/axios";
+import { authenticatedRequest } from "../common/axios";
 import { auth } from "../common/firebase";
 import Navbar from "../components/Navbar";
 
@@ -49,15 +50,17 @@ const UserFeed: React.FC<SettingsProps> = ({
 
   const getBankAccounts = async (user: firebase.User) => {
     try {
-      const firebaseToken = await user.getIdToken(true);
-      const res = await axios({
-        method: "get",
-        url: "/api/users/bank_accounts",
-        params: {
-          uid: plaidEnv === "sandbox" ? "sandbox" : user.uid,
-        },
-        headers: { authToken: firebaseToken },
-      });
+      const res = await authenticatedRequest(
+        user,
+        "get",
+        "/api/users/bank_accounts",
+        {
+          params: {
+            uid: defaultToSandbox(plaidEnv, user),
+          },
+        }
+      );
+
       setBankAccounts(res.data.accounts);
       setDenylist(res.data.denylist);
     } catch (error) {
@@ -67,16 +70,18 @@ const UserFeed: React.FC<SettingsProps> = ({
 
   const deleteBankAccount = async (user: firebase.User, mask: string) => {
     try {
-      const firebaseToken = await user.getIdToken(true);
-      const res = await axios({
-        method: "post",
-        url: "/api/users/bank_accounts/delete",
-        data: {
-          uid: plaidEnv === "sandbox" ? "sandbox" : user.uid,
-          mask,
-        },
-        headers: { authToken: firebaseToken },
-      });
+      const res = await authenticatedRequest(
+        user,
+        "post",
+        "/api/users/bank_accounts/delete",
+        {
+          data: {
+            uid: defaultToSandbox(plaidEnv, user),
+            mask,
+          },
+        }
+      );
+
       setBankAccounts(res.data.accounts);
       setDenylist(res.data.denylist);
     } catch (error) {
@@ -90,17 +95,18 @@ const UserFeed: React.FC<SettingsProps> = ({
     checked: boolean
   ) => {
     try {
-      const firebaseToken = await user.getIdToken(true);
-      const res = await axios({
-        method: "post",
-        url: "/api/users/bank_accounts/toggle",
-        data: {
-          uid: plaidEnv === "sandbox" ? "sandbox" : user.uid,
-          mask,
-          checked,
-        },
-        headers: { authToken: firebaseToken },
-      });
+      const res = await authenticatedRequest(
+        user,
+        "post",
+        "/api/users/bank_accounts/toggle",
+        {
+          data: {
+            uid: defaultToSandbox(plaidEnv, user),
+            mask,
+            checked,
+          },
+        }
+      );
       setDenylist(res.data.denylist);
     } catch (error) {
       console.error(error);
@@ -108,7 +114,10 @@ const UserFeed: React.FC<SettingsProps> = ({
   };
 
   useEffect(() => {
-    if (currentUser) getBankAccounts(currentUser);
+    if (currentUser) {
+      getBankAccounts(currentUser);
+      setNewDisplayName(currentUser.displayName as string);
+    }
   }, [currentUser]);
 
   // Plaid
@@ -125,22 +134,23 @@ const UserFeed: React.FC<SettingsProps> = ({
     }
 
     try {
-      var firebaseToken = "";
       const firebaseUser = userRef.current;
-      if (firebaseUser) firebaseToken = await firebaseUser.getIdToken(true);
-      else {
+      if (!firebaseUser) {
         console.error("user not yet set");
         return;
       }
-      const res = await axios({
-        method: "post",
-        url: "/api/plaid/add_item",
-        data: {
-          publicToken: token,
-          uid: plaidEnv === "sandbox" ? "sandbox" : firebaseUser.uid,
-        },
-        headers: { authToken: firebaseToken },
-      });
+
+      const res = await authenticatedRequest(
+        firebaseUser,
+        "post",
+        "/api/plaid/add_item",
+        {
+          data: {
+            publicToken: token,
+            uid: defaultToSandbox(plaidEnv, firebaseUser),
+          },
+        }
+      );
 
       const newAccounts = res.data.accounts as Array<UserBankAccount>;
       setBankAccounts(newAccounts);
@@ -161,15 +171,15 @@ const UserFeed: React.FC<SettingsProps> = ({
 
   const unlinkAccount = async (user: firebase.User) => {
     try {
-      const firebaseToken = await user.getIdToken(true);
-      const res = await axios({
-        method: "post",
-        url: "/api/plaid/remove_item",
-        data: {
-          uid: plaidEnv === "sandbox" ? "sandbox" : user.uid,
-        },
-        headers: { authToken: firebaseToken },
-      });
+      const res = await authenticatedRequest(
+        user,
+        "post",
+        "/api/plaid/remove_item",
+        {
+          data: { uid: defaultToSandbox(plaidEnv, user) },
+        }
+      );
+
       console.log(res.data);
       if (res.data.removed) {
         setBankAccounts([]);
@@ -180,14 +190,55 @@ const UserFeed: React.FC<SettingsProps> = ({
     }
   };
 
-  const { open, ready, error } = usePlaidLink(config);
+  const updateDisplayName = async (
+    user: firebase.User,
+    displayName: string
+  ) => {
+    try {
+      await authenticatedRequest(user, "post", "/api/users/set_display_name", {
+        data: {
+          uid: user.uid,
+          displayName,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  const { open, ready, error } = usePlaidLink(config);
+  const [newDisplayName, setNewDisplayName] = useState(null as null | string);
   return (
     <div>
       <Navbar></Navbar>
       <Container style={{ paddingTop: "10vh" }}>
         {currentUser && bankAccounts ? (
           <Grid>
+            <Grid.Row width={16}>
+              <Input
+                onChange={(e) =>
+                  setNewDisplayName((e.target as HTMLInputElement).value)
+                }
+                action={{
+                  color: "teal",
+                  labelPosition: "right",
+                  icon: "edit",
+                  content: "Update handle",
+
+                  onClick: () => {
+                    if (newDisplayName) {
+                      updateDisplayName(currentUser, newDisplayName).then(
+                        (res) => {
+                          alert(`Your handle is now ${newDisplayName}`);
+                        }
+                      );
+                    }
+                  },
+                }}
+                loading={!newDisplayName}
+                placeholder={"Think of something fun!"}
+              />
+            </Grid.Row>
             <Grid.Row width={16}>
               <Button
                 primary
@@ -268,13 +319,17 @@ const UserFeed: React.FC<SettingsProps> = ({
   );
 };
 
+const defaultToSandbox = (plaidEnv: string, user: firebase.User) => {
+  return plaidEnv === "sandbox" ? "sandbox" : user.uid;
+};
+
 export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {
       plaidPublicKey: envvar.string("PLAID_PUBLIC_KEY"),
       plaidEnv: envvar.string("PLAID_ENV", "sandbox"),
       plaidWebhook: envvar.string("PLAID_WEBHOOK"),
-      plaidLinkFF: envvar.boolean("PLAID_LINK+FF"),
+      // plaidLinkFF: envvar.boolean("PLAID_LINK+FF"),
     }, // will be passed to the page component as props
   };
 };

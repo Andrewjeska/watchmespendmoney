@@ -13,7 +13,6 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   uid TEXT NOT NULL UNIQUE,
-  display_name TEXT,
   access_token TEXT,
   item_id TEXT,
   accounts jsonb[],
@@ -24,7 +23,8 @@ CREATE TABLE IF NOT EXISTS users (
 export const commentTableQuery = `
 CREATE TABLE IF NOT EXISTS comments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  uid TEXT UNIQUE,
+  uid TEXT,
+  display_name TEXT,
   transaction_id TEXT,
   parent_id TEXT,
   date_time timestamptz,
@@ -37,7 +37,8 @@ export const transactionTableQuery = `
 CREATE TABLE IF NOT EXISTS transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   plaid_id TEXT UNIQUE,
-  uid TEXT NOT NULL UNIQUE,
+  uid TEXT NOT NULL,
+  display_name TEXT,
   date_time timestamptz,
   description TEXT,
   amount FLOAT(2),	

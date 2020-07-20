@@ -38,7 +38,6 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
   };
 
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
-  const [user, setUser] = useState(null as UserMeta | null);
   const [stats, setStats] = useState(null as UserStats | null);
 
   useEffect(() => {
@@ -61,11 +60,11 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
         }
       });
 
-    axios.get("/api/users", { params: { uid } }).then((res) => {
-      if (res.data.user) {
-        setUser(res.data.user);
-      }
-    });
+    // axios.get("/api/users", { params: { uid } }).then((res) => {
+    //   if (res.data.user) {
+    //     setUser(res.data.user);
+    //   }
+    // });
 
     return function cleanup() {
       firebaseUnsub();
@@ -130,7 +129,7 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
               <Grid textAlign="center">
                 <Grid.Row>
                   <Header as="h2">
-                    Stats for {user ? user.displayName : "Loading..."}
+                    Stats for {stats ? stats.displayName : "Loading..."}
                   </Header>
                 </Grid.Row>
 

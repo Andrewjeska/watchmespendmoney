@@ -1,3 +1,4 @@
+import envvar from "envvar";
 import "firebase/auth";
 import moment from "moment";
 import { GetStaticProps } from "next";
@@ -22,16 +23,17 @@ import TransactionFeed from "../components/TransactionFeed";
 
 interface HomeProps {
   maintenance: boolean;
+  adminUID: string;
 }
 
-const Home: React.FC<HomeProps> = ({ maintenance }) => {
+const Home: React.FC<HomeProps> = ({ maintenance, adminUID }) => {
   //TODO: transactions pending
   const [transactions, setTransactions] = useState([]);
 
   const fetchTransactions = async () => {
     try {
       const res = await axios.get("/api/transactions", {
-        params: { uid: process.env.NEXT_PUBLIC_ADMIN_UID },
+        params: { uid: adminUID },
       });
       setTransactions(res.data.transactions);
     } catch (err) {
@@ -48,7 +50,7 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
       if (res.user) {
         const user = res.user;
         if (res.additionalUserInfo?.isNewUser)
-          await axios.post("/api/userss/create", {
+          await axios.post("/api/users/create", {
             uid: user.uid,
           });
         setUser(user);
@@ -60,7 +62,7 @@ const Home: React.FC<HomeProps> = ({ maintenance }) => {
         // User is signed in.
 
         // admin mode
-        if (user.uid === process.env.NEXT_PUBLIC_ADMIN_UID) {
+        if (user.uid === adminUID) {
           bake_cookie("admin", "true", moment().years(10).toDate());
         }
         setUser(user);
@@ -191,7 +193,8 @@ export const getStaticProps: GetStaticProps = async () => {
   // this runs server-side
   return {
     props: {
-      maintenance: process.env.MAINTENANCE_MODE === "true",
+      maintenance: envvar.boolean("MAINTENANCE_MODE"),
+      adminUID: envvar.string("ADMIN_UID"),
     },
   };
 };
