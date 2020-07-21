@@ -1,7 +1,7 @@
-import apicache from "apicache";
 import axios from "axios";
 import envvar from "envvar";
 import { Request, Response, Router } from "express";
+import rateLimit from "express-rate-limit";
 import admin from "firebase-admin";
 import _ from "lodash";
 import moment from "moment";
@@ -10,7 +10,7 @@ import {
   commentTableQuery,
   pgQuery,
   transactionTableQuery,
-  userTableQuery,
+  userTableQuery
 } from "./db";
 import {
   adminOnly,
@@ -18,7 +18,7 @@ import {
   returnValidationErrors,
   textValidator,
   validateComment,
-  validateTransaction,
+  validateTransaction
 } from "./middleware";
 import {
   client,
@@ -29,11 +29,10 @@ import {
   prettyPrintInfo,
   processNewComment,
   processTransactionComments,
-  processTransactions,
+  processTransactions
 } from "./utils";
 
 const apiRoutes = Router();
-let cache = apicache.middleware;
 
 // ###########  Plaid API ###########
 
@@ -198,27 +197,36 @@ apiRoutes.post("/email", async (req, res) => {
 // ########### Transactions API ###########
 
 // Get all transactions for a given user
-apiRoutes.get("/transactions", async (req, res) => {
-  const { uid } = req.query;
+// max 20 requests per 2 minutes
 
-  try {
-    await pgQuery(transactionTableQuery);
-    const { rows } = await pgQuery(
-      "SELECT * FROM transactions WHERE uid = $1",
-      [uid]
-    );
+apiRoutes.get(
+  "/transactions",
+  rateLimit({
+    windowMs: 2 * 60 * 1000,
+    max: 20,
+    message: "You seem to be refreshing the page 20 times a minute",
+  }),
+  async (req, res) => {
+    const { uid } = req.query;
 
-    prettyPrintInfo(rows);
-    return res.status(200).json({
-      transactions: processTransactions(rows),
-    });
-  } catch (error) {
-    prettyPrintError(error);
-    return res.status(500).json({
-      error,
-    });
+    try {
+      await pgQuery(transactionTableQuery);
+      const {
+        rows,
+      } = await pgQuery("SELECT * FROM transactions WHERE uid = $1", [uid]);
+
+      prettyPrintInfo(rows);
+      return res.status(200).json({
+        transactions: processTransactions(rows),
+      });
+    } catch (error) {
+      prettyPrintError(error);
+      return res.status(500).json({
+        error,
+      });
+    }
   }
-});
+);
 
 apiRoutes.post(
   "/transactions/create",
@@ -297,41 +305,55 @@ apiRoutes.post("/transactions/delete", checkAuth, async (req, res) => {
 // ########### Transaction Comments API ###########
 
 // General query for comments
-apiRoutes.get("/transactions/comments", async (req, res) => {
-  const { transactionId, parentId } = req.query;
-  try {
-    //TODO: is there a smart sql way to grab the whole comment tree?
-    //TODO: this is pretty brittle, id prefer a general query
+apiRoutes.get(
+  "/transactions/comments",
+  rateLimit({
+    windowMs: 60 * 1000,
+    max: 20,
+    message: "You seem to be refreshing the page 20 times a minute",
+  }),
+  async (req, res) => {
+    const { transactionId, parentId } = req.query;
+    try {
+      //TODO: is there a smart sql way to grab the whole comment tree?
+      //TODO: this is pretty brittle, id prefer a general query
 
-    await pgQuery(commentTableQuery);
+      await pgQuery(commentTableQuery);
 
-    const {
-      rows,
-    } = await pgQuery(
-      "SELECT * FROM comments WHERE transaction_id = $1 OR parent_id = $2",
-      [transactionId, parentId]
-    );
-    if (rows.length) prettyPrintInfo(rows);
+      const {
+        rows,
+      } = await pgQuery(
+        "SELECT * FROM comments WHERE transaction_id = $1 OR parent_id = $2",
+        [transactionId, parentId]
+      );
+      if (rows.length) prettyPrintInfo(rows);
 
-    const comments = processTransactionComments(rows);
-    prettyPrintInfo(comments);
+      const comments = processTransactionComments(rows);
+      prettyPrintInfo(comments);
 
-    return res.json({
-      error: null,
-      comments,
-    });
-  } catch (error) {
-    prettyPrintError(error);
-    return res.json({
-      error,
-      comments: [],
-    });
+      return res.json({
+        error: null,
+        comments,
+      });
+    } catch (error) {
+      prettyPrintError(error);
+      return res.json({
+        error,
+        comments: [],
+      });
+    }
   }
-});
+);
 
 // Comment on a transaction
+// 10 comments per minue
 apiRoutes.post(
   "/transactions/comment",
+  rateLimit({
+    windowMs: 60 * 1000,
+    max: 10,
+    message: "You've been doing that too fast",
+  }),
   validateComment,
   returnValidationErrors,
   async (req: Request, res: Response) => {
@@ -367,25 +389,33 @@ apiRoutes.post(
 // ########### Users API ###########
 
 // Create a new user (without plaid credentials)
-apiRoutes.post("/users/create", async (req, res) => {
-  const { uid } = req.body;
+apiRoutes.post(
+  "/users/create",
+  rateLimit({
+    windowMs: 60 * 1000,
+    max: 10,
+    message: "You've been doing that too fast",
+  }),
+  async (req, res) => {
+    const { uid } = req.body;
 
-  try {
-    await pgQuery(
-      "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3, $4)",
-      [uid, `spender${uid.slice(0, 8)}`, null, null]
-    );
+    try {
+      await pgQuery(
+        "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3, $4)",
+        [uid, `spender${uid.slice(0, 8)}`, null, null]
+      );
 
-    return res.json({
-      error: null,
-    });
-  } catch (error) {
-    prettyPrintError(error);
-    return res.json({
-      error,
-    });
+      return res.json({
+        error: null,
+      });
+    } catch (error) {
+      prettyPrintError(error);
+      return res.json({
+        error,
+      });
+    }
   }
-});
+);
 
 // Set the display name for a user
 apiRoutes.post(
