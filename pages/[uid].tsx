@@ -1,6 +1,7 @@
 import "firebase/auth";
 import moment from "moment";
-import { Head } from "next/document";
+import { GetServerSideProps } from "next";
+import Head from "next/head";
 import React, { useEffect, useState } from "react";
 import {
   Container,
@@ -29,6 +30,7 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
     try {
       const res = await axios.get("/api/transactions/", {
         params: { uid },
+        headers: { "Cache-Control": "no-cache" },
       });
       setTransactions(res.data.transactions);
       setTransPending(false);
@@ -59,12 +61,6 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
           setStats(res.data.stats);
         }
       });
-
-    // axios.get("/api/users", { params: { uid } }).then((res) => {
-    //   if (res.data.user) {
-    //     setUser(res.data.user);
-    //   }
-    // });
 
     return function cleanup() {
       firebaseUnsub();

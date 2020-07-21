@@ -1,0 +1,5 @@
+{
+  "watch": ["server"],
+  "exec": "env $(cat .env) ts-node --project tsconfig.server.json --files server/index.ts",
+  "ext": "js ts"
+}
