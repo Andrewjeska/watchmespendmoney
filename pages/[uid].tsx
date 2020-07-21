@@ -1,6 +1,6 @@
 import "firebase/auth";
 import moment from "moment";
-import { GetServerSideProps } from "next";
+import { Head } from "next/document";
 import React, { useEffect, useState } from "react";
 import {
   Container,
@@ -73,6 +73,10 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
 
   return (
     <div>
+      <Head>
+        <meta name="robots" content="noindex" />
+        <meta name="googlebot" content="noindex" />
+      </Head>
       <Navbar></Navbar>
       <Container style={{ paddingTop: "10vh" }}>
         <Grid>
