@@ -1,5 +1,4 @@
 import cors from "cors";
-import envvar from "envvar";
 import express from "express";
 import admin from "firebase-admin";
 import apiRoutes from "./api";
@@ -9,13 +8,18 @@ const port = parseInt(process.env.PORT || "5000", 10);
 
 const app = express();
 
-const serviceAccount = Buffer.from(
-  envvar.string("FIREBASE_ADMIN_SERVICE_ACCOUNT"),
-  "base64"
-).toString("ascii");
+//
+// app.use(cache("5 minutes"));
+
+const serviceAccount =
+  process.env.NODE_ENV === "production"
+    ? JSON.parse(process.env.FIREBASE_ADMIN_SERVICE_ACCOUNT as string)
+    : require("./firebaseAdminPrivKey.json");
+
+// const serviceAccount = Buffer.from(envvar.string("FIREBASE_SERVICE_ACCOUNT"), "base64").toString('ascii')
 
 admin.initializeApp({
-  credential: admin.credential.cert(JSON.parse(serviceAccount)),
+  credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://watchmespendmoney-d69c1.firebaseio.com",
 });
 
