@@ -40,8 +40,9 @@ const AddComment: React.FC<AddCommentProps> = ({
         const validationErrors = err.response.data.errors;
         const errorMsgs = _.reduce(
           validationErrors,
-          (acc, err) => {
-            return `${acc}${err}<br/>`;
+          (acc, error) => {
+            const key = Object.keys(error)[0];
+            return `${acc}${key}: ${error[key]} <br/>`;
           },
           ""
         );

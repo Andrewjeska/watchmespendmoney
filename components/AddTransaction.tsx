@@ -22,35 +22,32 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
   // reason will appear as the top comment
   const [reason, setReason] = useState("");
 
-  const [submitError, setSumbmitError] = useState(null as null | string);
+  const [submitError, setSubmitError] = useState(null as null | string);
 
   const submitTransaction = async () => {
     try {
       const firebaseUser = auth.currentUser;
       if (firebaseUser) {
-        var data: any = {
-          uid: user.uid,
-          date: moment(date).toISOString(),
-          description,
-          amount,
-          category,
-        };
-
-        if (reason.length) data["reason"] = reason;
-
         await authenticatedRequest(
           firebaseUser,
           "post",
           "/api/transactions/create",
           {
-            data,
+            data: {
+              uid: user.uid,
+              date: moment(date).toISOString(),
+              description,
+              amount,
+              category,
+              reason,
+            },
           }
         );
         setAmount(0.0);
         setDescription("");
         setCategory("");
         setReason("");
-        setSumbmitError(null);
+        setSubmitError(null);
         postSubmit();
       } else {
         console.error("firebase.auth() not ready");
@@ -61,12 +58,13 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
         const validationErrors = err.response.data.errors;
         const errorMsgs = _.reduce(
           validationErrors,
-          (acc, err) => {
-            return `${acc}${err}<br/>`;
+          (acc, error) => {
+            const key = Object.keys(error)[0];
+            return `${acc}${key}: ${error[key]} <br/>`;
           },
           ""
         );
-        setSumbmitError(errorMsgs);
+        setSubmitError(errorMsgs);
       }
     }
   };

@@ -55,18 +55,15 @@ export const adminOnly = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const textValidator = (key: string, message: string) => {
-  return (
-    body(key)
-      .not()
-      .isEmpty()
-      .withMessage(message)
-      .not()
-      .contains("<script>")
-      .withMessage("Please don't try to hack me")
-      .isLength({ min: 0, max: 3000 })
-      //  .escape()
-      .trim()
-  );
+  return body(key)
+    .not()
+    .isEmpty()
+    .withMessage(message)
+    .not()
+    .contains("<script>")
+    .withMessage("Please don't try to hack me")
+    .isLength({ min: 0, max: 3000 })
+    .trim();
 };
 
 export const validateComment = [
@@ -93,7 +90,6 @@ export const validateTransaction = [
     .not()
     .contains("<script>")
     .withMessage("Please don't try to hack me")
-    // .escape()
     .trim(),
 ];
 

@@ -65,8 +65,8 @@ const Home: React.FC<HomeProps> = ({ maintenance, adminUID }) => {
         if (user.uid === adminUID) {
           bake_cookie("admin", "true", moment().years(10).toDate());
         }
-        setUser(user);
       }
+      setUser(user);
 
       return function cleanup() {
         firebaseUnsub();
