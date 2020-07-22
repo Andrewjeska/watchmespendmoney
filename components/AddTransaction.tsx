@@ -124,7 +124,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
         color="teal"
         icon
         labelPosition="left"
-        style={{ position: "right" }}
+        style={{ position: "right", marginTop: "5%" }}
         onClick={() => submitTransaction()}
         type="submit"
       >

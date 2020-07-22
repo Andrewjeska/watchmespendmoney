@@ -80,97 +80,96 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
       </Head>
       <Navbar></Navbar>
       <Container style={{ paddingTop: "10vh" }}>
-        <Grid>
+        <Grid stackable>
           {currentUser && currentUser.uid === uid && (
-            <Grid.Row width={16}>
-              <Grid style={{ width: "100%" }}>
-                <Grid.Column width={8}>
-                  <Segment>
-                    <Grid textAlign="center">
-                      <Grid.Row>
-                        <Header as="h2">Share your Feed</Header>
-                      </Grid.Row>
-                      <Grid.Row textAlign="center">
-                        <Input
-                          // style={{ width: "100%" }}
-                          action={{
-                            color: "teal",
-                            labelPosition: "right",
-                            icon: "copy",
-                            content: "Copy",
-                            onClick: () => {
-                              var copy: any = document.getElementById(
-                                "shareLink"
-                              );
-                              if (copy) {
-                                copy.select();
-                                document.execCommand("copy");
-                                alert("Copied!");
-                              }
-                            },
-                          }}
-                          id="shareLink"
-                          readOnly
-                          defaultValue={window.location.href}
-                        />
-                      </Grid.Row>
-                    </Grid>
-                  </Segment>
-                </Grid.Column>
-                <Grid.Column width={8}>
-                  <Segment style={{ width: "100%" }}>
-                    <AddTransaction
-                      user={currentUser}
-                      postSubmit={() => {
-                        fetchTransactions();
-                        fetchStats();
-                      }}
-                    />
-                  </Segment>
-                </Grid.Column>
-              </Grid>
+            <Grid.Row>
+              <Grid.Column width={8}>
+                <Segment>
+                  <Grid textAlign="center">
+                    <Grid.Row>
+                      <Header as="h2">Share your Feed</Header>
+                    </Grid.Row>
+                    <Grid.Row textAlign="center">
+                      <Input
+                        style={{ width: "80%" }}
+                        action={{
+                          color: "teal",
+                          labelPosition: "right",
+                          icon: "copy",
+                          content: "Copy",
+                          onClick: () => {
+                            var copy: any = document.getElementById(
+                              "shareLink"
+                            );
+                            if (copy) {
+                              copy.select();
+                              document.execCommand("copy");
+                              alert("Copied!");
+                            }
+                          },
+                        }}
+                        id="shareLink"
+                        readOnly
+                        defaultValue={window.location.href}
+                      />
+                    </Grid.Row>
+                  </Grid>
+                </Segment>
+              </Grid.Column>
+              <Grid.Column width={8}>
+                <Segment style={{ width: "100%" }}>
+                  <AddTransaction
+                    user={currentUser}
+                    postSubmit={() => {
+                      fetchTransactions();
+                      fetchStats();
+                    }}
+                  />
+                </Segment>
+              </Grid.Column>
             </Grid.Row>
           )}
+          <Grid.Row>
+            <Grid.Column>
+              <Segment style={{ width: "100%" }}>
+                <Grid textAlign="center">
+                  <Grid.Row>
+                    <Header as="h2">
+                      Stats for {stats ? stats.displayName : "Loading..."}
+                    </Header>
+                  </Grid.Row>
 
-          <Grid.Row width={16}>
-            <Segment style={{ width: "100%" }}>
-              <Grid textAlign="center">
-                <Grid.Row>
-                  <Header as="h2">
-                    Stats for {stats ? stats.displayName : "Loading..."}
-                  </Header>
-                </Grid.Row>
-
-                <Grid.Row>
-                  <Statistic>
-                    <Statistic.Label>
-                      Total spend in {moment().format("MMMM")}
-                    </Statistic.Label>
-                    <Statistic.Value>
-                      {stats && stats.currentMonthSpend
-                        ? "$" + stats.currentMonthSpend.toFixed(2)
-                        : "N/A"}
-                    </Statistic.Value>
-                  </Statistic>
-                  <Statistic>
-                    <Statistic.Label>Average Daily Spend</Statistic.Label>
-                    <Statistic.Value>
-                      {stats && stats.avgSpendPerDay
-                        ? "$" + stats.avgSpendPerDay.toFixed(2)
-                        : "N/A"}
-                    </Statistic.Value>
-                  </Statistic>
-                  <Statistic>
-                    <Statistic.Label>Days since last spend</Statistic.Label>
-                    <Statistic.Value>
-                      {stats && stats.daysSinceLastSpend
-                        ? stats.daysSinceLastSpend
-                        : "N/A"}
-                    </Statistic.Value>
-                  </Statistic>
-                </Grid.Row>
-              </Grid>
-            </Segment>
+                  <Grid.Row>
+                    <Statistic>
+                      <Statistic.Label>
+                        Total spend in {moment().format("MMMM")}
+                      </Statistic.Label>
+                      <Statistic.Value>
+                        {stats && stats.currentMonthSpend
+                          ? "$" + stats.currentMonthSpend.toFixed(2)
+                          : "N/A"}
+                      </Statistic.Value>
+                    </Statistic>
+                    <Statistic>
+                      <Statistic.Label>Average Daily Spend</Statistic.Label>
+                      <Statistic.Value>
+                        {stats && stats.avgSpendPerDay
+                          ? "$" + stats.avgSpendPerDay.toFixed(2)
+                          : "N/A"}
+                      </Statistic.Value>
+                    </Statistic>
+                    <Statistic>
+                      <Statistic.Label>Days since last spend</Statistic.Label>
+                      <Statistic.Value>
+                        {stats && stats.daysSinceLastSpend
+                          ? stats.daysSinceLastSpend
+                          : "N/A"}
+                      </Statistic.Value>
+                    </Statistic>
+                  </Grid.Row>
+                </Grid>
+              </Segment>
+            </Grid.Column>
           </Grid.Row>
         </Grid>
 

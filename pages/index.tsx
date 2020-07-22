@@ -49,10 +49,10 @@ const Home: React.FC<HomeProps> = ({ maintenance, adminUID }) => {
     auth.getRedirectResult().then(async (res) => {
       if (res.user) {
         const user = res.user;
-        // if (res.additionalUserInfo?.isNewUser)
-        await axios.post("/api/users/create", {
-          uid: user.uid,
-        });
+        if (res.additionalUserInfo?.isNewUser)
+          await axios.post("/api/users/create", {
+            uid: user.uid,
+          });
         setUser(user);
       }
     });
@@ -134,7 +134,7 @@ const Home: React.FC<HomeProps> = ({ maintenance, adminUID }) => {
             <Grid.Row>
               <Grid.Column width={10}>
                 {user ? (
-                  <Link href="[uid]" as={`/${user.uid}`} passHref>
+                  <Link href="[uid]" as={`/${user.uid}`}>
                     <Button primary type="submit">
                       View your transaction feed here!
                     </Button>
@@ -176,12 +176,6 @@ const Home: React.FC<HomeProps> = ({ maintenance, adminUID }) => {
                 Learn more about my approach
               </a>
             </Grid.Row>
-
-            {/* <Grid.Row>
-              <Grid.Column width={10}>
-                <SignUp />
-              </Grid.Column>
-            </Grid.Row> */}
           </Grid>
         )}
       </Container>
