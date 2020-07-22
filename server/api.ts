@@ -369,7 +369,7 @@ apiRoutes.post(
           rows,
         } = await pgQuery(
           "INSERT INTO comments(uid, display_name, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-          [null, null, transactionId, parentId, dateTime, text]
+          [null, "Anon", transactionId, parentId, dateTime, text]
         );
         comment = processNewComment(rows[0]);
       } else {
