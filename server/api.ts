@@ -552,7 +552,7 @@ apiRoutes.get("/stats", async (req, res) => {
     const transactions = processTransactions(rows);
     if (!transactions.length)
       return res.json({
-        stats: null,
+        stats: { displayName: userRecord.displayName },
       });
     const stats = {
       currentMonthSpend: getSpendForMonth(transactions, dateTime as string),
