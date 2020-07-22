@@ -268,7 +268,7 @@ const UserFeed: React.FC<SettingsProps> = ({
               </Grid.Row>
             )}
 
-            {bankAccounts && bankAccounts.length > 0 && (
+            {bankAccounts && denylist && bankAccounts.length > 0 && (
               <Grid.Row width={8}>
                 <Table celled definition>
                   <Table.Header>
@@ -281,7 +281,7 @@ const UserFeed: React.FC<SettingsProps> = ({
                   </Table.Header>
                   <Table.Body>
                     {_.map(bankAccounts, (account: UserBankAccount) => {
-                      const accountDisabled = denylist.includes(account.mask);
+                      const accountEnabled = !denylist.includes(account.mask);
                       return (
                         <Table.Row>
                           <Table.Cell collapsing>
@@ -300,7 +300,7 @@ const UserFeed: React.FC<SettingsProps> = ({
                           <Table.Cell>
                             <Checkbox
                               toggle
-                              defaultChecked={accountDisabled}
+                              defaultChecked={accountEnabled}
                               onChange={(e, value) =>
                                 toggleBankAccount(
                                   currentUser,

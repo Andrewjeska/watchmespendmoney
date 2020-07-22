@@ -53,15 +53,16 @@ apiRoutes.post("/plaid/add_item", adminOnly, async (req, res) => {
     });
 
     const accessTokenCtext = encrypt(accessToken);
+    const denyList = _.map(accounts, "mask");
     await pgQuery(userTableQuery);
     await pgQuery(
       "UPDATE users SET access_token = $1, item_id = $2, accounts = $3, accounts_denylist = $4 WHERE uid = $5",
-      [accessTokenCtext, itemId, accounts, _.map(accounts, "mask"), uid]
+      [accessTokenCtext, itemId, accounts, denyList, uid]
     );
 
-    prettyPrintInfo({ accounts });
+    prettyPrintInfo({ accounts, denyList });
 
-    return res.status(200).json({ accounts });
+    return res.status(200).json({ accounts, denyList });
   } catch (error) {
     return res.status(500).json({
       error,

@@ -56,11 +56,11 @@ export const processPlaidTransactions = (
   // TODO: we should have a a list of connected accounts for a user
 
   // TODO: remove this crutch for yourself too
-  // const accountId = _.find(
-  //   res.accounts,
-  //   (account: plaid.Account) => account.mask === envvar.string("LAST_FOUR")
-  // )?.account_id;
-  // if (!accountId) throw new Error("Account Not Available");
+  const accountId = _.find(
+    res.accounts,
+    (account: plaid.Account) => account.mask === envvar.string("LAST_FOUR")
+  )?.account_id;
+  if (!accountId) return [];
 
   const categoryFilters = ["Personal Care"];
 
