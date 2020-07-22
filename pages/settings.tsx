@@ -1,6 +1,7 @@
 import envvar from "envvar";
 import _ from "lodash";
 import { GetServerSideProps } from "next";
+import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 import {
@@ -208,6 +209,22 @@ const UserFeed: React.FC<SettingsProps> = ({
     }
   };
 
+  const router = useRouter();
+
+  const deleteUser = async (user: firebase.User) => {
+    try {
+      await authenticatedRequest(user, "post", "/api/users/delete", {
+        data: {
+          uid: user.uid,
+        },
+      });
+      await auth.signOut();
+      await router.push("/");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const { open, ready, error } = usePlaidLink(config);
   const [newDisplayName, setNewDisplayName] = useState(null as null | string);
   return (
@@ -241,6 +258,21 @@ const UserFeed: React.FC<SettingsProps> = ({
                 placeholder={"Think of something fun!"}
               />
             </Grid.Row>
+            <Grid.Row width={16}>
+              <Button
+                negative
+                onClick={() => {
+                  // clear them from firebase
+                  // delete any entries related to that uid in our db
+                  alert("Are you sure you want to delete your account?");
+                  deleteUser(currentUser);
+                }}
+                type="submit"
+              >
+                <Icon name="delete"></Icon> Delete Account :(
+              </Button>
+            </Grid.Row>
+
             <Grid.Row width={16}>
               <Button
                 primary

@@ -432,6 +432,29 @@ apiRoutes.post(
   }
 );
 
+apiRoutes.post("/users/delete", checkAuth, async (req, res) => {
+  const { uid } = req.body;
+
+  try {
+    await admin.auth().deleteUser(uid as string);
+
+    await pgQuery("DELETE from users WHERE uid = $1 RETURNING id", [uid]);
+    await pgQuery("DELETE from transactions WHERE uid = $1 RETURNING id", [
+      uid,
+    ]);
+    await pgQuery("DELETE from comments WHERE uid = $1 RETURNING id", [uid]);
+
+    return res.json({
+      error: null,
+    });
+  } catch (error) {
+    prettyPrintError(error);
+    return res.json({
+      error,
+    });
+  }
+});
+
 // Set the display name for a user
 apiRoutes.post(
   "/users/set_display_name",
