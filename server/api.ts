@@ -247,7 +247,7 @@ apiRoutes.post(
       );
       prettyPrintInfo(rows);
 
-      if (reason.length) {
+      if (reason && reason.length) {
         const commentRes = await pgQuery(
           "INSERT INTO comments(uid, display_name, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
           [
