@@ -91,7 +91,6 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
                     </Grid.Row>
                     <Grid.Row textAlign="center">
                       <Input
-                        style={{ width: "80%" }}
                         action={{
                           color: "teal",
                           labelPosition: "right",

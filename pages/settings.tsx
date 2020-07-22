@@ -258,20 +258,6 @@ const UserFeed: React.FC<SettingsProps> = ({
                 placeholder={"Think of something fun!"}
               />
             </Grid.Row>
-            <Grid.Row width={16}>
-              <Button
-                negative
-                onClick={() => {
-                  // clear them from firebase
-                  // delete any entries related to that uid in our db
-                  alert("Are you sure you want to delete your account?");
-                  deleteUser(currentUser);
-                }}
-                type="submit"
-              >
-                <Icon name="delete"></Icon> Delete Account :(
-              </Button>
-            </Grid.Row>
 
             <Grid.Row width={16}>
               <Button
@@ -349,6 +335,20 @@ const UserFeed: React.FC<SettingsProps> = ({
                 </Table>
               </Grid.Row>
             )}
+            <Grid.Row width={16}>
+              <Button
+                negative
+                onClick={() => {
+                  // clear them from firebase
+                  // delete any entries related to that uid in our db
+                  alert("Are you sure you want to delete your account?");
+                  deleteUser(currentUser);
+                }}
+                type="submit"
+              >
+                <Icon name="delete"></Icon> Delete Account :(
+              </Button>
+            </Grid.Row>
           </Grid>
         ) : (
           <Loader active />
