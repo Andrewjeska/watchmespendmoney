@@ -73,7 +73,7 @@ export const transactionsWebhookHandler = async (
       ]);
 
       if (!rows.length) {
-        prettyPrintInfo(`No user find with item_id ${item_id}`);
+        prettyPrintInfo(`No user found with item_id ${item_id}`);
         return;
       }
 

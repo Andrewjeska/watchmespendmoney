@@ -16,7 +16,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
   postSubmit,
 }) => {
   const [date, setDate] = useState(moment().format("YYYY-MM-DD"));
-  const [amount, setAmount] = useState(0.0);
+  const [amount, setAmount] = useState(null as null | number);
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   // reason will appear as the top comment
@@ -37,13 +37,13 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
               uid: user.uid,
               date: moment(date).toISOString(),
               description,
-              amount,
+              amount: amount ? (amount as number).toFixed(2) : 0,
               category,
               reason,
             },
           }
         );
-        setAmount(0.0);
+        setAmount(null);
         setDescription("");
         setCategory("");
         setReason("");
@@ -101,7 +101,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
           label="Amount"
           placeholder="$"
           width={3}
-          value={amount}
+          value={amount === null ? "" : amount}
           onChange={(e) => setAmount(parseFloat(e.target.value))}
         />
         <Form.Input

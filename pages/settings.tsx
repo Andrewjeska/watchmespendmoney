@@ -21,12 +21,14 @@ interface SettingsProps {
   plaidPublicKey: string;
   plaidEnv: string;
   plaidWebhook: string;
+  adminUID: string;
 }
 
 const UserFeed: React.FC<SettingsProps> = ({
   plaidPublicKey,
   plaidEnv,
   plaidWebhook,
+  adminUID,
 }) => {
   // firebase
 
@@ -212,7 +214,7 @@ const UserFeed: React.FC<SettingsProps> = ({
     <div>
       <Navbar></Navbar>
       <Container style={{ paddingTop: "10vh" }}>
-        {currentUser && bankAccounts ? (
+        {currentUser ? (
           <Grid>
             <Grid.Row width={16}>
               <Input
@@ -244,9 +246,14 @@ const UserFeed: React.FC<SettingsProps> = ({
                 primary
                 onClick={() => open()}
                 type="submit"
-                disabled={!ready || (bankAccounts && bankAccounts.length > 0)}
+                disabled={
+                  !ready ||
+                  (bankAccounts && bankAccounts.length > 0) ||
+                  currentUser.uid !== adminUID
+                }
               >
-                <Icon name="money"></Icon> Link your Bank Account
+                <Icon name="money"></Icon> Link your Bank Account{" "}
+                {currentUser.uid !== adminUID && "(Coming soon!)"}
               </Button>
             </Grid.Row>
             {bankAccounts && bankAccounts.length > 0 && (
@@ -329,6 +336,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
       plaidPublicKey: envvar.string("PLAID_PUBLIC_KEY"),
       plaidEnv: envvar.string("PLAID_ENV", "sandbox"),
       plaidWebhook: envvar.string("PLAID_WEBHOOK"),
+      adminUID: envvar.string("ADMIN_UID"),
       // plaidLinkFF: envvar.boolean("PLAID_LINK+FF"),
     }, // will be passed to the page component as props
   };

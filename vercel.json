@@ -6,7 +6,8 @@
     "PLAID_PRODUCTS": "transactions",
     "PLAID_COUNTRY_CODES": "US",
     "PLAID_ENV": "development",
-    "PLAID_WEBHOOK": "@plaid-webhook-url"
+    "PLAID_WEBHOOK": "@plaid-webhook-url",
+    "ADMIN_UID": "@admin-uid"
   },
   "build": {
     "env": {

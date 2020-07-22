@@ -39,6 +39,17 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const res = await axios.get("/api/stats", {
+        params: { uid, dateTime: moment().toISOString() },
+      });
+      setStats(res.data.stats);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
   const [stats, setStats] = useState(null as UserStats | null);
 
@@ -54,13 +65,7 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
     setCurrentUser(auth.currentUser);
 
     //TODO: server side props/some nexjts optimization?
-    axios
-      .get("/api/stats", { params: { uid, dateTime: moment().toISOString() } })
-      .then((res) => {
-        if (res.data.stats) {
-          setStats(res.data.stats);
-        }
-      });
+    fetchStats();
 
     return function cleanup() {
       firebaseUnsub();
@@ -116,7 +121,10 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
                   <Segment style={{ width: "100%" }}>
                     <AddTransaction
                       user={currentUser}
-                      postSubmit={() => fetchTransactions()}
+                      postSubmit={() => {
+                        fetchTransactions();
+                        fetchStats();
+                      }}
                     />
                   </Segment>
                 </Grid.Column>
@@ -168,7 +176,10 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
                 <TransactionFeed
                   transactions={transactions}
                   emailPopup={false}
-                  transactionPostDelete={() => fetchTransactions()}
+                  transactionPostDelete={() => {
+                    fetchTransactions();
+                    fetchStats();
+                  }}
                 />
               ) : (
                 <p>No Transactions</p>

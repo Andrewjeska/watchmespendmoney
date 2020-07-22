@@ -415,8 +415,8 @@ apiRoutes.post(
 
     try {
       await pgQuery(
-        "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3, $4)",
-        [uid, `spender${uid.slice(0, 8)}`, null, null]
+        "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3)",
+        [uid, null, null]
       );
 
       return res.json({

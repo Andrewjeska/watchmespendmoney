@@ -49,10 +49,10 @@ const Home: React.FC<HomeProps> = ({ maintenance, adminUID }) => {
     auth.getRedirectResult().then(async (res) => {
       if (res.user) {
         const user = res.user;
-        if (res.additionalUserInfo?.isNewUser)
-          await axios.post("/api/users/create", {
-            uid: user.uid,
-          });
+        // if (res.additionalUserInfo?.isNewUser)
+        await axios.post("/api/users/create", {
+          uid: user.uid,
+        });
         setUser(user);
       }
     });
