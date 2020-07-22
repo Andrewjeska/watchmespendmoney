@@ -64,7 +64,12 @@ const AddComment: React.FC<AddCommentProps> = ({
           setReplyContent((e.target as HTMLTextAreaElement).value)
         }
       />
-      <p>Characters left: {3000 - replyContent.length}</p>
+      {1000 - replyContent.length <= 0 ? (
+        <p style={{ color: "red" }}> Characters left: 0</p>
+      ) : (
+        <p>Characters left: {1000 - replyContent.length}</p>
+      )}
+
       <Button
         content="Reply"
         labelPosition="left"

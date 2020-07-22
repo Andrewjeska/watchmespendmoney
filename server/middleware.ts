@@ -62,8 +62,8 @@ export const textValidator = (key: string, message: string) => {
     .not()
     .contains("<script>")
     .withMessage("Please don't try to hack me")
-    .isLength({ min: 0, max: 3000 })
-    .withMessage("Too long, max 3000 characters")
+    .isLength({ min: 0, max: 1000 })
+    .withMessage("Too long, max 1000 characters")
     .trim();
 };
 
