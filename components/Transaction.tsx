@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { Divider, Feed } from "semantic-ui-react";
 import { axios } from "../common/axios";
 import { auth } from "../common/firebase";
-import { svgs } from "../common/imagery";
 import AddComment from "./AddComment";
 import CommentThread from "./CommentThread";
 import SignUpModal from "./EmailSignUpModal";
@@ -106,9 +105,9 @@ const Transaction: React.FC<TransactionProps> = ({
     <Feed.Event>
       <SignUpModal open={showModal} setOpen={setShowModal} />
 
-      <Feed.Label>
+      {/* <Feed.Label>
         <div dangerouslySetInnerHTML={{ __html: svgs[category] }}></div>
-      </Feed.Label>
+      </Feed.Label> */}
       <Feed.Content>
         <Feed.Summary>
           <Feed.User>{displayName} </Feed.User>

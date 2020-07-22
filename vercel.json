@@ -5,7 +5,8 @@
     "PLAID_SECRET": "@plaid-secret-dev",
     "PLAID_PRODUCTS": "transactions",
     "PLAID_COUNTRY_CODES": "US",
-    "PLAID_ENV": "development"
+    "PLAID_ENV": "development",
+    "PLAID_WEBHOOK": "@plaid-webhook-url"
   },
   "build": {
     "env": {

@@ -1,6 +1,6 @@
 import envvar from "envvar";
 import { NextFunction, Request, Response } from "express";
-import { body, validationResult } from "express-validator";
+import { body, check, validationResult } from "express-validator";
 import admin from "firebase-admin";
 
 export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
@@ -84,7 +84,8 @@ export const validateTransaction = [
     .withMessage("Invalid Amount"),
   textValidator("description", "Please write in a Description"),
   textValidator("category", "Please write in a Category"),
-  body("reason")
+
+  check("reason")
     .optional()
     .not()
     .contains("<script>")

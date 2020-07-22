@@ -10,7 +10,7 @@ import {
   commentTableQuery,
   pgQuery,
   transactionTableQuery,
-  userTableQuery
+  userTableQuery,
 } from "./db";
 import {
   adminOnly,
@@ -18,7 +18,7 @@ import {
   returnValidationErrors,
   textValidator,
   validateComment,
-  validateTransaction
+  validateTransaction,
 } from "./middleware";
 import {
   client,
@@ -29,7 +29,7 @@ import {
   prettyPrintInfo,
   processNewComment,
   processTransactionComments,
-  processTransactions
+  processTransactions,
 } from "./utils";
 
 const apiRoutes = Router();
@@ -237,6 +237,7 @@ apiRoutes.post(
     const { uid, date, description, amount, category, reason } = req.body;
 
     try {
+      prettyPrintInfo("entered api call for trans/create");
       const userRecord = await admin.auth().getUser(uid);
       const {
         rows,
@@ -360,17 +361,30 @@ apiRoutes.post(
     const { uid, dateTime, text, transactionId, parentId } = req.body;
 
     try {
-      const userRecord = await admin.auth().getUser(uid);
-      prettyPrintInfo(userRecord);
+      var comment;
 
-      const {
-        rows,
-      } = await pgQuery(
-        "INSERT INTO comments(uid, display_name, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-        [uid, userRecord.displayName, transactionId, parentId, dateTime, text]
-      );
+      if (!uid) {
+        // anon ones
+        const {
+          rows,
+        } = await pgQuery(
+          "INSERT INTO comments(uid, display_name, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+          [null, null, transactionId, parentId, dateTime, text]
+        );
+        comment = processNewComment(rows[0]);
+      } else {
+        const userRecord = await admin.auth().getUser(uid);
+        prettyPrintInfo(userRecord);
 
-      const comment = processNewComment(rows[0]);
+        const {
+          rows,
+        } = await pgQuery(
+          "INSERT INTO comments(uid, display_name, transaction_id, parent_id, date_time, comment_text) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+          [uid, userRecord.displayName, transactionId, parentId, dateTime, text]
+        );
+        comment = processNewComment(rows[0]);
+      }
+
       prettyPrintInfo(comment);
       return res.json({
         error: null,

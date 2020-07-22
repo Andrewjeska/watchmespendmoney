@@ -126,7 +126,7 @@ const Home: React.FC<HomeProps> = ({ maintenance, adminUID }) => {
                   <b>watchmespendmoney</b> is an accountablity tool that keeps
                   you honest on your expenses by making them public (or, if
                   you'd rather, a select group of close friends). Sign in with
-                  google below to give out beta a try!
+                  google below to give our beta a try!
                 </p>
               </Grid.Row>
             )}
