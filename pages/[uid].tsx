@@ -147,19 +147,25 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
                       Total spend in {moment().format("MMMM")}
                     </Statistic.Label>
                     <Statistic.Value>
-                      {stats ? "$" + stats.currentMonthSpend.toFixed(2) : "N/A"}
+                      {stats && stats.currentMonthSpend
+                        ? "$" + stats.currentMonthSpend.toFixed(2)
+                        : "N/A"}
                     </Statistic.Value>
                   </Statistic>
                   <Statistic>
                     <Statistic.Label>Average Daily Spend</Statistic.Label>
                     <Statistic.Value>
-                      {stats ? "$" + stats.avgSpendPerDay.toFixed(2) : "N/A"}
+                      {stats && stats.avgSpendPerDay
+                        ? "$" + stats.avgSpendPerDay.toFixed(2)
+                        : "N/A"}
                     </Statistic.Value>
                   </Statistic>
                   <Statistic>
                     <Statistic.Label>Days since last spend</Statistic.Label>
                     <Statistic.Value>
-                      {stats ? stats.daysSinceLastSpend : "N/A"}
+                      {stats && stats.daysSinceLastSpend
+                        ? stats.daysSinceLastSpend
+                        : "N/A"}
                     </Statistic.Value>
                   </Statistic>
                 </Grid.Row>
