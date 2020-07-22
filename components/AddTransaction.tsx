@@ -3,7 +3,7 @@ import _ from "lodash";
 import moment from "moment";
 import React, { useState } from "react";
 import { Button, Form, Icon } from "semantic-ui-react";
-import { axios } from "../common/axios";
+import { authenticatedRequest } from "../common/axios";
 import { auth } from "../common/firebase";
 
 interface AddTransactionProps {
@@ -27,31 +27,34 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
   const submitTransaction = async () => {
     try {
       const firebaseUser = auth.currentUser;
-      var token = "";
-      if (firebaseUser) token = await firebaseUser.getIdToken(true);
-      else {
-        console.error("firebase.auth() not ready");
-        return;
-      }
-      await axios({
-        method: "post",
-        url: "/api/transactions/create",
-        data: {
+      if (firebaseUser) {
+        var data: any = {
           uid: user.uid,
           date: moment(date).toISOString(),
           description,
           amount,
           category,
-          reason,
-        },
-        headers: { authToken: token },
-      });
-      setAmount(0.0);
-      setDescription("");
-      setCategory("");
-      setReason("");
-      setSumbmitError(null);
-      postSubmit();
+        };
+
+        if (reason.length) data["reason"] = reason;
+
+        await authenticatedRequest(
+          firebaseUser,
+          "post",
+          "/api/transactions/create",
+          {
+            data,
+          }
+        );
+        setAmount(0.0);
+        setDescription("");
+        setCategory("");
+        setReason("");
+        setSumbmitError(null);
+        postSubmit();
+      } else {
+        console.error("firebase.auth() not ready");
+      }
     } catch (err) {
       console.error(err);
       if (err.response.data.errors) {

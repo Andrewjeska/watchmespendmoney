@@ -2,7 +2,7 @@ import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Divider, Feed } from "semantic-ui-react";
-import { axios } from "../common/axios";
+import { authenticatedRequest, axios } from "../common/axios";
 import { auth } from "../common/firebase";
 import AddComment from "./AddComment";
 import CommentThread from "./CommentThread";
@@ -83,13 +83,12 @@ const Transaction: React.FC<TransactionProps> = ({
     try {
       const firebaseUser = auth.currentUser;
       if (firebaseUser) {
-        const token = await firebaseUser.getIdToken(true);
-        await axios({
-          method: "post",
-          url: "/api/transactions/delete",
-          data: { id },
-          headers: { authToken: token },
-        });
+        await authenticatedRequest(
+          firebaseUser,
+          "post",
+          "/api/transactions/delete",
+          { data: { id } }
+        );
         postDelete();
       } else {
         // not great if this happens, but it will resolve

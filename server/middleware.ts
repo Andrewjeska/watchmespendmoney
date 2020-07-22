@@ -1,6 +1,6 @@
 import envvar from "envvar";
 import { NextFunction, Request, Response } from "express";
-import { body, check, validationResult } from "express-validator";
+import { body, validationResult } from "express-validator";
 import admin from "firebase-admin";
 
 export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
@@ -88,7 +88,7 @@ export const validateTransaction = [
   textValidator("description", "Please write in a Description"),
   textValidator("category", "Please write in a Category"),
 
-  check("reason")
+  body("reason")
     .optional({ checkFalsy: true })
     .not()
     .contains("<script>")
@@ -107,8 +107,8 @@ export const returnValidationErrors = (
     return next();
   }
   const extractedErrors: Array<Record<string, string>> = [];
-  // errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }));
-  errors.array().map((err) => extractedErrors.push(err.msg));
+  errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }));
+  // errors.array().map((err) => extractedErrors.push(err.msg));
 
   return res.status(422).json({
     errors: extractedErrors,
