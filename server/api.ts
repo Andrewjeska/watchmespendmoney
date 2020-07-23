@@ -200,30 +200,40 @@ apiRoutes.post("/email", async (req, res) => {
 // Get all transactions for a given user
 // max 20 requests per 2 minutes
 
-apiRoutes.get(
-  "/transactions",
+apiRoutes.get("/transactions", async (req, res) => {
+  const { uid } = req.query;
 
-  async (req, res) => {
-    const { uid } = req.query;
+  try {
+    await pgQuery(transactionTableQuery);
+    const { rows } = await pgQuery(
+      "SELECT * FROM transactions WHERE uid = $1",
+      [uid]
+    );
 
-    try {
-      await pgQuery(transactionTableQuery);
-      const {
-        rows,
-      } = await pgQuery("SELECT * FROM transactions WHERE uid = $1", [uid]);
+    const transactions = processTransactions(rows);
+    const transactionsWithComments = _.map(transactions, async (t) => {
+      const transactionComments = await pgQuery(
+        "SELECT * FROM comments WHERE transaction_id = $1",
+        [t.id]
+      );
 
-      prettyPrintInfo(rows);
-      return res.status(200).json({
-        transactions: processTransactions(rows),
-      });
-    } catch (error) {
-      prettyPrintError(error);
-      return res.status(500).json({
-        error,
-      });
-    }
+      t.comments = processTransactionComments(transactionComments.rows);
+      return t;
+    });
+
+    const finalizedTransactions = await Promise.all(transactionsWithComments);
+    prettyPrintInfo(finalizedTransactions);
+
+    return res.status(200).json({
+      transactions: finalizedTransactions,
+    });
+  } catch (error) {
+    prettyPrintError(error);
+    return res.status(500).json({
+      error,
+    });
   }
-);
+});
 
 apiRoutes.post(
   "/transactions/create",

@@ -1,8 +1,8 @@
 import _ from "lodash";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Divider, Feed } from "semantic-ui-react";
-import { authenticatedRequest, axios } from "../common/axios";
+import { authenticatedRequest } from "../common/axios";
 import { auth } from "../common/firebase";
 import AddComment from "./AddComment";
 import CommentThread from "./CommentThread";
@@ -31,49 +31,9 @@ const Transaction: React.FC<TransactionProps> = ({
     description,
     amount,
     category,
+    comments,
   } = transaction;
-  const [comments, setComments] = useState([] as Array<TransactionComment>);
-
-  const fetchComments = async () => {
-    try {
-      const res = await axios.get("/api/transactions/comments", {
-        params: {
-          transactionId: id,
-        },
-        headers: { "Cache-Control": "no-cache" },
-      });
-      setComments(res.data.comments);
-    } catch (err) {
-      console.error("Oh no, no comments");
-    }
-  };
-
-  //TODO: this will be fixed once plaid transactions are regular transactions, we branch on email popup since that's the landing page
-
-  // const [displayName, setDisplayName] = useState(
-  //   emailPopup ? "anderjaska" : ""
-  // );
-
-  useEffect(() => {
-    // will run on first render, like componentDidMount
-    if (commenting) fetchComments();
-    // if (uid) {
-    //   axios
-    //     .get("/api/users", {
-    //       params: { uid },
-    //     })
-    //     .then((res) => {
-    //       const user = res.data.user;
-    //       if (user && user.displayName) setDisplayName(user.displayName);
-    //       else {
-    //         console.error(`displayName wasn't available for uid ${uid}`);
-    //       }
-    //     })
-    //     .catch((err) => {
-    //       alert(err);
-    //     });
-    // }
-  }, []);
+  const [currentComments, setCurrentComments] = useState(comments);
 
   const [showReply, setShowReply] = useState(false);
   const [showComments, setShowComments] = useState(true);
@@ -152,13 +112,18 @@ const Transaction: React.FC<TransactionProps> = ({
               setShowReply(false);
               setShowComments(true);
               if (emailPopup) setShowModal(true);
-              setComments(_.concat(comments, newComment));
+              setCurrentComments(_.concat(currentComments, newComment));
             }}
             onClose={() => setShowReply(false)}
           ></AddComment>
         )}
         {commenting &&
-          renderComments(comments, currentUser, emailPopup, showComments)}
+          renderComments(
+            currentComments,
+            currentUser,
+            emailPopup,
+            showComments
+          )}
         <Divider />
       </Feed.Content>
     </Feed.Event>

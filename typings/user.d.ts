@@ -6,6 +6,7 @@ interface UserTransaction {
   description: string | null;
   amount: number;
   category: string;
+  comments: Array<TransactionComment>;
 }
 
 interface UserMeta {

@@ -85,6 +85,7 @@ export const processPlaidTransactions = (
             amount: t.amount,
             description: t.name,
             category: t.category[t.category.length - 1],
+            comments: [],
           };
         return null;
       })
@@ -104,6 +105,7 @@ export const processTransactions = (rows: any[]): Array<UserTransaction> => {
         amount: transaction.amount,
         description: transaction.description,
         category: transaction.category,
+        comments: [],
       };
     })
     .orderBy(["date"], ["desc"])
