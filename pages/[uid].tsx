@@ -171,25 +171,26 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
             </Grid.Column>
           </Grid.Row>
         </Grid>
-
-        <Grid textAlign="center" style={{ marginTop: "2vh" }}>
-          <Grid.Row>
-            {transPending && <Loader active />}
-            {!transPending &&
-              (transactions.length ? (
-                <TransactionFeed
-                  transactions={transactions}
-                  emailPopup={false}
-                  transactionPostDelete={() => {
-                    fetchTransactions();
-                    fetchStats();
-                  }}
-                />
-              ) : (
-                <p>No Transactions</p>
-              ))}
-          </Grid.Row>
-        </Grid>
+        <Container text>
+          <Grid textAlign="center" style={{ marginTop: "2vh" }}>
+            <Grid.Row>
+              {transPending && <Loader active />}
+              {!transPending &&
+                (transactions.length ? (
+                  <TransactionFeed
+                    transactions={transactions}
+                    emailPopup={false}
+                    transactionPostDelete={() => {
+                      fetchTransactions();
+                      fetchStats();
+                    }}
+                  />
+                ) : (
+                  <p>No Transactions</p>
+                ))}
+            </Grid.Row>
+          </Grid>
+        </Container>
       </Container>
     </div>
   );

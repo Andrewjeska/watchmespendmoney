@@ -202,11 +202,7 @@ apiRoutes.post("/email", async (req, res) => {
 
 apiRoutes.get(
   "/transactions",
-  rateLimit({
-    windowMs: 2 * 60 * 1000,
-    max: 20,
-    message: "You seem to be refreshing the page 20 times a minute",
-  }),
+
   async (req, res) => {
     const { uid } = req.query;
 
@@ -309,11 +305,7 @@ apiRoutes.post("/transactions/delete", checkAuth, async (req, res) => {
 // General query for comments
 apiRoutes.get(
   "/transactions/comments",
-  rateLimit({
-    windowMs: 60 * 1000,
-    max: 20,
-    message: "You seem to be refreshing the page 20 times a minute",
-  }),
+
   async (req, res) => {
     const { transactionId, parentId } = req.query;
     try {
