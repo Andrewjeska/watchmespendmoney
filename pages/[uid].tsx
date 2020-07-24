@@ -78,6 +78,7 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
         <meta name="robots" content="noindex" />
         <meta name="googlebot" content="noindex" />
       </Head>
+
       <Navbar></Navbar>
       <Container style={{ paddingTop: "10vh" }}>
         <Grid stackable>

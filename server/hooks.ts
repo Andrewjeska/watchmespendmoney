@@ -146,8 +146,8 @@ const addTransactions = async (
         const {
           rows,
         } = await pgQuery(
-          "INSERT INTO transactions(uid, plaid_id, date_time, description, amount, category) VALUES ($1, $2, $3, $4, $5, $6)",
-          [uid, id, date, description, amount, category]
+          "INSERT INTO transactions(uid, display_name, plaid_id, date_time, description, amount, category) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+          [uid, userRecord.displayName, id, date, description, amount, category]
         );
         prettyPrintInfo(rows[0].id);
       });
