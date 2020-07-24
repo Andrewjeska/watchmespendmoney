@@ -1,4 +1,6 @@
+import envvar from "envvar";
 import _ from "lodash";
+import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
@@ -10,7 +12,7 @@ import {
   Icon,
   Input,
   Loader,
-  Table
+  Table,
 } from "semantic-ui-react";
 import { authenticatedRequest } from "../common/axios";
 import { auth } from "../common/firebase";
@@ -271,7 +273,7 @@ const UserFeed: React.FC<SettingsProps> = ({
                 <Icon name="money"></Icon> Link your Bank Account{" "}
                 {currentUser.uid !== adminUID && "(Coming soon!)"}
               </Button>
-            {/* </Grid.Row>
+            </Grid.Row>
             {bankAccounts && bankAccounts.length > 0 && (
               <Grid.Row width={16}>
                 <Button
@@ -282,7 +284,7 @@ const UserFeed: React.FC<SettingsProps> = ({
                   <Icon name="delete"></Icon> Unlink your Bank Account
                 </Button>
               </Grid.Row>
-            )} */}
+            )}
 
             {bankAccounts && denylist && bankAccounts.length > 0 && (
               <Grid.Row width={8}>
@@ -333,7 +335,7 @@ const UserFeed: React.FC<SettingsProps> = ({
                 </Table>
               </Grid.Row>
             )}
-            <Grid.Row width={16}>
+            {/* <Grid.Row width={16}>
               <Button
                 negative
                 onClick={() => {
@@ -346,7 +348,7 @@ const UserFeed: React.FC<SettingsProps> = ({
               >
                 <Icon name="delete"></Icon> Delete Account :(
               </Button>
-            </Grid.Row>
+            </Grid.Row> */}
           </Grid>
         ) : (
           <Loader active />

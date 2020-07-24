@@ -28,6 +28,7 @@ import {
   prettyPrintError,
   prettyPrintInfo,
   processNewComment,
+  processPlaidTransactions,
   processTransactionComments,
   processTransactions,
 } from "./utils";
@@ -59,6 +60,38 @@ apiRoutes.post("/plaid/add_item", adminOnly, async (req, res) => {
       "UPDATE users SET access_token = $1, item_id = $2, accounts = $3, accounts_denylist = $4 WHERE uid = $5",
       [accessTokenCtext, itemId, accounts, denyList, uid]
     );
+
+    const startDate = moment().startOf("month").format("YYYY-MM-DD");
+    const endDate = moment().endOf("month").format("YYYY-MM-DD");
+    const plaidTransactions = await client.getTransactions(
+      accessToken,
+      startDate,
+      endDate,
+      {
+        count: 100,
+        offset: 0,
+      }
+    );
+
+    const userRecord = await admin.auth().getUser(uid as string);
+
+    const transactions = processPlaidTransactions(
+      plaidTransactions,
+      uid,
+      userRecord.displayName as string
+    );
+
+    //TODO: can we make this faster?
+    _.map(transactions, async (transaction) => {
+      const { date, description, amount, category, id } = transaction;
+      const {
+        rows,
+      } = await pgQuery(
+        "INSERT INTO transactions(uid, display_name, plaid_id, date_time, description, amount, category) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        [uid, userRecord.displayName, id, date, description, amount, category]
+      );
+      prettyPrintInfo(rows[0].id);
+    });
 
     prettyPrintInfo({ accounts, denyList });
 
