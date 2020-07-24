@@ -67,7 +67,7 @@ export const processPlaidTransactions = (
   return (
     _(res.transactions)
       // eslint-disable-next-line @typescript-eslint/camelcase
-      // .filter({ account_id: accountId })
+      .filter({ account_id: accountId })
       .filter({ pending: false })
       .filter((t: plaid.Transaction): boolean =>
         t.amount ? t.amount >= 0.0 : false
