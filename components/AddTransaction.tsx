@@ -2,17 +2,19 @@ import "firebase/auth";
 import _ from "lodash";
 import moment from "moment";
 import React, { useState } from "react";
-import { Button, Form, Icon } from "semantic-ui-react";
+import { Button, Form, Icon, Input } from "semantic-ui-react";
 import { authenticatedRequest } from "../common/axios";
 import { auth } from "../common/firebase";
 
 interface AddTransactionProps {
   user: firebase.User;
+  categoryOptions: string[];
   postSubmit: () => void;
 }
 
 const AddTransaction: React.FC<AddTransactionProps> = ({
   user,
+  categoryOptions,
   postSubmit,
 }) => {
   const [date, setDate] = useState(moment().format("YYYY-MM-DD"));
@@ -98,19 +100,27 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
         <Form.Input
           type="number"
           step="0.01"
+          min="0.00"
           label="Amount"
           placeholder="$"
           width={3}
           value={amount === null ? "" : amount}
           onChange={(e) => setAmount(parseFloat(e.target.value))}
         />
-        <Form.Input
-          label="Category"
-          placeholder="Category"
-          width={5}
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        />
+        <Form.Input label="Category" width={5}>
+          <Input
+            placeholder="Category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            list="categories"
+          ></Input>
+          <datalist id="categories">
+            {_.map(categoryOptions, (cat) => (
+              <option value={cat} />
+            ))}
+          </datalist>
+        </Form.Input>
+
         <Form.Input
           label="Reason"
           placeholder="Why did you buy this? (Optional)"

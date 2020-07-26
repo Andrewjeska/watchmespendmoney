@@ -25,6 +25,7 @@ interface UserFeedProps {
 const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
   const [transactions, setTransactions] = useState([]);
   const [transPending, setTransPending] = useState(true);
+  const [categories, setCategories] = useState([]);
 
   const fetchTransactions = async () => {
     try {
@@ -33,6 +34,7 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
         headers: { "Cache-Control": "no-cache" },
       });
       setTransactions(res.data.transactions);
+      setCategories(res.data.categories);
       setTransPending(false);
     } catch (err) {
       console.error(err);
@@ -120,6 +122,7 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
                 <Segment style={{ width: "100%" }}>
                   <AddTransaction
                     user={currentUser}
+                    categoryOptions={categories}
                     postSubmit={() => {
                       fetchTransactions();
                       fetchStats();
@@ -142,7 +145,7 @@ const UserFeed: React.FC<UserFeedProps> = ({ uid }) => {
                   <Grid.Row>
                     <Statistic>
                       <Statistic.Label>
-                        Total spend in {moment().format("MMMM")}
+                        Total spent in {moment().format("MMMM")}
                       </Statistic.Label>
                       <Statistic.Value>
                         {stats && stats.currentMonthSpend

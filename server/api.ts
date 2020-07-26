@@ -231,7 +231,6 @@ apiRoutes.post("/email", async (req, res) => {
 // ########### Transactions API ###########
 
 // Get all transactions for a given user
-// max 20 requests per 2 minutes
 
 apiRoutes.get("/transactions", async (req, res) => {
   const { uid } = req.query;
@@ -255,10 +254,16 @@ apiRoutes.get("/transactions", async (req, res) => {
     });
 
     const finalizedTransactions = await Promise.all(transactionsWithComments);
+    const categories = _(finalizedTransactions)
+      .map("category")
+      .uniq()
+
+      .value();
     prettyPrintInfo(finalizedTransactions);
 
     return res.status(200).json({
       transactions: finalizedTransactions,
+      categories,
     });
   } catch (error) {
     prettyPrintError(error);
