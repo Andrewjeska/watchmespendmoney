@@ -17,7 +17,6 @@ import { axios } from "../common/axios";
 import { auth, googleSignIn } from "../common/firebase";
 import SignUp from "../components/EmailSignUp";
 import FeedWithDash from "../components/FeedWithDash";
-// import FeedWithDash from "../components/FeedWithDash";
 import Navbar from "../components/Navbar";
 
 interface HomeProps {
@@ -57,8 +56,6 @@ const Home: React.FC<HomeProps> = ({ maintenance, adminUID }) => {
     return function cleanup() {
       firebaseUnsub();
     };
-
-    // fetchTransactions();
   }, []);
 
   if (maintenance) {
@@ -131,6 +128,16 @@ const Home: React.FC<HomeProps> = ({ maintenance, adminUID }) => {
               )}
             </Grid.Column>
           </Grid.Row>
+          <Grid.Row>
+            <Button
+              icon
+              href="https://www.buymeacoffee.com/anderjaska"
+              labelPosition="left"
+            >
+              <Icon name="coffee" />
+              Buy me a coffee?
+            </Button>
+          </Grid.Row>
         </Grid>
       </Container>
       <Container style={{ paddingTop: "5vh" }}>
@@ -140,27 +147,16 @@ const Home: React.FC<HomeProps> = ({ maintenance, adminUID }) => {
           homePageDisplay={true}
         />
       </Container>
-
-      {/* {transactions.length > 0 && ( */}
-      {/* <Grid textAlign="center"> */}
-      {/* <Grid.Row> */}
-      {/* <a href="https://medium.com/@anderjaska/how-i-save-money-public-shaming-456d95fa06">
-          Learn more about my approach
-        </a> */}
-      {/* </Grid.Row> */}
-      {/* </Grid> */}
-      {/* )} */}
-      {/* </Container> */}
-
-      <Container text>
+      {/* 
+      <Container>
         <Grid textAlign="center">
           <Grid.Row>
-            <a href="https://www.buymeacoffee.com/anderjaska">
-              Buy me a coffee?
+            <a href="https://medium.com/@anderjaska/how-i-save-money-public-shaming-456d95fa06">
+              Learn more about my approach
             </a>
           </Grid.Row>
         </Grid>
-      </Container>
+      </Container> */}
     </div>
   );
 };
