@@ -1,12 +1,14 @@
 import _ from "lodash";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Sticky from "react-sticky-el";
 import {
   Dropdown,
   Grid,
   Header,
   Input,
   Loader,
+  Rail,
   Segment,
   Statistic,
 } from "semantic-ui-react";
@@ -62,6 +64,8 @@ const FeedWithDash: React.FC<FeedWithDashProps> = ({
     }
   };
 
+  const stickyRef = useRef(null);
+
   useEffect(() => {
     // will run on first render, like componentDidMount
     if (uid) fetchTransactions();
@@ -78,11 +82,72 @@ const FeedWithDash: React.FC<FeedWithDashProps> = ({
   const dashWidth = homePageDisplay || !userLoggedIn ? 6 : 8;
   const feedWidth = homePageDisplay || !userLoggedIn ? 10 : 8;
 
+  if (homePageDisplay)
+    return (
+      <Grid stackable columns={2} textAlign="center">
+        <Grid.Column width={feedWidth}>
+          <Sticky>
+            <Rail position="left">
+              <Grid.Row className="user-dash-row">
+                <Segment className="wmsm-segment">
+                  <Header as="h3">Filter</Header>
+                  <Dropdown
+                    placeholder="Category"
+                    clearable
+                    fluid
+                    selection
+                    onChange={(e, data) => {
+                      const category = data.value as string;
+                      if (category.length)
+                        setFilter(
+                          Object.assign({}, { category: data.value as string })
+                        );
+                      else setFilter({});
+                    }}
+                    options={_.map(categories, (cat) => {
+                      return { key: cat, text: cat, value: cat };
+                    })}
+                  />
+                </Segment>
+              </Grid.Row>
+              <Grid.Row className="user-dash-row">
+                <Segment className="wmsm-segment">
+                  <Header as="h3">
+                    Stats for {stats ? stats.displayName : "Loading..."}
+                  </Header>
+
+                  <Grid textAlign="center">
+                    {generateStats(transactionsFiltered, filter, stats)}
+                  </Grid>
+                </Segment>
+              </Grid.Row>
+            </Rail>
+          </Sticky>
+
+          {transPending && <Loader active />}
+          {!transPending &&
+            (transactions.length ? (
+              <TransactionFeed
+                transactions={transactionsFiltered}
+                emailPopup={false}
+                transactionPostDelete={() => {
+                  fetchTransactions();
+                  fetchStats();
+                }}
+              />
+            ) : (
+              <p>No Transactions</p>
+            ))}
+          {/* </div>
+          </Ref> */}
+        </Grid.Column>
+      </Grid>
+    );
+
   return (
     <Grid columns={2} stackable>
       <Grid.Column width={dashWidth}>
-        {!homePageDisplay &&
-          currentUser &&
+        {currentUser &&
           currentUser.uid === uid && [
             <Grid.Row className="user-dash-row">
               <Segment className="wmsm-segment">

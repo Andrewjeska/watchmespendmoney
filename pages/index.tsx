@@ -52,11 +52,11 @@ const Home: React.FC<HomeProps> = ({ maintenance, adminUID }) => {
         }
       }
       setUser(user);
-
-      return function cleanup() {
-        firebaseUnsub();
-      };
     });
+
+    return function cleanup() {
+      firebaseUnsub();
+    };
 
     // fetchTransactions();
   }, []);
