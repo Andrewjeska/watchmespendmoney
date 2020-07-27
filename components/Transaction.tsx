@@ -64,17 +64,13 @@ const Transaction: React.FC<TransactionProps> = ({
     <Feed.Event>
       <SignUpModal open={showModal} setOpen={setShowModal} />
 
-      {/* <Feed.Label>
-        <div dangerouslySetInnerHTML={{ __html: svgs[category] }}></div>
-      </Feed.Label> */}
       <Feed.Content>
         <Feed.Summary>
           <Feed.User>{displayName} </Feed.User>
-          {` spent \$${amount ? amount.toFixed(2) : "Error"} on ${description}`}
-          {/* moment is a bit weird about rendering midnight */}
+          {` spent \$${amount ? amount.toFixed(2) : "Error"} on ${category}`}
           <Feed.Date>{moment(date).format("MM/DD")}</Feed.Date>
         </Feed.Summary>
-        <Feed.Extra text>{`${category}`}</Feed.Extra>
+        <Feed.Extra text>{`${description}`}</Feed.Extra>
         {commenting && (
           <Feed.Meta
             className="wmsm-comment-meta"
