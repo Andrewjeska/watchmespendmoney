@@ -1,6 +1,7 @@
 import _ from "lodash";
 import moment from "moment";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useMediaQuery } from "react-responsive";
 import Sticky from "react-sticky-el";
 import {
   Dropdown,
@@ -64,8 +65,6 @@ const FeedWithDash: React.FC<FeedWithDashProps> = ({
     }
   };
 
-  const stickyRef = useRef(null);
-
   useEffect(() => {
     // will run on first render, like componentDidMount
     if (uid) fetchTransactions();
@@ -81,6 +80,11 @@ const FeedWithDash: React.FC<FeedWithDashProps> = ({
 
   const dashWidth = homePageDisplay || !userLoggedIn ? 6 : 8;
   const feedWidth = homePageDisplay || !userLoggedIn ? 10 : 8;
+
+  const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+  const isTabletOrMobileDevice = useMediaQuery({
+    query: "(max-device-width: 1224px)",
+  });
 
   if (homePageDisplay || !userLoggedIn)
     return (
@@ -145,83 +149,85 @@ const FeedWithDash: React.FC<FeedWithDashProps> = ({
   return (
     <Grid columns={2} stackable>
       <Grid.Column width={dashWidth}>
-        {userLoggedIn && [
+        <Sticky disabled={isTabletOrMobileDevice || isTabletOrMobile}>
+          {userLoggedIn && [
+            <Grid.Row className="user-dash-row">
+              <Segment className="wmsm-segment">
+                <Header as="h2">Share your Feed</Header>
+                <Grid textAlign="center">
+                  <Grid.Row textAlign="center">
+                    <Input
+                      action={{
+                        color: "teal",
+                        labelPosition: "right",
+                        icon: "copy",
+                        content: "Copy",
+                        onClick: () => {
+                          var copy: any = document.getElementById("shareLink");
+                          if (copy) {
+                            copy.select();
+                            document.execCommand("copy");
+                            alert("Copied!");
+                          }
+                        },
+                      }}
+                      id="shareLink"
+                      readOnly
+                      defaultValue={window.location.href}
+                    />
+                  </Grid.Row>
+                </Grid>
+              </Segment>
+            </Grid.Row>,
+            <Grid.Row className="user-dash-row">
+              <Segment className="wmsm-segment">
+                <Header as="h2">Log a Transaction</Header>
+                <AddTransaction
+                  user={currentUser as firebase.User}
+                  categoryOptions={categories}
+                  postSubmit={() => {
+                    fetchTransactions();
+                    fetchStats();
+                  }}
+                />
+              </Segment>
+            </Grid.Row>,
+          ]}
+
           <Grid.Row className="user-dash-row">
             <Segment className="wmsm-segment">
-              <Header as="h2">Share your Feed</Header>
-              <Grid textAlign="center">
-                <Grid.Row textAlign="center">
-                  <Input
-                    action={{
-                      color: "teal",
-                      labelPosition: "right",
-                      icon: "copy",
-                      content: "Copy",
-                      onClick: () => {
-                        var copy: any = document.getElementById("shareLink");
-                        if (copy) {
-                          copy.select();
-                          document.execCommand("copy");
-                          alert("Copied!");
-                        }
-                      },
-                    }}
-                    id="shareLink"
-                    readOnly
-                    defaultValue={window.location.href}
-                  />
-                </Grid.Row>
-              </Grid>
-            </Segment>
-          </Grid.Row>,
-          <Grid.Row className="user-dash-row">
-            <Segment className="wmsm-segment">
-              <Header as="h2">Log a Transaction</Header>
-              <AddTransaction
-                user={currentUser as firebase.User}
-                categoryOptions={categories}
-                postSubmit={() => {
-                  fetchTransactions();
-                  fetchStats();
+              <Header as="h3">Filter</Header>
+              <Dropdown
+                placeholder="Category"
+                clearable
+                fluid
+                selection
+                onChange={(e, data) => {
+                  const category = data.value as string;
+                  if (category.length)
+                    setFilter(
+                      Object.assign({}, { category: data.value as string })
+                    );
+                  else setFilter({});
                 }}
+                options={_.map(categories, (cat) => {
+                  return { key: cat, text: cat, value: cat };
+                })}
               />
             </Segment>
-          </Grid.Row>,
-        ]}
+          </Grid.Row>
+          <Grid.Row className="user-dash-row">
+            <Segment className="wmsm-segment">
+              <Header as="h3">
+                Stats for {stats ? stats.displayName : "Loading..."}
+              </Header>
 
-        <Grid.Row className="user-dash-row">
-          <Segment className="wmsm-segment">
-            <Header as="h3">Filter</Header>
-            <Dropdown
-              placeholder="Category"
-              clearable
-              fluid
-              selection
-              onChange={(e, data) => {
-                const category = data.value as string;
-                if (category.length)
-                  setFilter(
-                    Object.assign({}, { category: data.value as string })
-                  );
-                else setFilter({});
-              }}
-              options={_.map(categories, (cat) => {
-                return { key: cat, text: cat, value: cat };
-              })}
-            />
-          </Segment>
-        </Grid.Row>
-        <Grid.Row className="user-dash-row">
-          <Segment className="wmsm-segment">
-            <Header as="h3">
-              Stats for {stats ? stats.displayName : "Loading..."}
-            </Header>
-
-            <Grid textAlign="center">
-              {generateStats(transactionsFiltered, filter, stats)}
-            </Grid>
-          </Segment>
-        </Grid.Row>
+              <Grid textAlign="center">
+                {generateStats(transactionsFiltered, filter, stats)}
+              </Grid>
+            </Segment>
+          </Grid.Row>
+        </Sticky>
       </Grid.Column>
       <Grid.Column width={feedWidth}>
         {transPending && <Loader active />}
