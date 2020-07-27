@@ -63,3 +63,11 @@
   padding: 0 0.1rem 0.3rem 0.9rem !important;
   width: 100% !important;
 }
+
+.wmsm-segment {
+  width: 100% !important;
+}
+
+.user-dash-row {
+  margin-bottom: 2vh;
+}

@@ -89,8 +89,8 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
           onChange={(e) => setDate(e.target.value)}
         />
         <Form.Input
-          label="What did you buy?"
-          placeholder="Description"
+          label="Description"
+          placeholder="What did you buy?"
           width={8}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
