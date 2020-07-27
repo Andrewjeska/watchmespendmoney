@@ -15,7 +15,7 @@
       "PLAID_ENV": "development",
       "PLAID_WEBHOOK": "@plaid-webhook-url",
       "NEXT_PUBLIC_FIREBASE_API_KEY": "@firebase-api-key",
-      "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "watchmespendmoney-d69c1.firebaseapp.com",
+      "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "auth.watchmespendmoney.com",
       "NEXT_PUBLIC_FIREBASE_DATABASE_URL": "https://watchmespendmoney-d69c1.firebaseio.com",
       "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "watchmespendmoney-d69c1",
       "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "watchmespendmoney-d69c1.appspot.com",
