@@ -25,6 +25,7 @@ import {
   getAverageSpendPerDay,
   getDaysSinceLastSpend,
   getSpendForMonth,
+  PLAID_ENV,
   prettyPrintError,
   prettyPrintInfo,
   processNewComment,
@@ -73,7 +74,10 @@ apiRoutes.post("/plaid/add_item", adminOnly, async (req, res) => {
       }
     );
 
-    const userRecord = await admin.auth().getUser(uid as string);
+    const userRecord =
+      PLAID_ENV === "sandbox"
+        ? { displayName: "sandbox" }
+        : await admin.auth().getUser(uid as string);
 
     const transactions = processPlaidTransactions(
       plaidTransactions,
@@ -116,6 +120,7 @@ apiRoutes.post("/plaid/remove_item", adminOnly, async (req, res) => {
       });
 
     const accessToken = decrypt(accessTokenCtext);
+    console.log(accessToken);
     const itemRemoveResult = await client.removeItem(accessToken);
     const removed = itemRemoveResult.removed;
 
@@ -457,7 +462,7 @@ apiRoutes.post(
     try {
       await pgQuery(
         "INSERT INTO users(uid, access_token, item_id) VALUES ($1, $2, $3)",
-        [uid, null, null]
+        [PLAID_ENV === "sandbox" ? "sandbox" : uid, null, null]
       );
 
       return res.json({

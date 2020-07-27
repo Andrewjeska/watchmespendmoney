@@ -77,6 +77,8 @@ export const transactionsWebhookHandler = async (
         return;
       }
 
+      prettyPrintInfo(item_id);
+
       // it is NOT possible for another user to have a different plaid item_id
       const uid = rows[0].uid;
       const accessTokenCtext = rows[0].access_token;
