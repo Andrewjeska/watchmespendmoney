@@ -18,6 +18,7 @@
     "@types/firebase": "^3.2.1",
     "@types/lodash": "^4.14.155",
     "@types/pg": "^7.14.4",
+    "@types/react-sticky-el": "^1.0.2",
     "apicache": "^1.5.3",
     "axios": "^0.19.2",
     "concurrently": "^5.2.0",

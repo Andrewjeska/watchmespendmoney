@@ -82,7 +82,7 @@ const FeedWithDash: React.FC<FeedWithDashProps> = ({
   const dashWidth = homePageDisplay || !userLoggedIn ? 6 : 8;
   const feedWidth = homePageDisplay || !userLoggedIn ? 10 : 8;
 
-  if (homePageDisplay)
+  if (homePageDisplay || !userLoggedIn)
     return (
       <Grid stackable columns={2} textAlign="center">
         <Grid.Column width={feedWidth}>
@@ -138,8 +138,6 @@ const FeedWithDash: React.FC<FeedWithDashProps> = ({
             ) : (
               <p>No Transactions</p>
             ))}
-          {/* </div>
-          </Ref> */}
         </Grid.Column>
       </Grid>
     );
@@ -147,50 +145,49 @@ const FeedWithDash: React.FC<FeedWithDashProps> = ({
   return (
     <Grid columns={2} stackable>
       <Grid.Column width={dashWidth}>
-        {currentUser &&
-          currentUser.uid === uid && [
-            <Grid.Row className="user-dash-row">
-              <Segment className="wmsm-segment">
-                <Header as="h2">Share your Feed</Header>
-                <Grid textAlign="center">
-                  <Grid.Row textAlign="center">
-                    <Input
-                      action={{
-                        color: "teal",
-                        labelPosition: "right",
-                        icon: "copy",
-                        content: "Copy",
-                        onClick: () => {
-                          var copy: any = document.getElementById("shareLink");
-                          if (copy) {
-                            copy.select();
-                            document.execCommand("copy");
-                            alert("Copied!");
-                          }
-                        },
-                      }}
-                      id="shareLink"
-                      readOnly
-                      defaultValue={window.location.href}
-                    />
-                  </Grid.Row>
-                </Grid>
-              </Segment>
-            </Grid.Row>,
-            <Grid.Row className="user-dash-row">
-              <Segment className="wmsm-segment">
-                <Header as="h2">Log a Transaction</Header>
-                <AddTransaction
-                  user={currentUser}
-                  categoryOptions={categories}
-                  postSubmit={() => {
-                    fetchTransactions();
-                    fetchStats();
-                  }}
-                />
-              </Segment>
-            </Grid.Row>,
-          ]}
+        {userLoggedIn && [
+          <Grid.Row className="user-dash-row">
+            <Segment className="wmsm-segment">
+              <Header as="h2">Share your Feed</Header>
+              <Grid textAlign="center">
+                <Grid.Row textAlign="center">
+                  <Input
+                    action={{
+                      color: "teal",
+                      labelPosition: "right",
+                      icon: "copy",
+                      content: "Copy",
+                      onClick: () => {
+                        var copy: any = document.getElementById("shareLink");
+                        if (copy) {
+                          copy.select();
+                          document.execCommand("copy");
+                          alert("Copied!");
+                        }
+                      },
+                    }}
+                    id="shareLink"
+                    readOnly
+                    defaultValue={window.location.href}
+                  />
+                </Grid.Row>
+              </Grid>
+            </Segment>
+          </Grid.Row>,
+          <Grid.Row className="user-dash-row">
+            <Segment className="wmsm-segment">
+              <Header as="h2">Log a Transaction</Header>
+              <AddTransaction
+                user={currentUser as firebase.User}
+                categoryOptions={categories}
+                postSubmit={() => {
+                  fetchTransactions();
+                  fetchStats();
+                }}
+              />
+            </Segment>
+          </Grid.Row>,
+        ]}
 
         <Grid.Row className="user-dash-row">
           <Segment className="wmsm-segment">
