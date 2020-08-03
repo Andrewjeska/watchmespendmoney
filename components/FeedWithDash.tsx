@@ -282,7 +282,7 @@ const generateStats = (
           <Statistic.Value>
             {stats && stats.currentMonthSpend
               ? "$" + stats.currentMonthSpend.toFixed(2)
-              : "N/A"}
+              : 0}
           </Statistic.Value>
         </Statistic>
         <Statistic>
@@ -290,15 +290,13 @@ const generateStats = (
           <Statistic.Value>
             {stats && stats.avgSpendPerDay
               ? "$" + stats.avgSpendPerDay.toFixed(2)
-              : "N/A"}
+              : 0}
           </Statistic.Value>
         </Statistic>
         <Statistic>
           <Statistic.Label>Days since last spend</Statistic.Label>
           <Statistic.Value>
-            {stats && stats.daysSinceLastSpend
-              ? stats.daysSinceLastSpend
-              : "N/A"}
+            {stats && stats.daysSinceLastSpend ? stats.daysSinceLastSpend : 0}
           </Statistic.Value>
         </Statistic>
       </Grid.Row>

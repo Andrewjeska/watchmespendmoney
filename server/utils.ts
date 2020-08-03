@@ -181,12 +181,13 @@ export const getSpendForMonth = (
     transactions,
     (acc, t) => {
       const transDate = moment(t.date);
+
       if (
         requestedDate.month() === transDate.month() &&
         requestedDate.year() === transDate.year()
       )
         return (acc += t.amount);
-      else return 0;
+      else return acc;
     },
     0
   );

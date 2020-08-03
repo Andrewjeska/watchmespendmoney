@@ -618,6 +618,7 @@ apiRoutes.get("/stats", async (req, res) => {
     );
 
     const transactions = processTransactions(rows);
+    // console.log(transactions);
     if (!transactions.length)
       return res.json({
         stats: { displayName: userRecord.displayName },
