@@ -259,11 +259,8 @@ apiRoutes.get("/transactions", async (req, res) => {
     });
 
     const finalizedTransactions = await Promise.all(transactionsWithComments);
-    const categories = _(finalizedTransactions)
-      .map("category")
-      .uniq()
+    const categories = _(finalizedTransactions).map("category").uniq().value();
 
-      .value();
     prettyPrintInfo(finalizedTransactions);
 
     return res.status(200).json({
@@ -284,7 +281,8 @@ apiRoutes.post(
   validateTransaction,
   returnValidationErrors,
   async (req: Request, res: Response) => {
-    const { uid, date, description, amount, category, reason } = req.body;
+    const { date, description, amount, category, reason } = req.body;
+    const { uid } = res.locals;
 
     try {
       prettyPrintInfo("entered api call for trans/create");
@@ -330,13 +328,15 @@ apiRoutes.post(
 
 apiRoutes.post("/transactions/delete", checkAuth, async (req, res) => {
   const { id } = req.body;
+  const { uid } = res.locals;
 
   try {
     const {
       rows,
-    } = await pgQuery("DELETE from transactions WHERE id = $1 RETURNING id", [
-      id,
-    ]);
+    } = await pgQuery(
+      "DELETE from transactions WHERE id = $1 AND uid = $2 RETURNING id",
+      [id, uid]
+    );
     prettyPrintInfo(rows);
     const deletedComments = await pgQuery(
       "DELETE from comments WHERE transaction_id = $1 RETURNING id",
@@ -478,7 +478,7 @@ apiRoutes.post(
 );
 
 apiRoutes.post("/users/delete", checkAuth, async (req, res) => {
-  const { uid } = req.body;
+  const { uid } = res.locals;
 
   try {
     await admin.auth().deleteUser(uid as string);
@@ -507,7 +507,8 @@ apiRoutes.post(
   [textValidator("displayName", "Empty Display Name is not allowed")],
   returnValidationErrors,
   async (req: Request, res: Response) => {
-    const { uid, displayName } = req.body;
+    const { displayName } = req.body;
+    const { uid } = res.locals;
 
     try {
       await admin.auth().updateUser(uid as string, { displayName });

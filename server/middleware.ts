@@ -15,11 +15,8 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
       .verifyIdToken(req.headers.authtoken as string)
       .then((decodedToken) => {
         const tokenUID = decodedToken.uid;
-        if (req.query.uid && req.query.uid !== tokenUID)
-          res.status(403).send("Unauthorized");
-        else if (req.body.uid && req.body.uid !== tokenUID)
-          res.status(403).send("Unauthorized");
-        else next();
+        res.locals.uid = tokenUID;
+        next();
       })
       .catch(() => {
         res.status(403).send("Unauthorized");
