@@ -285,7 +285,6 @@ apiRoutes.post(
     const { uid } = res.locals;
 
     try {
-      prettyPrintInfo("entered api call for trans/create");
       const userRecord = await admin.auth().getUser(uid);
       const {
         rows,

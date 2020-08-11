@@ -200,7 +200,6 @@ const UserFeed: React.FC<SettingsProps> = ({
     try {
       await authenticatedRequest(user, "post", "/api/users/set_display_name", {
         data: {
-          uid: user.uid,
           displayName,
         },
       });

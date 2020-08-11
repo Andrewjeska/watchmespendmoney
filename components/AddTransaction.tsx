@@ -36,7 +36,6 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
           "/api/transactions/create",
           {
             data: {
-              uid: user.uid,
               date: moment(date).toISOString(),
               description,
               amount: amount ? (amount as number).toFixed(2) : 0,

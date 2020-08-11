@@ -4,10 +4,11 @@ import { body, validationResult } from "express-validator";
 import admin from "firebase-admin";
 
 export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
-  if (process.env.NODE_ENV !== "production") {
-    next();
-    return;
-  }
+  // This was useful at some point
+  // if (process.env.NODE_ENV !== "production") {
+  //   next();
+  //   return;
+  // }
 
   if (req.headers.authtoken) {
     admin
