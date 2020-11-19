@@ -1,3 +1,3 @@
-export const defaultDisplayName = "anon";
+export const DEFAULT_DISPLAY_NAME = "anon";
 
-export const maxNest = 6;
+export const MAX_NEST = 6;
