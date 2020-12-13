@@ -138,6 +138,7 @@ const FeedWithDash: React.FC<FeedWithDashProps> = ({
                   fetchTransactions();
                   fetchStats();
                 }}
+                categories={categories}
               />
             ) : (
               <p>No Transactions</p>
@@ -183,7 +184,6 @@ const FeedWithDash: React.FC<FeedWithDashProps> = ({
               <Segment className="wmsm-segment">
                 <Header as="h2">Log a Transaction</Header>
                 <AddTransaction
-                  user={currentUser as firebase.User}
                   categoryOptions={categories}
                   postSubmit={() => {
                     fetchTransactions();

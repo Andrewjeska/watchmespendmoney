@@ -1,39 +1,41 @@
 import "firebase/auth";
 import _ from "lodash";
-import moment from "moment";
 import React, { useState } from "react";
 import { Button, Form, Icon, Input } from "semantic-ui-react";
 import { authenticatedRequest } from "../common/axios";
 import { auth } from "../common/firebase";
 
-interface AddTransactionProps {
+interface EditTransactionProps {
+  transaction: UserTransaction;
   categoryOptions: string[];
   postSubmit: () => void;
 }
 
-const AddTransaction: React.FC<AddTransactionProps> = ({
+const EditTransaction: React.FC<EditTransactionProps> = ({
+  transaction,
   categoryOptions,
   postSubmit,
 }) => {
-  const [date, setDate] = useState(moment().format("YYYY-MM-DD"));
-  const [amount, setAmount] = useState(null as null | number);
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [date, setDate] = useState(transaction.date);
+  const [amount, setAmount] = useState(transaction.amount);
+  const [description, setDescription] = useState(transaction.description);
+  const [category, setCategory] = useState(transaction.category);
   // reason will appear as the top comment
   const [reason, setReason] = useState("");
 
   const [submitError, setSubmitError] = useState(null as null | string);
 
-  const submitTransaction = async () => {
+  const editTransaction = async () => {
     try {
       const firebaseUser = auth.currentUser;
       if (firebaseUser) {
         await authenticatedRequest(
           firebaseUser,
           "post",
-          "/api/transactions/create",
+          "/api/transactions/edit",
           {
             data: {
+              id: 
               date: moment(date).toISOString(),
               description,
               amount: amount ? (amount as number).toFixed(2) : 0,
@@ -42,10 +44,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
             },
           }
         );
-        setAmount(null);
-        setDescription("");
-        setCategory("");
-        setReason("");
+
         setSubmitError(null);
         postSubmit();
       } else {
@@ -132,14 +131,14 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
         icon
         labelPosition="left"
         style={{ position: "right", marginTop: "5%" }}
-        onClick={() => submitTransaction()}
+        onClick={() => editTransaction()}
         type="submit"
       >
-        <Icon name="plus" />
-        Add Transaction
+        <Icon name="pencil alternate" />
+        Edit Transaction
       </Button>
     </Form>
   );
 };
 
-export default AddTransaction;
+export default EditTransaction;

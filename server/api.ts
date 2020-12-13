@@ -325,6 +325,37 @@ apiRoutes.post(
   }
 );
 
+apiRoutes.post(
+  "/transactions/edit",
+  checkAuth,
+  validateTransaction,
+  returnValidationErrors,
+  async (req: Request, res: Response) => {
+    const { id, date, description, amount, category } = req.body;
+    // const { uid } = res.locals;
+
+    try {
+      // const userRecord = await admin.auth().getUser(uid);
+      const {
+        rows,
+      } = await pgQuery(
+        "UPDATE transactions SET date=$1, description=$2, amount=$3, category=$4  WHERE id = $5",
+        [id, date, description, amount, category, id]
+      );
+      prettyPrintInfo(rows);
+
+      return res.json({
+        transactions: processTransactions(rows),
+      });
+    } catch (error) {
+      prettyPrintError(error);
+      return res.status(500).json({
+        error,
+      });
+    }
+  }
+);
+
 apiRoutes.post("/transactions/delete", checkAuth, async (req, res) => {
   const { id } = req.body;
   const { uid } = res.locals;

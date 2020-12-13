@@ -10,6 +10,7 @@ interface TransactionFeedProps {
   commenting?: boolean;
   emailPopup?: boolean;
   transactionPostDelete: () => void;
+  categories: Array<string>;
 }
 
 const TransactionFeed: React.FC<TransactionFeedProps> = ({
@@ -17,6 +18,7 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
   commenting = true,
   emailPopup = false,
   transactionPostDelete,
+  categories,
 }) => {
   const [currentUser, setCurrentUser] = useState({
     uid: "",
@@ -55,6 +57,7 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
           currentUser={currentUser}
           commenting={commenting}
           emailPopup={emailPopup}
+          categories={categories}
         />
       ))}
     </Feed>

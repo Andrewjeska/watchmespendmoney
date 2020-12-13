@@ -6,6 +6,7 @@ import { authenticatedRequest } from "../common/axios";
 import { auth } from "../common/firebase";
 import AddComment from "./AddComment";
 import CommentThread from "./CommentThread";
+import EditTransaction from "./EditTransaction";
 import SignUpModal from "./EmailSignUpModal";
 
 interface TransactionProps {
@@ -14,6 +15,7 @@ interface TransactionProps {
   commenting: boolean;
   emailPopup: boolean;
   postDelete: () => void;
+  categories: Array<string>;
 }
 
 const Transaction: React.FC<TransactionProps> = ({
@@ -22,6 +24,7 @@ const Transaction: React.FC<TransactionProps> = ({
   commenting,
   emailPopup,
   postDelete,
+  categories,
 }) => {
   const {
     id,
@@ -36,6 +39,7 @@ const Transaction: React.FC<TransactionProps> = ({
   const [currentComments, setCurrentComments] = useState(comments);
 
   const [showReply, setShowReply] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const [showComments, setShowComments] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
@@ -90,6 +94,16 @@ const Transaction: React.FC<TransactionProps> = ({
           </Feed.Meta>
         )}
         {currentUser.uid && currentUser.uid === uid && (
+          <Feed.Meta
+            className="wmsm-comment-meta"
+            onClick={() => {
+              setShowEdit(!showEdit);
+            }}
+          >
+            <a> Edit</a>
+          </Feed.Meta>
+        )}
+        {currentUser.uid && currentUser.uid === uid && (
           // {/* // TODO: is this secure? */}
           <Feed.Meta
             className="wmsm-comment-meta"
@@ -112,6 +126,16 @@ const Transaction: React.FC<TransactionProps> = ({
             }}
             onClose={() => setShowReply(false)}
           ></AddComment>
+        )}
+        {showEdit && (
+          <EditTransaction
+            transaction={transaction}
+            categoryOptions={categories}
+            postSubmit={() => {
+              setShowEdit(false);
+              postDelete();
+            }}
+          />
         )}
         {commenting &&
           renderComments(
