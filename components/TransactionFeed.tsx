@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import { Feed } from "semantic-ui-react";
-import { defaultDisplayName } from "../common/constants";
+import { DEFAULT_DISPLAY_NAME } from "../common/constants";
 import { auth } from "../common/firebase";
 import Transaction from "./Transaction";
 
@@ -22,7 +22,7 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
 }) => {
   const [currentUser, setCurrentUser] = useState({
     uid: "",
-    displayName: defaultDisplayName,
+    displayName: DEFAULT_DISPLAY_NAME,
   } as UserMeta);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ const TransactionFeed: React.FC<TransactionFeedProps> = ({
       } else
         setCurrentUser({
           uid: null,
-          displayName: defaultDisplayName,
+          displayName: DEFAULT_DISPLAY_NAME,
         });
     });
 

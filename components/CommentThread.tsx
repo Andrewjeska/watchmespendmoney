@@ -2,7 +2,7 @@ import _ from "lodash";
 import moment from "moment";
 import React, { useState } from "react";
 import { Comment, Segment } from "semantic-ui-react";
-import { maxNest } from "../common/constants";
+import { MAX_NEST } from "../common/constants";
 import AddComment from "./AddComment";
 import SignUpModal from "./EmailSignUpModal";
 
@@ -84,7 +84,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
                 {showComment ? <p> [ - ] </p> : <p> [ + ] </p>}
               </Comment.Action>
 
-              {nest < maxNest && showComment && (
+              {nest < MAX_NEST && showComment && (
                 <Comment.Action onClick={() => setShowReply(!showReply)}>
                   Reply
                 </Comment.Action>
