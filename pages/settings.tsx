@@ -183,7 +183,6 @@ const UserFeed: React.FC<SettingsProps> = ({
         }
       );
 
-      console.log(res.data);
       if (res.data.removed) {
         setBankAccounts([]);
         setDenylist([]);

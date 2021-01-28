@@ -120,7 +120,6 @@ apiRoutes.post("/plaid/remove_item", adminOnly, async (req, res) => {
       });
 
     const accessToken = decrypt(accessTokenCtext);
-    console.log(accessToken);
     const itemRemoveResult = await client.removeItem(accessToken);
     const removed = itemRemoveResult.removed;
 
@@ -372,7 +371,6 @@ apiRoutes.post("/transactions/delete", checkAuth, async (req, res) => {
       "DELETE from comments WHERE transaction_id = $1 RETURNING id",
       [id]
     );
-    console.log("Deleted Comments:");
     prettyPrintInfo(deletedComments.rows);
     return res.status(200).json({ id });
   } catch (error) {
