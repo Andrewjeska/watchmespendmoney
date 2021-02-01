@@ -21,7 +21,7 @@
     "@types/react-responsive": "^8.0.2",
     "@types/react-sticky-el": "^1.0.2",
     "apicache": "^1.5.3",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "concurrently": "^5.2.0",
     "cors": "^2.8.5",
     "envvar": "^2.0.0",
